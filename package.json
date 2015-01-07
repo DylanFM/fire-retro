@@ -1,0 +1,19 @@
+{
+  "name": "fire-retro",
+  "version": "1.0.0",
+  "description": "Viewer for fire datasets",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:DylanFM/fire-retro.git"
+  },
+  "author": "Dylan Fogarty-MacDonald",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DylanFM/fire-retro/issues"
+  },
+  "homepage": "https://github.com/DylanFM/fire-retro"
+}
