@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/DylanFM/fire-retro/issues"
   },
-  "homepage": "https://github.com/DylanFM/fire-retro"
+  "homepage": "https://github.com/DylanFM/fire-retro",
+  "devDependencies": {
+    "gulp": "^3.8.10"
+  }
 }
