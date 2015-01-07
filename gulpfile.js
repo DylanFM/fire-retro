@@ -1,10 +1,11 @@
-var gulp        = require('gulp'),
-    sass        = require('gulp-ruby-sass'),
-    htmlmin     = require('gulp-htmlmin'),
-    to5         = require('gulp-6to5'),
-    jshint      = require('gulp-jshint'),
-    browserSync = require('browser-sync'),
-    reload      = browserSync.reload;
+var gulp         = require('gulp'),
+    sass         = require('gulp-ruby-sass'),
+    htmlmin      = require('gulp-htmlmin'),
+    to5          = require('gulp-6to5'),
+    jshint       = require('gulp-jshint'),
+    autoprefixer = require('gulp-autoprefixer'),
+    browserSync  = require('browser-sync'),
+    reload       = browserSync.reload;
 
 gulp.task('serve', function() {
   browserSync({
@@ -18,6 +19,10 @@ gulp.task('sass', function() {
   gulp.src('src/styles/**/*.scss')
     .pipe(sass({
       style: 'expanded'
+    }))
+    .pipe(autoprefixer({
+      browsers:  ['last 2 versions'],
+      cascade:   false
     }))
     .pipe(gulp.dest('dist/styles/'))
     .pipe(reload({

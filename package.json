@@ -20,6 +20,7 @@
     "browser-sync": "^1.8.3",
     "gulp": "^3.8.10",
     "gulp-6to5": "^2.0.0",
+    "gulp-autoprefixer": "^2.0.0",
     "gulp-htmlmin": "^0.2.0",
     "gulp-jshint": "^1.9.0",
     "gulp-ruby-sass": "^0.7.1",
