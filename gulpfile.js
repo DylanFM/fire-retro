@@ -1,6 +1,7 @@
 var gulp        = require('gulp'),
     sass        = require('gulp-ruby-sass'),
     htmlmin     = require('gulp-htmlmin'),
+    to5         = require('gulp-6to5'),
     browserSync = require('browser-sync'),
     reload      = browserSync.reload;
 
@@ -34,11 +35,22 @@ gulp.task('htmlmin', function() {
     }));
 });
 
+gulp.task('to5', function() {
+  gulp.src('src/scripts/**/*.js')
+    .pipe(to5())
+    .pipe(gulp.dest('dist/scripts/'))
+    .pipe(reload({
+      stream: true
+    }));
+});
+
 gulp.task('watch', function() {
   // Reload browser when built assets change
   gulp.watch(['*.html', 'styles/**/*.css', 'scripts/**/*.js'], { cwd: 'dist' }, reload);
   // Build sass files on change
   gulp.watch(['styles/**/*.scss'], { cwd: 'src' }, ['sass']);
+  // Process JS files on change
+  gulp.watch(['scripts/**/*.js'], { cwd: 'src' }, ['to5']);
   // Minify HTML files on change
   gulp.watch(['*.html'], { cwd: 'src' }, ['htmlmin']);
 });
