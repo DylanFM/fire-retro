@@ -1,7 +1,10 @@
 var gulp         = require('gulp'),
     sass         = require('gulp-ruby-sass'),
     htmlmin      = require('gulp-htmlmin'),
-    to5          = require('gulp-6to5'),
+    to5ify       = require('6to5ify'),
+    source       = require('vinyl-source-stream'),
+    streamify    = require('gulp-streamify'),
+    browserify   = require('browserify'),
     jshint       = require('gulp-jshint'),
     autoprefixer = require('gulp-autoprefixer'),
     browserSync  = require('browser-sync'),
@@ -41,9 +44,17 @@ gulp.task('htmlmin', function() {
     }));
 });
 
-gulp.task('to5', function() {
-  gulp.src('src/scripts/**/*.js')
-    .pipe(to5())
+// Browserify and 6to5
+gulp.task('buildScripts', function() {
+  browserify({ debug: true })
+    .transform(to5ify.configure({
+      sourceMapRelative: 'src/scripts'
+    }))
+    // main.js is our entrypoint here
+    .require('./src/scripts/main.js', { entry: true })
+    .bundle()
+    .on('error', function (err) { console.log('Error: ' + err.message); })
+    .pipe(source('main.js'))
     .pipe(gulp.dest('dist/scripts/'))
     .pipe(reload({
       stream: true
@@ -62,7 +73,7 @@ gulp.task('watch', function() {
   // Build sass files on change
   gulp.watch(['styles/**/*.scss'], { cwd: 'src' }, ['sass']);
   // Lint and process JS files on change
-  gulp.watch(['scripts/**/*.js'], { cwd: 'src' }, ['lint', 'to5']);
+  gulp.watch(['scripts/**/*.js'], { cwd: 'src' }, ['lint', 'buildScripts']);
   // Minify HTML files on change
   gulp.watch(['*.html'], { cwd: 'src' }, ['htmlmin']);
 });

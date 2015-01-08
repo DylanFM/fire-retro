@@ -1,5 +1,5 @@
 'use strict';
 
-var animals = ['cat', 'cow', 'dog', 'horse', 'gorilla'];
+import animals from './animals';
 
 console.log(animals.map( a => a.length ));
