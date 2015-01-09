@@ -1,3 +1,3 @@
-import getRanges from './ranges';
+import getMonths from './months';
 
-console.log(getRanges(2014));
+console.log(getMonths(2014));
