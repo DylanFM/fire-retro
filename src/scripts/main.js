@@ -1,5 +1,3 @@
-'use strict';
+import getRanges from './ranges';
 
-import animals from './animals';
-
-console.log(animals.map( a => a.length ));
+console.log(getRanges(2014));

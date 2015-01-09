@@ -47,10 +47,7 @@ gulp.task('htmlmin', function() {
 // Browserify and 6to5
 gulp.task('buildScripts', function() {
   browserify({ debug: true })
-    .transform(to5ify.configure({
-      sourceMapRelative: 'src/scripts'
-    }))
-    // main.js is our entrypoint here
+    .transform(to5ify.configure())
     .require('./src/scripts/main.js', { entry: true })
     .bundle()
     .on('error', function (err) { console.log('Error: ' + err.message); })

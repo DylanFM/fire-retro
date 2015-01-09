@@ -29,5 +29,8 @@
     "gulp-streamify": "0.0.5",
     "jshint-stylish": "^1.0.0",
     "vinyl-source-stream": "^1.0.0"
+  },
+  "dependencies": {
+    "moment": "^2.9.0"
   }
 }
