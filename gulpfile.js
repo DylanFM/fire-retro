@@ -64,15 +64,24 @@ gulp.task('lint', function() {
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
+
+gulp.task('test', function() {
+  require('child_process').spawn(
+    'npm', ['test'], { stdio:'inherit' }
+  );
+});
+
 gulp.task('watch', function() {
   // Reload browser when built assets change
   gulp.watch(['*.html', 'styles/**/*.css', 'scripts/**/*.js'], { cwd: 'dist' }, reload);
   // Build sass files on change
   gulp.watch(['styles/**/*.scss'], { cwd: 'src' }, ['sass']);
   // Lint and process JS files on change
-  gulp.watch(['scripts/**/*.js'], { cwd: 'src' }, ['lint', 'buildScripts']);
+  gulp.watch(['scripts/**/*.js'], { cwd: 'src' }, ['lint', 'test', 'buildScripts']);
   // Minify HTML files on change
   gulp.watch(['*.html'], { cwd: 'src' }, ['htmlmin']);
+  // Watch test file changes and run tests
+  gulp.watch(['test/**/*.js'], ['test']);
 });
 
 gulp.task('default', ['watch', 'serve']);

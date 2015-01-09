@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 // Get moment objects of the months for a given year
-export default function (year) {
+export default function getMonths(year) {
   'use strict';
 
   var months = [],

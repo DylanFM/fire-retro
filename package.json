@@ -4,7 +4,7 @@
   "description": "Viewer for fire datasets",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers js:6to5/register"
   },
   "repository": {
     "type": "git",
@@ -17,17 +17,31 @@
   },
   "homepage": "https://github.com/DylanFM/fire-retro",
   "devDependencies": {
+    "6to5": "^2.9.3",
     "6to5ify": "^3.1.0",
+    "acorn-6to5": "^0.11.1-12",
+    "ast-types": "^0.6.7",
     "browser-sync": "^1.8.3",
     "browserify": "^8.0.3",
+    "core-js": "^0.4.1",
+    "estraverse": "^1.9.1",
+    "esutils": "^1.1.6",
     "gulp": "^3.8.10",
-    "gulp-6to5": "^2.0.0",
     "gulp-autoprefixer": "^2.0.0",
     "gulp-htmlmin": "^0.2.0",
     "gulp-jshint": "^1.9.0",
     "gulp-ruby-sass": "^0.7.1",
     "gulp-streamify": "0.0.5",
+    "istanbul": "^0.3.5",
+    "jshint": "^2.5.11",
     "jshint-stylish": "^1.0.0",
+    "lodash": "^2.4.1",
+    "mocha": "^2.1.0",
+    "regenerator": "^0.8.3",
+    "regexpu": "^0.3.1",
+    "roadrunner": "^1.0.4",
+    "source-map": "^0.1.43",
+    "source-map-support": "^0.2.9",
     "vinyl-source-stream": "^1.0.0"
   },
   "dependencies": {

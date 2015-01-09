@@ -1,3 +1,3 @@
-import getMonths from './months';
+import getMonths from './getMonths';
 
 console.log(getMonths(2014));
