@@ -9,6 +9,7 @@ var gulp         = require('gulp'),
     browserify   = require('browserify'),
     jshint       = require('gulp-jshint'),
     autoprefixer = require('gulp-autoprefixer'),
+    gzip         = require('gulp-gzip'),
     browserSync  = require('browser-sync'),
     reload       = browserSync.reload;
 
@@ -29,6 +30,7 @@ gulp.task('sass', function() {
       browsers:  ['last 2 versions'],
       cascade:   false
     }))
+    .pipe(gzip())
     .pipe(gulp.dest('dist/styles/'))
     .pipe(reload({
       stream: true
@@ -57,6 +59,7 @@ gulp.task('buildScripts', function() {
     .bundle()
     .on('error', function (err) { console.log('Error: ' + err.message); })
     .pipe(source('main.js'))
+    .pipe(gzip())
     .pipe(gulp.dest('dist/scripts/'))
     .pipe(reload({
       stream: true
