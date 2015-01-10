@@ -23,6 +23,7 @@
     "ast-types": "^0.6.7",
     "browser-sync": "^1.8.3",
     "browserify": "^8.0.3",
+    "chai": "^1.10.0",
     "core-js": "^0.4.1",
     "estraverse": "^1.9.1",
     "esutils": "^1.1.6",

@@ -1,6 +1,6 @@
 import '6to5/register';
 
-import assert from 'assert';
+import { assert } from 'chai';
 
 import moment from 'moment';
 import getMonths from '../src/scripts/getMonths';
@@ -9,11 +9,11 @@ describe('getMonths', function () {
   it('returns an array of months for a given year', function () {
     var months = getMonths(2014);
 
-    assert.equal(12, months.length); // 12 months
+    assert.lengthOf(months, 12, 'there are 12 months');
 
     for (var month of months) {
-      assert.equal(2014, month.year()); // All in 2014
-      assert(moment.isMoment(month));   // All are moment objects
+      assert.equal(2014, month.year(), 'all months are in 2014');
+      assert(moment.isMoment(month), 'all months are moment objects');
     }
 
     // Only the months, in order (zero-based)
