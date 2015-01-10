@@ -48,6 +48,7 @@
     "vinyl-source-stream": "^1.0.0"
   },
   "dependencies": {
+    "d3": "^3.5.3",
     "mapbox.js": "^2.1.4",
     "moment": "^2.9.0"
   }
