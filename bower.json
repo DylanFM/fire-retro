@@ -1,0 +1,17 @@
+{
+  "name": "fire-retro",
+  "version": "1.0.0",
+  "homepage": "https://github.com/DylanFM/fire-retro",
+  "authors": [
+    "Dylan Fogarty-MacDonald <dylan@dylanfm.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -1,5 +1,7 @@
 var gulp         = require('gulp'),
     sass         = require('gulp-ruby-sass'),
+    usemin       = require('gulp-usemin'),
+    minifyCSS    = require('gulp-minify-css'),
     htmlmin      = require('gulp-htmlmin'),
     to5ify       = require('6to5ify'),
     source       = require('vinyl-source-stream'),
@@ -35,6 +37,9 @@ gulp.task('sass', function() {
 
 gulp.task('htmlmin', function() {
   gulp.src('src/*.html')
+    .pipe(usemin({
+      css: [minifyCSS(), 'concat']
+    }))
     .pipe(htmlmin({
       collapseWhitespace: true
     }))
