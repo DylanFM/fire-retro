@@ -59,7 +59,7 @@ gulp.task('buildScripts', function() {
     .bundle()
     .on('error', function (err) { console.log('Error: ' + err.message); })
     .pipe(source('main.js'))
-    .pipe(gzip())
+    // .pipe(gzip())
     .pipe(gulp.dest('dist/scripts/'))
     .pipe(reload({
       stream: true
