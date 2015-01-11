@@ -24,4 +24,17 @@ export default class Map {
     ]);
   }
 
+  addGeoJSON(json) {
+    // Add GeoJSON layer
+    L.geoJson(json, {
+      pointToLayer: (feature, latlng) => {
+        // Use circle markers instead of normal markers
+        return L.circleMarker(latlng, {
+          radius:       5,
+          fillOpacity:  0.5
+        });
+      }
+    }).addTo(this.map);
+  }
+
 }
