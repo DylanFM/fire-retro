@@ -7,6 +7,7 @@ var gulp         = require('gulp'),
     source       = require('vinyl-source-stream'),
     streamify    = require('gulp-streamify'),
     browserify   = require('browserify'),
+    exorcist     = require('exorcist'),
     jshint       = require('gulp-jshint'),
     autoprefixer = require('gulp-autoprefixer'),
     gzip         = require('gulp-gzip'),
@@ -57,7 +58,7 @@ gulp.task('buildScripts', function() {
     .transform(to5ify.configure())
     .require('./src/scripts/main.js', { entry: true })
     .bundle()
-    .on('error', function (err) { console.log('Error: ' + err.message); })
+    .pipe(exorcist('dist/scripts/main.map'))
     .pipe(source('main.js'))
     // .pipe(gzip())
     .pipe(gulp.dest('dist/scripts/'))

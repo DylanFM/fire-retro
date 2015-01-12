@@ -27,6 +27,7 @@
     "core-js": "^0.4.1",
     "estraverse": "^1.9.1",
     "esutils": "^1.1.6",
+    "exorcist": "^0.1.6",
     "gulp": "^3.8.10",
     "gulp-autoprefixer": "^2.0.0",
     "gulp-gzip": "0.0.8",
