@@ -7,14 +7,13 @@ export default class Map {
     this.start = start;
     this.end   = end;
     this.url   = this._buildUrl();
-    this.loadData();
   }
 
   loadData() {
     return this._fetchData()
       .then((json) => {
         this.data = json;
-        this.count = this.data.features.length;
+        this.count = json.features.length;
       })
       .fail(console.error);
   }
@@ -28,9 +27,9 @@ export default class Map {
   _fetchData() {
     return Q.Promise((resolve, reject) => {
       d3.json(this.url, (err, json) => {
-        if (err) {
+        if (err || !json.features) {
           reject(err);
-        } else {     // There's an error
+        } else {
           resolve(json);
         }
       });

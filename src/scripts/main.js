@@ -12,8 +12,11 @@ import d3 from 'd3';
     var months = getMonths(2014)
                   .map((month) => {
                     var start = month.clone().startOf('month'),
-                        end   = month.clone().endOf('month')
-                    return new TimeRangeSnapshot(start, end);
+                        end   = month.clone().endOf('month'),
+                        snapshot =  new TimeRangeSnapshot(start, end);
+                    // Fetch data for this month
+                    snapshot.loadData();
+                    return snapshot;
                   });
 
     // Construct new map. Pass in the ID of the DOM element

@@ -20,8 +20,11 @@ var d3 = _interopRequire(require("d3"));
     // Get months for 2014 and map them into snapshots
     var months = getMonths(2014).map(function (month) {
       var start = month.clone().startOf("month"),
-          end = month.clone().endOf("month");
-      return new TimeRangeSnapshot(start, end);
+          end = month.clone().endOf("month"),
+          snapshot = new TimeRangeSnapshot(start, end);
+      // Fetch data for this month
+      snapshot.loadData();
+      return snapshot;
     });
 
     // Construct new map. Pass in the ID of the DOM element
@@ -28751,50 +28754,79 @@ return Q;
 },{"_process":2}],33:[function(require,module,exports){
 "use strict";
 
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
 require("mapbox.js");
 
-var Map = function Map(id) {
-  this.id = id;
-  this.accessToken = "pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw";
-  this.mapId = "fires.kng35dfj";
+var Map = (function () {
+  var Map = function Map(id) {
+    this.id = id;
+    this.accessToken = "pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw";
+    this.mapId = "fires.kng35dfj";
 
-  this.initMap();
-};
+    this.initMap();
+  };
 
-Map.prototype.initMap = function () {
-  // Mapbox access token
-  L.mapbox.accessToken = this.accessToken;
-  // Initialise map
-  this.map = L.mapbox.map(this.id, this.mapId, {
-    zoomControl: false
-  });
-  // Fit to NSW
-  this.map.fitBounds([[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]]);
-};
-
-Map.prototype.addSnapshot = function (snapshot) {
-  // Build GeoJSON layer
-  snapshot.layer = L.geoJson(snapshot.data, {
-    pointToLayer: function (feature, latlng) {
-      // Use circle markers instead of normal markers
-      return L.circleMarker(latlng, {
-        radius: 5,
-        fillOpacity: 0.5
-      });
+  _prototypeProperties(Map, null, {
+    initMap: {
+      value: function () {
+        // Mapbox access token
+        L.mapbox.accessToken = this.accessToken;
+        // Initialise map
+        this.map = L.mapbox.map(this.id, this.mapId, {
+          zoomControl: false
+        });
+        // Fit to NSW
+        this.map.fitBounds([[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]]);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    addSnapshot: {
+      value: function (snapshot) {
+        // Build GeoJSON layer
+        snapshot.layer = L.geoJson(snapshot.data, {
+          pointToLayer: function (feature, latlng) {
+            // Use circle markers instead of normal markers
+            return L.circleMarker(latlng, {
+              radius: 5,
+              fillOpacity: 0.5
+            });
+          }
+        });
+        // Add it to the map
+        snapshot.layer.addTo(this.map);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    removeSnapshot: {
+      value: function (snapshot) {
+        this.map.removeLayer(snapshot.layer);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
     }
   });
-  // Add it to the map
-  snapshot.layer.addTo(this.map);
-};
 
-Map.prototype.removeSnapshot = function (snapshot) {
-  this.map.removeLayer(snapshot.layer);
-};
+  return Map;
+})();
 
 module.exports = Map;
 
 },{"mapbox.js":17}],34:[function(require,module,exports){
 "use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
 
 var _interopRequire = function (obj) {
   return obj && (obj["default"] || obj);
@@ -28804,40 +28836,57 @@ var Q = _interopRequire(require("q"));
 
 var d3 = _interopRequire(require("d3"));
 
-var Map = function Map(start, end) {
-  this.start = start;
-  this.end = end;
-  this.url = this._buildUrl();
-  this.loadData();
-};
+var Map = (function () {
+  var Map = function Map(start, end) {
+    this.start = start;
+    this.end = end;
+    this.url = this._buildUrl();
+  };
 
-Map.prototype.loadData = function () {
-  var _this = this;
-  return this._fetchData().then(function (json) {
-    _this.data = json;
-    _this.count = _this.data.features.length;
-  }).fail(console.error);
-};
-
-Map.prototype._buildUrl = function () {
-  var st = window.encodeURIComponent(this.start.utc().format()),
-      en = window.encodeURIComponent(this.end.utc().format());
-  return "http://localhost:8000/incidents?timeStart=" + st + "&timeEnd=" + en;
-};
-
-Map.prototype._fetchData = function () {
-  var _this2 = this;
-  return Q.Promise(function (resolve, reject) {
-    d3.json(_this2.url, function (err, json) {
-      if (err) {
-        reject(err);
-      } else {
-        // There's an error
-        resolve(json);
-      }
-    });
+  _prototypeProperties(Map, null, {
+    loadData: {
+      value: function () {
+        var _this = this;
+        return this._fetchData().then(function (json) {
+          _this.data = json;
+          _this.count = json.features.length;
+        }).fail(console.error);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _buildUrl: {
+      value: function () {
+        var st = window.encodeURIComponent(this.start.utc().format()),
+            en = window.encodeURIComponent(this.end.utc().format());
+        return "http://localhost:8000/incidents?timeStart=" + st + "&timeEnd=" + en;
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _fetchData: {
+      value: function () {
+        var _this2 = this;
+        return Q.Promise(function (resolve, reject) {
+          d3.json(_this2.url, function (err, json) {
+            if (err || !json.features) {
+              reject(err);
+            } else {
+              resolve(json);
+            }
+          });
+        });
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
   });
-};
+
+  return Map;
+})();
 
 module.exports = Map;
 

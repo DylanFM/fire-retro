@@ -73,10 +73,9 @@ gulp.task('lint', function() {
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
-
 gulp.task('test', function() {
   require('child_process').spawn(
-    'npm', ['test'], { stdio:'inherit' }
+    'npm', ['run', 'phantom'], { stdio:'inherit' }
   );
 });
 
