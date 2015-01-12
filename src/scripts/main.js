@@ -1,6 +1,5 @@
 import Map from './Map';
-import getMonths from './getMonths';
-import TimeRangeSnapshot from './TimeRangeSnapshot';
+import getSnapshots from './getSnapshots';
 import d3 from 'd3';
 
 (() => {
@@ -9,15 +8,10 @@ import d3 from 'd3';
   document.addEventListener('DOMContentLoaded', () => {
 
     // Get months for 2014 and map them into snapshots
-    var months = getMonths(2014)
-                  .map((month) => {
-                    var start = month.clone().startOf('month'),
-                        end   = month.clone().endOf('month'),
-                        snapshot =  new TimeRangeSnapshot(start, end);
-                    // Fetch data for this month
-                    snapshot.loadData();
-                    return snapshot;
-                  });
+    var months = getSnapshots(2014);
+
+    // Load up data for all months
+    months.forEach((month) => month.loadData());
 
     // Construct new map. Pass in the ID of the DOM element
     var map = new Map('map');

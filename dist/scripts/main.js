@@ -7,9 +7,7 @@ var _interopRequire = function (obj) {
 
 var Map = _interopRequire(require("./Map"));
 
-var getMonths = _interopRequire(require("./getMonths"));
-
-var TimeRangeSnapshot = _interopRequire(require("./TimeRangeSnapshot"));
+var getSnapshots = _interopRequire(require("./getSnapshots"));
 
 var d3 = _interopRequire(require("d3"));
 
@@ -18,13 +16,11 @@ var d3 = _interopRequire(require("d3"));
 
   document.addEventListener("DOMContentLoaded", function () {
     // Get months for 2014 and map them into snapshots
-    var months = getMonths(2014).map(function (month) {
-      var start = month.clone().startOf("month"),
-          end = month.clone().endOf("month"),
-          snapshot = new TimeRangeSnapshot(start, end);
-      // Fetch data for this month
-      snapshot.loadData();
-      return snapshot;
+    var months = getSnapshots(2014);
+
+    // Load up data for all months
+    months.forEach(function (month) {
+      return month.loadData();
     });
 
     // Construct new map. Pass in the ID of the DOM element
@@ -60,7 +56,7 @@ var d3 = _interopRequire(require("d3"));
   });
 })();
 
-},{"./Map":7,"./TimeRangeSnapshot":8,"./getMonths":9,"d3":3}],2:[function(require,module,exports){
+},{"./Map":7,"./getSnapshots":10,"d3":3}],2:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -23971,7 +23967,28 @@ function getMonths(year) {
   return months;
 }
 
-},{"moment":5}]},{},[1])
+},{"moment":5}],10:[function(require,module,exports){
+"use strict";
+
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
+module.exports = getMonths;
+var getMonths = _interopRequire(require("./getMonths"));
+
+var TimeRangeSnapshot = _interopRequire(require("./TimeRangeSnapshot"));
+
+// Get a series of TimeRangeSnapshots for a given year
+function getMonths(year) {
+  return getMonths(2014).map(function (month) {
+    var start = month.clone().startOf("month"),
+        end = month.clone().endOf("month");
+    return new TimeRangeSnapshot(start, end);
+  });
+}
+
+},{"./TimeRangeSnapshot":8,"./getMonths":9}]},{},[1])
 
 
 //# sourceMappingURL=main.map
