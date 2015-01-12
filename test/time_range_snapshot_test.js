@@ -57,6 +57,8 @@ describe('TimeRangeSnapshot', function () {
       tr.loadData().then(() => {
         assert.equal(geojson, tr.data, 'has set geojson as data');
         assert.equal(1, tr.count, 'set the count to number of features');
+        assert.isDefined(tr.layer, 'layer has been set');
+        assert.lengthOf(tr.layer.toGeoJSON().features, 1, 'has a geojson layer using the data');
         done();
       });
     });

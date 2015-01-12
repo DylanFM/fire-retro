@@ -1,21 +1,26 @@
-import 'mapbox.js';
+import L from 'leaflet';
 
 export default class Map {
 
   constructor(id) {
-    this.id = id;
+    this.id          = id;
     this.accessToken = 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw';
-    this.mapId = 'fires.kng35dfj';
+    this.mapId       = 'fires.kng35dfj';
 
     this.initMap();
   }
 
   initMap() {
-    // Mapbox access token
-    L.mapbox.accessToken = this.accessToken;
+    var tiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{mapboxId}/{z}/{x}/{y}.png', {
+      mapboxId: this.mapId
+    });
+
+    // L.mapbox.accessToken = this.accessToken;
+
     // Initialise map
-    this.map = L.mapbox.map(this.id, this.mapId, {
-      zoomControl: false
+    this.map = L.map(this.id, {
+      zoomControl: false,
+      layers: [tiles]
     });
     // Fit to NSW
     this.map.fitBounds([
@@ -25,17 +30,6 @@ export default class Map {
   }
 
   addSnapshot(snapshot) {
-    // Build GeoJSON layer
-    snapshot.layer = L.geoJson(snapshot.data, {
-      pointToLayer: (feature, latlng) => {
-        // Use circle markers instead of normal markers
-        return L.circleMarker(latlng, {
-          radius:       5,
-          fillOpacity:  0.5
-        });
-      }
-    });
-    // Add it to the map
     snapshot.layer.addTo(this.map);
   }
 

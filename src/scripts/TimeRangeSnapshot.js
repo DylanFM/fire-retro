@@ -1,5 +1,6 @@
 import Q from 'q';
 import d3 from 'd3';
+import L from 'leaflet';
 
 export default class Map {
 
@@ -12,8 +13,9 @@ export default class Map {
   loadData() {
     return this._fetchData()
       .then((json) => {
-        this.data = json;
+        this.data  = json;
         this.count = json.features.length;
+        this.layer = this._buildLayer();
       })
       .fail(console.error);
   }
@@ -33,6 +35,20 @@ export default class Map {
           resolve(json);
         }
       });
+    });
+  }
+
+  // Using data, build a Leaflet GeoJSON layer
+  _buildLayer() {
+    // Build GeoJSON layer
+    return L.geoJson(this.data, {
+      pointToLayer: (feature, latlng) => {
+        // Use circle markers instead of normal markers
+        return L.circleMarker(latlng, {
+          radius:       5,
+          fillOpacity:  0.5
+        });
+      }
     });
   }
 
