@@ -7,6 +7,7 @@ export default class Map {
     this.start = start;
     this.end   = end;
     this.url   = this._buildUrl();
+    this.loadData();
   }
 
   loadData() {

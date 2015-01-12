@@ -7,53 +7,43 @@ import d3 from 'd3';
   'use strict';
 
   document.addEventListener('DOMContentLoaded', () => {
+
+    // Get months for 2014 and map them into snapshots
+    var months = getMonths(2014)
+                  .map((month) => {
+                    var start = month.clone().startOf('month'),
+                        end   = month.clone().endOf('month')
+                    return new TimeRangeSnapshot(start, end);
+                  });
+
     // Construct new map. Pass in the ID of the DOM element
     var map = new Map('map');
 
-
-    var months = getMonths(2014);
-
-    var ranges = months.map((month) => {
-      return new TimeRangeSnapshot(
-        month.clone().startOf('month'),
-        month.clone().endOf('month')
-      );
-    });
-
-    // Load all data
-    ranges.forEach((range) => {
-      range.loadData();
-    });
-
     var layer;
 
-    function renderRange(k) {
-      var range = ranges[k];
-
-      console.log('range', k, range.start.format('MM-YYYY'), range.count);
-
-      // If there's a layer, remove it
-      if (layer) {
-        map.map.removeLayer(layer);
+    function renderSnapshot(k) {
+      var snapshot = months[k];
+      // If this isn't the 1st, remove the previous one
+      if (k > 0) {
+        map.removeSnapshot(months[k-1]);
       }
-
-      // Add data to map and store reference to layer
-      layer = map.addGeoJSON(range.data);
-
-      // Render the next one if it's ready
-      if (k < ranges.length) {
+      // Add data to map
+      map.addSnapshot(snapshot);
+      // Render the next one if there is one
+      if (k+1 < months.length) {
+        // 2sec delay
         var renderNext = setInterval(() => {
           clearInterval(renderNext);
-          renderRange(k+1);
+          renderSnapshot(k+1);
         }, 2000);
       }
     }
 
     var wait = setInterval(() => {
       // Has the first item's data loaded?
-      if (ranges[0].data) {
+      if (months[0].data) {
         clearInterval(wait);
-        renderRange(0);
+        renderSnapshot(0);
       }
     }, 500);
 

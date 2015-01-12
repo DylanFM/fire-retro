@@ -24,9 +24,9 @@ export default class Map {
     ]);
   }
 
-  addGeoJSON(json) {
+  addSnapshot(snapshot) {
     // Build GeoJSON layer
-    var layer = L.geoJson(json, {
+    snapshot.layer = L.geoJson(snapshot.data, {
       pointToLayer: (feature, latlng) => {
         // Use circle markers instead of normal markers
         return L.circleMarker(latlng, {
@@ -36,7 +36,11 @@ export default class Map {
       }
     });
     // Add it to the map
-    return layer.addTo(this.map);
+    snapshot.layer.addTo(this.map);
+  }
+
+  removeSnapshot(snapshot) {
+    this.map.removeLayer(snapshot.layer);
   }
 
 }

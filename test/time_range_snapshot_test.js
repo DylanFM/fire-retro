@@ -52,11 +52,6 @@ describe('TimeRangeSnapshot', function () {
     );
   });
 
-  it('does not fetch data on initialisation', function () {
-    assert.isUndefined(tr.data, 'no data');
-    assert.isUndefined(tr.layer, 'no layer');
-  });
-
   describe('#loadData', function () {
     it('loads the data using d3.json', function (done) {
       tr.loadData().then(() => {
