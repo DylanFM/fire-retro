@@ -21,8 +21,8 @@ export default class Map {
   }
 
   _buildUrl() {
-    var st = window.encodeURIComponent(this.start.utc().format()),
-        en = window.encodeURIComponent(this.end.utc().format());
+    var st = window.encodeURIComponent(this.start.clone().utc().format()),
+        en = window.encodeURIComponent(this.end.clone().utc().format());
     return 'http://localhost:8000/incidents?timeStart=' + st + '&timeEnd=' + en;
   }
 

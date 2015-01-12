@@ -31,7 +31,7 @@ gulp.task('sass', function() {
       browsers:  ['last 2 versions'],
       cascade:   false
     }))
-    .pipe(gzip())
+    //.pipe(gzip())
     .pipe(gulp.dest('dist/styles/'))
     .pipe(reload({
       stream: true

@@ -1,3 +1,8 @@
+import h from 'virtual-dom/h';
+import diff from 'virtual-dom/diff';
+import patch from 'virtual-dom/patch';
+import createElement from 'virtual-dom/create-element';
+
 export default class TimelineViewer {
 
   constructor(map, snapshots) {
@@ -17,6 +22,8 @@ export default class TimelineViewer {
       this.current = next;
       // Add this one to the map
       this.map.addSnapshot(this.current);
+      // Update the view too
+      this.displayInfo();
     }
   }
 
@@ -28,5 +35,29 @@ export default class TimelineViewer {
       key = this.snapshots.indexOf(this.current) + 1;
     }
     return this.snapshots[key];
+  }
+
+  displayInfo() {
+    // Render the info to get a virtual dom tree
+    var tree = this._renderInfo(),
+        patches;
+    // Is this the 1st render?
+    if (!this.infoRoot) {
+      // Yes: make a new root node
+      this.infoRoot = createElement(tree);
+      // And add it to the document
+      document.body.appendChild(this.infoRoot);
+    } else {
+      // No: we're updating the dom
+      patches = diff(this.infoTree, tree);
+      // Update the root node
+      this.infoRoot = patch(this.infoRoot, patches);
+    }
+    // Track the current tree for future diffing
+    this.infoTree = tree;
+  }
+
+  _renderInfo() {
+    return h('h1', [this.current.start.format('MMMM YYYY')]);
   }
 }
