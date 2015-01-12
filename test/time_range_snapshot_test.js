@@ -13,9 +13,9 @@ import TimeRangeSnapshot from '../src/scripts/TimeRangeSnapshot';
 describe('TimeRangeSnapshot', function () {
 
   var tr,
-      jan14 = moment().set({ year: 2014, month: 0 }),
-      st = jan14.startOf('month'),
-      en = jan14.endOf('month'),
+      jan14   = moment().set({ year: 2014, month: 0 }),
+      st      = jan14.startOf('month'),
+      en      = jan14.endOf('month'),
       geojson = {
         type: 'FeatureCollection',
         features: [{

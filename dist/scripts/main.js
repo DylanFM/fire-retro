@@ -9,54 +9,42 @@ var Map = _interopRequire(require("./Map"));
 
 var getSnapshots = _interopRequire(require("./getSnapshots"));
 
+var TimelineViewer = _interopRequire(require("./TimelineViewer"));
+
 var d3 = _interopRequire(require("d3"));
 
 (function () {
   "use strict";
 
   document.addEventListener("DOMContentLoaded", function () {
-    // Get months for 2014 and map them into snapshots
-    var months = getSnapshots(2014);
+    var months = getSnapshots(2014), // Get months for 2014 and map them into snapshots
+    map = new Map("map"), // Construct new map. Pass in the ID of the DOM element
+    wait, viewer;
 
     // Load up data for all months
     months.forEach(function (month) {
       return month.loadData();
     });
 
-    // Construct new map. Pass in the ID of the DOM element
-    var map = new Map("map");
-
-    var layer;
-
-    function renderSnapshot(k) {
-      var snapshot = months[k];
-      // If this isn't the 1st, remove the previous one
-      if (k > 0) {
-        map.removeSnapshot(months[k - 1]);
-      }
-      // Add data to map
-      map.addSnapshot(snapshot);
-      // Render the next one if there is one
-      if (k + 1 < months.length) {
-        // 2sec delay
-        var renderNext = setInterval(function () {
-          clearInterval(renderNext);
-          renderSnapshot(k + 1);
-        }, 2000);
-      }
-    }
-
-    var wait = setInterval(function () {
+    // We wait until the data has been loaded for the 1st one... check every half second
+    wait = setInterval(function () {
       // Has the first item's data loaded?
       if (months[0].data) {
+        // We no longer need to wait
         clearInterval(wait);
-        renderSnapshot(0);
+        // Initialise the viewer and begin
+        viewer = new TimelineViewer(map, months);
+        // Progress every 3 seconds
+        var renderNext = setInterval(function () {
+          // clearInterval(renderNext);
+          viewer.next();
+        }, 3000);
       }
     }, 500);
   });
 })();
 
-},{"./Map":7,"./getSnapshots":10,"d3":3}],2:[function(require,module,exports){
+},{"./Map":7,"./TimelineViewer":9,"./getSnapshots":11,"d3":3}],2:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -23944,6 +23932,61 @@ module.exports = Map;
 },{"d3":3,"leaflet":4,"q":6}],9:[function(require,module,exports){
 "use strict";
 
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var TimelineViewer = (function () {
+  var TimelineViewer = function TimelineViewer(map, snapshots) {
+    this.map = map;
+    this.snapshots = snapshots;
+    this.next(); // Begin... select 1st snapshot
+  };
+
+  _prototypeProperties(TimelineViewer, null, {
+    next: {
+      value: function () {
+        var next = this._getNextSnapshot();
+        if (next) {
+          // If we already have one current
+          if (this.current) {
+            // Remove it from the map
+            this.map.removeSnapshot(this.current);
+          }
+          this.current = next;
+          // Add this one to the map
+          this.map.addSnapshot(this.current);
+        }
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _getNextSnapshot: {
+      value: function () {
+        var key = 0;
+        // If this is already going
+        if (this.current) {
+          // Find the next index
+          key = this.snapshots.indexOf(this.current) + 1;
+        }
+        return this.snapshots[key];
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
+  });
+
+  return TimelineViewer;
+})();
+
+module.exports = TimelineViewer;
+
+},{}],10:[function(require,module,exports){
+"use strict";
+
 var _interopRequire = function (obj) {
   return obj && (obj["default"] || obj);
 };
@@ -23967,7 +24010,7 @@ function getMonths(year) {
   return months;
 }
 
-},{"moment":5}],10:[function(require,module,exports){
+},{"moment":5}],11:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) {
@@ -23988,7 +24031,7 @@ function getMonths(year) {
   });
 }
 
-},{"./TimeRangeSnapshot":8,"./getMonths":9}]},{},[1])
+},{"./TimeRangeSnapshot":8,"./getMonths":10}]},{},[1])
 
 
 //# sourceMappingURL=main.map
