@@ -24,9 +24,9 @@ export default class Map {
     ]);
   }
 
-  addGeoJSON(layer) {
+  addGeoJSON(json) {
     // Build GeoJSON layer
-    L.geoJson(json, {
+    var layer = L.geoJson(json, {
       pointToLayer: (feature, latlng) => {
         // Use circle markers instead of normal markers
         return L.circleMarker(latlng, {

@@ -1,46 +1,62 @@
 import Map from './Map';
 import getMonths from './getMonths';
+import TimeRangeSnapshot from './TimeRangeSnapshot';
 import d3 from 'd3';
 
 (() => {
   'use strict';
 
-  var months = getMonths(2014);
-
   document.addEventListener('DOMContentLoaded', () => {
     // Construct new map. Pass in the ID of the DOM element
     var map = new Map('map');
 
-    var layer,
-        urls = [];
 
-    for (var month of months) {
-      var st = window.encodeURIComponent(month.startOf('month').utc().format()),
-          en = window.encodeURIComponent(month.endOf('month').utc().format());
-      urls.push('http://localhost:8000/incidents?timeStart=' + st + '&timeEnd=' + en);
-    }
+    var months = getMonths(2014);
 
-    function renderNextUrlData() {
-      if (!urls.length) {
-        return; // Exit if no more URLs
+    var ranges = months.map((month) => {
+      return new TimeRangeSnapshot(
+        month.clone().startOf('month'),
+        month.clone().endOf('month')
+      );
+    });
+
+    // Load all data
+    ranges.forEach((range) => {
+      range.loadData();
+    });
+
+    var layer;
+
+    function renderRange(k) {
+      var range = ranges[k];
+
+      console.log('range', k, range.start.format('MM-YYYY'), range.count);
+
+      // If there's a layer, remove it
+      if (layer) {
+        map.map.removeLayer(layer);
       }
-      // Fetch data for next URL
-      d3.json(urls.shift(), (json) => {
-        console.log('Incidents: ' + json.features.length);
-        // If there's a layer, remove it
-        if (layer) {
-          map.map.removeLayer(layer);
-        }
-        // Add data to map and store reference to layer
-        layer = map.addGeoJSON(json);
-        // Step forward
-        window.setInterval(() => {
-          renderNextUrlData();
-        }, 3000);
-      });
+
+      // Add data to map and store reference to layer
+      layer = map.addGeoJSON(range.data);
+
+      // Render the next one if it's ready
+      if (k < ranges.length) {
+        var renderNext = setInterval(() => {
+          clearInterval(renderNext);
+          renderRange(k+1);
+        }, 2000);
+      }
     }
 
-    // Begin
-    renderNextUrlData();
+    var wait = setInterval(() => {
+      // Has the first item's data loaded?
+      if (ranges[0].data) {
+        clearInterval(wait);
+        renderRange(0);
+      }
+    }, 500);
+
   });
+
 }());
