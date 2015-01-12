@@ -26,6 +26,7 @@ import d3 from 'd3';
       }
       // Fetch data for next URL
       d3.json(urls.shift(), (json) => {
+        console.log('Incidents: ' + json.features.length);
         // If there's a layer, remove it
         if (layer) {
           map.map.removeLayer(layer);
