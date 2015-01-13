@@ -2,6 +2,8 @@ import Map from './Map';
 import getSnapshots from './getSnapshots';
 import TimelineViewer from './TimelineViewer';
 import d3 from 'd3';
+import h from 'virtual-dom/h';
+import createElement from 'virtual-dom/create-element';
 
 (() => {
   'use strict';
@@ -11,6 +13,9 @@ import d3 from 'd3';
     var months = getSnapshots(2014), // Get months for 2014 and map them into snapshots
         map    = new Map('map'),     // Construct new map. Pass in the ID of the DOM element
         wait, viewer;
+
+    // Render the year as a title
+    document.body.appendChild(createElement(h('h1', ['2014'])));
 
     // Load up data for all months
     months.forEach((month) => month.loadData());

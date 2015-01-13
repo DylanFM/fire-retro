@@ -23,7 +23,7 @@ export default class TimelineViewer {
       // Add this one to the map
       this.map.addSnapshot(this.current);
       // Update the view too
-      this.showMonth();
+      // this.showMonth();
     }
   }
 

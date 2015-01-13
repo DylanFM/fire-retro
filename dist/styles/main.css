@@ -12,9 +12,9 @@ body > div {
 h1 {
   position: absolute;
   top: 0;
+  left: 0;
   margin-top: 0;
   text-align: center;
-  width: 100%;
   padding: .5em;
   background: rgba(0, 0, 0, 0.4);
 }

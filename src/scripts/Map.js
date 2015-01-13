@@ -12,7 +12,8 @@ export default class Map {
 
   initMap() {
     var tiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{mapboxId}/{z}/{x}/{y}.png', {
-      mapboxId: this.mapId
+      mapboxId:            this.mapId,
+      attributionControl:  false
     });
 
     // L.mapbox.accessToken = this.accessToken;

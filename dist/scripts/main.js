@@ -13,6 +13,10 @@ var TimelineViewer = _interopRequire(require("./TimelineViewer"));
 
 var d3 = _interopRequire(require("d3"));
 
+var h = _interopRequire(require("virtual-dom/h"));
+
+var createElement = _interopRequire(require("virtual-dom/create-element"));
+
 (function () {
   "use strict";
 
@@ -20,6 +24,9 @@ var d3 = _interopRequire(require("d3"));
     var months = getSnapshots(2014), // Get months for 2014 and map them into snapshots
     map = new Map("map"), // Construct new map. Pass in the ID of the DOM element
     wait, viewer;
+
+    // Render the year as a title
+    document.body.appendChild(createElement(h("h1", ["2014"])));
 
     // Load up data for all months
     months.forEach(function (month) {
@@ -44,7 +51,7 @@ var d3 = _interopRequire(require("d3"));
   });
 })();
 
-},{"./Map":40,"./TimelineViewer":42,"./getSnapshots":44,"d3":4}],2:[function(require,module,exports){
+},{"./Map":40,"./TimelineViewer":42,"./getSnapshots":44,"d3":4,"virtual-dom/create-element":8,"virtual-dom/h":10}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -25360,7 +25367,8 @@ var Map = (function () {
     initMap: {
       value: function () {
         var tiles = L.tileLayer("https://{s}.tiles.mapbox.com/v3/{mapboxId}/{z}/{x}/{y}.png", {
-          mapboxId: this.mapId
+          mapboxId: this.mapId,
+          attributionControl: false
         });
 
         // L.mapbox.accessToken = this.accessToken;
@@ -25534,7 +25542,7 @@ var TimelineViewer = (function () {
           // Add this one to the map
           this.map.addSnapshot(this.current);
           // Update the view too
-          this.showMonth();
+          // this.showMonth();
         }
       },
       writable: true,
