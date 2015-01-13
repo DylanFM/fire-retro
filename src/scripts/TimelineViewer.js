@@ -1,4 +1,5 @@
-import h from 'virtual-dom/h';
+import CountComponent from './components/CountComponent';
+import TimelineComponent from './components/TimelineComponent';
 import diff from 'virtual-dom/diff';
 import patch from 'virtual-dom/patch';
 import createElement from 'virtual-dom/create-element';
@@ -39,12 +40,16 @@ export default class TimelineViewer {
   }
 
   //
-  // Count componenet
+  // Count component
   //
   showCount() {
+    var tree, patches;
+    // If we don't have a count component, create it
+    if (!this.countComponent) {
+      this.countComponent = new CountComponent();
+    }
     // Render count tree
-    var tree = this._renderCount(),
-        patches;
+    tree = this.countComponent.render(this.current.count);
     // 1st render?
     if (!this.countRoot) {
       // Yes: create the root
@@ -61,20 +66,17 @@ export default class TimelineViewer {
     this.countTree = tree;
   }
 
-  _renderCount() {
-    return h('.count', [
-      h('span.num', ['' + this.current.count]),
-      h('span', ['incidents'])
-    ]);
-  }
-
   //
   // Timeline component
   //
   showTimeline() {
+    var tree, patches;
+    // If we don't have a count component, create it
+    if (!this.timelineComponent) {
+      this.timelineComponent = new TimelineComponent(this.snapshots);
+    }
     // Render the info to get a virtual dom tree
-    var tree = this._renderTimeline(),
-        patches;
+    tree = this.timelineComponent.render(this.current);
     // Is this the 1st render?
     if (!this.timelineRoot) {
       // Yes: make a new root node
@@ -89,17 +91,5 @@ export default class TimelineViewer {
     }
     // Track the current tree for future diffing
     this.timelineTree = tree;
-  }
-
-  _renderTimeline() {
-    var months = this.snapshots.map((month) => {
-      return h('li',
-        {
-          className: (month === this.current) ? 'current' : ''
-        },
-        [month.start.format('MMM')]
-      );
-    });
-    return h('ol.timeline', months);
   }
 }

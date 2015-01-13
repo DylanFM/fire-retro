@@ -15,7 +15,7 @@ html {
   left: 0;
   margin-top: 0;
   text-align: center;
-  padding: .5em;
+  padding: 1rem;
   background: rgba(0,0,0,0.5);
 }
 
@@ -24,7 +24,7 @@ html {
   top: 0;
   right: 0;
   background: rgba(0,0,0,0.5);
-  padding: .5em;
+  padding: 1rem;
   text-align: center;
   margin-top: 0;
   display: inline-block;
@@ -32,9 +32,10 @@ html {
   span {
     display: block;
     text-transform: uppercase;
+    font-size: .75rem;
 
     &.num {
-      font-size: 1.5em;
+      font-size: 1.5rem;
     }
   }
 }
@@ -50,10 +51,10 @@ html {
   li {
     flex: 1;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.1rem;
     text-align: center;
     display: inline-block;
-    padding: .75em 0;
+    padding: 1rem 0;
     background: rgba(0,0,0,0.5);
 
     &.current {
