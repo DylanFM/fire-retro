@@ -25442,6 +25442,7 @@ var Map = (function () {
           _this.data = json;
           _this.count = json.features.length;
           _this.layer = _this._buildLayer();
+          _this.fireTypes = _this._extractFireTypes();
         }).fail(console.error);
       },
       writable: true,
@@ -25489,6 +25490,23 @@ var Map = (function () {
             });
           }
         });
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _extractFireTypes: {
+
+      // Read the data and pull out the fire types with counts
+      value: function () {
+        return this.data.features.reduce(function (types, incident) {
+          if (!types[incident.properties.fireType]) {
+            types[incident.properties.fireType] = 1;
+          } else {
+            types[incident.properties.fireType]++;
+          }
+          return types;
+        }, {});
       },
       writable: true,
       enumerable: true,

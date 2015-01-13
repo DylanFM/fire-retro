@@ -10,7 +10,7 @@ import Q from 'q';
 import moment from 'moment';
 import TimeRangeSnapshot from '../src/scripts/TimeRangeSnapshot';
 
-describe('TimeRangeSnapshot', function () {
+describe('TimeRangeSnapshot', () => {
 
   var tr,
       jan14   = moment().set({ year: 2014, month: 0 }),
@@ -23,11 +23,14 @@ describe('TimeRangeSnapshot', function () {
           geometry: {
             type: 'Point',
             coordinates: [100.0, 0.0]
+          },
+          properties: {
+            fireType: 'Grass fire'
           }
         }]
       };
 
-  before(function () {
+  before(() => {
     // Init our test instance
     tr = new TimeRangeSnapshot(st, en);
     // Stub XHR request to fetch data
@@ -37,12 +40,12 @@ describe('TimeRangeSnapshot', function () {
     });
   });
 
-  it('is created with a start and end time', function () {
+  it('is created with a start and end time', () => {
     assert.equal(st, tr.start);
     assert.equal(en, tr.end);
   });
 
-  it('builds a url to fetch data for the time range', function () {
+  it('builds a url to fetch data for the time range', () => {
     var stParam = window.encodeURIComponent(st.utc().format()),
         enParam = window.encodeURIComponent(en.utc().format());
     assert.equal(
@@ -52,13 +55,22 @@ describe('TimeRangeSnapshot', function () {
     );
   });
 
-  describe('#loadData', function () {
-    it('loads the data using d3.json', function (done) {
+  describe('#loadData()', () => {
+    it('loads the data using d3.json', (done) => {
       tr.loadData().then(() => {
         assert.equal(geojson, tr.data, 'has set geojson as data');
         assert.equal(1, tr.count, 'set the count to number of features');
         assert.isDefined(tr.layer, 'layer has been set');
         assert.lengthOf(tr.layer.toGeoJSON().features, 1, 'has a geojson layer using the data');
+        done();
+      });
+    });
+  });
+
+  describe('#fireTypes', () => {
+    it('parses the data to extract fire types and counts', (done) => {
+      tr.loadData().then(() => {
+        assert.propertyVal(tr.fireTypes, 'Grass fire', 1);
         done();
       });
     });

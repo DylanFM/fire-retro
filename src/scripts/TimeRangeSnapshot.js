@@ -14,9 +14,10 @@ export default class Map {
   loadData() {
     return this._fetchData()
       .then((json) => {
-        this.data  = json;
-        this.count = json.features.length;
-        this.layer = this._buildLayer();
+        this.data      = json;
+        this.count     = json.features.length;
+        this.layer     = this._buildLayer();
+        this.fireTypes = this._extractFireTypes();
       })
       .fail(console.error);
   }
@@ -51,6 +52,18 @@ export default class Map {
         });
       }
     });
+  }
+
+  // Read the data and pull out the fire types with counts
+  _extractFireTypes() {
+    return this.data.features.reduce((types, incident) => {
+      if (!types[incident.properties.fireType]) {
+        types[incident.properties.fireType] = 1;
+      } else {
+        types[incident.properties.fireType]++;
+      }
+      return types;
+    }, {});
   }
 
 }
