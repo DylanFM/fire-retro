@@ -23,7 +23,7 @@ export default class TimelineViewer {
       // Add this one to the map
       this.map.addSnapshot(this.current);
       // Update the view too
-      this.displayInfo();
+      this.showMonth();
     }
   }
 
@@ -37,27 +37,27 @@ export default class TimelineViewer {
     return this.snapshots[key];
   }
 
-  displayInfo() {
+  showMonth() {
     // Render the info to get a virtual dom tree
-    var tree = this._renderInfo(),
+    var tree = this._renderMonth(),
         patches;
     // Is this the 1st render?
-    if (!this.infoRoot) {
+    if (!this.monthRoot) {
       // Yes: make a new root node
-      this.infoRoot = createElement(tree);
+      this.monthRoot = createElement(tree);
       // And add it to the document
-      document.body.appendChild(this.infoRoot);
+      document.body.appendChild(this.monthRoot);
     } else {
       // No: we're updating the dom
-      patches = diff(this.infoTree, tree);
+      patches = diff(this.monthTree, tree);
       // Update the root node
-      this.infoRoot = patch(this.infoRoot, patches);
+      this.monthRoot = patch(this.monthRoot, patches);
     }
     // Track the current tree for future diffing
-    this.infoTree = tree;
+    this.monthTree = tree;
   }
 
-  _renderInfo() {
+  _renderMonth() {
     return h('h1', [this.current.start.format('MMMM YYYY')]);
   }
 }

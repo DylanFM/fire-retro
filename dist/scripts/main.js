@@ -25422,6 +25422,7 @@ var Map = (function () {
   var Map = function Map(start, end) {
     this.start = start;
     this.end = end;
+    this.endpoint = "http://10.0.0.24:8000/incidents";
     this.url = this._buildUrl();
   };
 
@@ -25443,7 +25444,7 @@ var Map = (function () {
       value: function () {
         var st = window.encodeURIComponent(this.start.clone().utc().format()),
             en = window.encodeURIComponent(this.end.clone().utc().format());
-        return "http://localhost:8000/incidents?timeStart=" + st + "&timeEnd=" + en;
+        return this.endpoint + "?timeStart=" + st + "&timeEnd=" + en;
       },
       writable: true,
       enumerable: true,
@@ -25533,7 +25534,7 @@ var TimelineViewer = (function () {
           // Add this one to the map
           this.map.addSnapshot(this.current);
           // Update the view too
-          this.displayInfo();
+          this.showMonth();
         }
       },
       writable: true,
@@ -25554,30 +25555,30 @@ var TimelineViewer = (function () {
       enumerable: true,
       configurable: true
     },
-    displayInfo: {
+    showMonth: {
       value: function () {
         // Render the info to get a virtual dom tree
-        var tree = this._renderInfo(), patches;
+        var tree = this._renderMonth(), patches;
         // Is this the 1st render?
-        if (!this.infoRoot) {
+        if (!this.monthRoot) {
           // Yes: make a new root node
-          this.infoRoot = createElement(tree);
+          this.monthRoot = createElement(tree);
           // And add it to the document
-          document.body.appendChild(this.infoRoot);
+          document.body.appendChild(this.monthRoot);
         } else {
           // No: we're updating the dom
-          patches = diff(this.infoTree, tree);
+          patches = diff(this.monthTree, tree);
           // Update the root node
-          this.infoRoot = patch(this.infoRoot, patches);
+          this.monthRoot = patch(this.monthRoot, patches);
         }
         // Track the current tree for future diffing
-        this.infoTree = tree;
+        this.monthTree = tree;
       },
       writable: true,
       enumerable: true,
       configurable: true
     },
-    _renderInfo: {
+    _renderMonth: {
       value: function () {
         return h("h1", [this.current.start.format("MMMM YYYY")]);
       },

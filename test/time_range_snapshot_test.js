@@ -46,7 +46,7 @@ describe('TimeRangeSnapshot', function () {
     var stParam = window.encodeURIComponent(st.utc().format()),
         enParam = window.encodeURIComponent(en.utc().format());
     assert.equal(
-      'http://localhost:8000/incidents?timeStart=' + stParam + '&timeEnd=' + enParam,
+      tr.endpoint + '?timeStart=' + stParam + '&timeEnd=' + enParam,
       tr.url,
       'built url correctly'
     );

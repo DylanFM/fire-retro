@@ -5,9 +5,10 @@ import L from 'leaflet';
 export default class Map {
 
   constructor(start, end) {
-    this.start = start;
-    this.end   = end;
-    this.url   = this._buildUrl();
+    this.start    = start;
+    this.end      = end;
+    this.endpoint = 'http://10.0.0.24:8000/incidents';
+    this.url      = this._buildUrl();
   }
 
   loadData() {
@@ -23,7 +24,7 @@ export default class Map {
   _buildUrl() {
     var st = window.encodeURIComponent(this.start.clone().utc().format()),
         en = window.encodeURIComponent(this.end.clone().utc().format());
-    return 'http://localhost:8000/incidents?timeStart=' + st + '&timeEnd=' + en;
+    return this.endpoint + '?timeStart=' + st + '&timeEnd=' + en;
   }
 
   _fetchData() {
