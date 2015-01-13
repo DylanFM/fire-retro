@@ -12,16 +12,16 @@ export default class Map {
 
   initMap() {
     var tiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/{mapboxId}/{z}/{x}/{y}.png', {
-      mapboxId:            this.mapId,
-      attributionControl:  false
+      mapboxId: this.mapId
     });
 
     // L.mapbox.accessToken = this.accessToken;
 
     // Initialise map
     this.map = L.map(this.id, {
-      zoomControl: false,
-      layers: [tiles]
+      zoomControl:         false,
+      attributionControl:  false,
+      layers:              [tiles]
     });
     // Fit to NSW
     this.map.fitBounds([

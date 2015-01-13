@@ -25367,8 +25367,7 @@ var Map = (function () {
     initMap: {
       value: function () {
         var tiles = L.tileLayer("https://{s}.tiles.mapbox.com/v3/{mapboxId}/{z}/{x}/{y}.png", {
-          mapboxId: this.mapId,
-          attributionControl: false
+          mapboxId: this.mapId
         });
 
         // L.mapbox.accessToken = this.accessToken;
@@ -25376,6 +25375,7 @@ var Map = (function () {
         // Initialise map
         this.map = L.map(this.id, {
           zoomControl: false,
+          attributionControl: false,
           layers: [tiles]
         });
         // Fit to NSW
@@ -25542,7 +25542,7 @@ var TimelineViewer = (function () {
           // Add this one to the map
           this.map.addSnapshot(this.current);
           // Update the view too
-          // this.showMonth();
+          this.showTimeline();
         }
       },
       writable: true,
@@ -25563,32 +25563,39 @@ var TimelineViewer = (function () {
       enumerable: true,
       configurable: true
     },
-    showMonth: {
+    showTimeline: {
       value: function () {
         // Render the info to get a virtual dom tree
-        var tree = this._renderMonth(), patches;
+        var tree = this._renderTimeline(), patches;
         // Is this the 1st render?
-        if (!this.monthRoot) {
+        if (!this.timelineRoot) {
           // Yes: make a new root node
-          this.monthRoot = createElement(tree);
+          this.timelineRoot = createElement(tree);
           // And add it to the document
-          document.body.appendChild(this.monthRoot);
+          document.body.appendChild(this.timelineRoot);
         } else {
           // No: we're updating the dom
-          patches = diff(this.monthTree, tree);
+          patches = diff(this.timelineTree, tree);
           // Update the root node
-          this.monthRoot = patch(this.monthRoot, patches);
+          this.timelineRoot = patch(this.timelineRoot, patches);
         }
         // Track the current tree for future diffing
-        this.monthTree = tree;
+        this.timelineTree = tree;
       },
       writable: true,
       enumerable: true,
       configurable: true
     },
-    _renderMonth: {
+    _renderTimeline: {
       value: function () {
-        return h("h1", [this.current.start.format("MMMM YYYY")]);
+        var _this = this;
+        var months = this.snapshots.map(function (month) {
+          return h("li", {
+            className: month === _this.current ? "current" : ""
+          }, [month.start.format("MMM")]);
+        });
+
+        return h("ol", months);
       },
       writable: true,
       enumerable: true,

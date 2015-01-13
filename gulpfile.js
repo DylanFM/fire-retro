@@ -73,11 +73,6 @@ gulp.task('lint', function() {
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('test', function() {
-  require('child_process').spawn(
-    'npm', ['run', 'phantom'], { stdio:'inherit' }
-  );
-});
 
 gulp.task('watch', function() {
   // Reload browser when built assets change
@@ -85,11 +80,13 @@ gulp.task('watch', function() {
   // Build sass files on change
   gulp.watch(['styles/**/*.scss'], { cwd: 'src' }, ['sass']);
   // Lint and process JS files on change
-  gulp.watch(['scripts/**/*.js'], { cwd: 'src' }, ['lint', 'test', 'buildScripts']);
+  gulp.watch(['scripts/**/*.js'], { cwd: 'src' }, ['lint', 'buildScripts']);
   // Minify HTML files on change
   gulp.watch(['*.html'], { cwd: 'src' }, ['htmlmin']);
-  // Watch test file changes and run tests
-  gulp.watch(['test/**/*.js'], ['test']);
+  // Call mochify's watcher
+  require('child_process').spawn(
+    'npm', ['start'], { stdio:'inherit' }
+  );
 });
 
 gulp.task('default', ['watch', 'serve']);
