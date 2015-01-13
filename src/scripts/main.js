@@ -15,7 +15,7 @@ import createElement from 'virtual-dom/create-element';
         wait, viewer;
 
     // Render the year as a title
-    document.body.appendChild(createElement(h('h1', ['2014'])));
+    document.body.appendChild(createElement(h('h1.year', ['2014'])));
 
     // Load up data for all months
     months.forEach((month) => month.loadData());

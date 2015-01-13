@@ -24,6 +24,7 @@ export default class TimelineViewer {
       this.map.addSnapshot(this.current);
       // Update the view too
       this.showTimeline();
+      this.showCount();
     }
   }
 
@@ -37,6 +38,39 @@ export default class TimelineViewer {
     return this.snapshots[key];
   }
 
+  //
+  // Count componenet
+  //
+  showCount() {
+    // Render count tree
+    var tree = this._renderCount(),
+        patches;
+    // 1st render?
+    if (!this.countRoot) {
+      // Yes: create the root
+      this.countRoot = createElement(tree);
+      // Add to the dom
+      document.body.appendChild(this.countRoot);
+    } else {
+      // No: find the diff patches
+      patches = diff(this.countTree, tree);
+      // Update the dom
+      this.countRoot = patch(this.countRoot, patches);
+    }
+    // Track tree for next render
+    this.countTree = tree;
+  }
+
+  _renderCount() {
+    return h('.count', [
+      h('span.num', ['' + this.current.count]),
+      h('span', ['incidents'])
+    ]);
+  }
+
+  //
+  // Timeline component
+  //
   showTimeline() {
     // Render the info to get a virtual dom tree
     var tree = this._renderTimeline(),
@@ -66,7 +100,6 @@ export default class TimelineViewer {
         [month.start.format('MMM')]
       );
     });
-
-    return h('ol', months);
+    return h('ol.timeline', months);
   }
 }

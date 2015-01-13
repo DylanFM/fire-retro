@@ -1,5 +1,7 @@
 var gulp         = require('gulp'),
     sass         = require('gulp-ruby-sass'),
+    sourcemaps   = require('gulp-sourcemaps'),
+    filter       = require('gulp-filter'),
     usemin       = require('gulp-usemin'),
     minifyCSS    = require('gulp-minify-css'),
     htmlmin      = require('gulp-htmlmin'),
@@ -23,15 +25,16 @@ gulp.task('serve', function() {
 });
 
 gulp.task('sass', function() {
-  gulp.src('src/styles/**/*.scss')
-    .pipe(sass({
-      style: 'expanded'
-    }))
+  return sass('src/styles/', { sourcemap: false })
+    // .pipe(sourcemaps.write('dist/styles', {
+    //   includeContent: false
+    // }))
+    //.pipe(gzip())
     .pipe(autoprefixer({
       browsers:  ['last 2 versions'],
       cascade:   false
     }))
-    //.pipe(gzip())
+    .pipe(filter('**/*.css'))
     .pipe(gulp.dest('dist/styles/'))
     .pipe(reload({
       stream: true
@@ -73,7 +76,6 @@ gulp.task('lint', function() {
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
-
 gulp.task('watch', function() {
   // Reload browser when built assets change
   gulp.watch(['*.html', 'styles/**/*.css', 'scripts/**/*.js'], { cwd: 'dist' }, reload);
@@ -83,10 +85,6 @@ gulp.task('watch', function() {
   gulp.watch(['scripts/**/*.js'], { cwd: 'src' }, ['lint', 'buildScripts']);
   // Minify HTML files on change
   gulp.watch(['*.html'], { cwd: 'src' }, ['htmlmin']);
-  // Call mochify's watcher
-  require('child_process').spawn(
-    'npm', ['start'], { stdio:'inherit' }
-  );
 });
 
 gulp.task('default', ['watch', 'serve']);

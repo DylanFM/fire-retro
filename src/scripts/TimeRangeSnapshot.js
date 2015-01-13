@@ -47,7 +47,8 @@ export default class Map {
       pointToLayer: (feature, latlng) => {
         // Use circle markers instead of normal markers
         var circle = {
-              radius:       5,
+              stroke: false,
+              radius:       3,
               fillOpacity:  0.5
             },
             type = feature.properties.fireType;

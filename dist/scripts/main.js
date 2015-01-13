@@ -26,7 +26,7 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
     wait, viewer;
 
     // Render the year as a title
-    document.body.appendChild(createElement(h("h1", ["2014"])));
+    document.body.appendChild(createElement(h("h1.year", ["2014"])));
 
     // Load up data for all months
     months.forEach(function (month) {
@@ -25485,7 +25485,8 @@ var Map = (function () {
           pointToLayer: function (feature, latlng) {
             // Use circle markers instead of normal markers
             var circle = {
-              radius: 5,
+              stroke: false,
+              radius: 3,
               fillOpacity: 0.5
             },
                 type = feature.properties.fireType;
@@ -25575,6 +25576,7 @@ var TimelineViewer = (function () {
           this.map.addSnapshot(this.current);
           // Update the view too
           this.showTimeline();
+          this.showCount();
         }
       },
       writable: true,
@@ -25595,7 +25597,46 @@ var TimelineViewer = (function () {
       enumerable: true,
       configurable: true
     },
+    showCount: {
+
+      //
+      // Count componenet
+      //
+      value: function () {
+        // Render count tree
+        var tree = this._renderCount(), patches;
+        // 1st render?
+        if (!this.countRoot) {
+          // Yes: create the root
+          this.countRoot = createElement(tree);
+          // Add to the dom
+          document.body.appendChild(this.countRoot);
+        } else {
+          // No: find the diff patches
+          patches = diff(this.countTree, tree);
+          // Update the dom
+          this.countRoot = patch(this.countRoot, patches);
+        }
+        // Track tree for next render
+        this.countTree = tree;
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _renderCount: {
+      value: function () {
+        return h(".count", [h("span.num", ["" + this.current.count]), h("span", ["incidents"])]);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
     showTimeline: {
+
+      //
+      // Timeline component
+      //
       value: function () {
         // Render the info to get a virtual dom tree
         var tree = this._renderTimeline(), patches;
@@ -25626,8 +25667,7 @@ var TimelineViewer = (function () {
             className: month === _this.current ? "current" : ""
           }, [month.start.format("MMM")]);
         });
-
-        return h("ol", months);
+        return h("ol.timeline", months);
       },
       writable: true,
       enumerable: true,
