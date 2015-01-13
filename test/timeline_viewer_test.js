@@ -17,7 +17,7 @@ describe('TimelineViewer', () => {
       jan14 = moment().set({ year: 2014, month: 0 }),
       feb14 = moment().set({ year: 2014, month: 1 }),
       tr1   = new TimeRangeSnapshot(jan14.startOf('month'), jan14.endOf('month')),
-      tr2   = new TimeRangeSnapshot(jan14.startOf('month'), jan14.endOf('month'));
+      tr2   = new TimeRangeSnapshot(feb14.startOf('month'), feb14.endOf('month'));
 
   beforeEach(() => {
     // Mock the map
