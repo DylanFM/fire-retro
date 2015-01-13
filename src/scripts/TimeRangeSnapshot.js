@@ -46,10 +46,24 @@ export default class Map {
     return L.geoJson(this.data, {
       pointToLayer: (feature, latlng) => {
         // Use circle markers instead of normal markers
-        return L.circleMarker(latlng, {
-          radius:       5,
-          fillOpacity:  0.5
-        });
+        var circle = {
+              radius:       5,
+              fillOpacity:  0.5
+            },
+            type = feature.properties.fireType;
+
+        if (/hazard/i.test(type)) {
+          circle.color = '#30c757';
+        }
+
+        if (/mva|motor/i.test(type)) {
+          circle.color = '#000';
+        }
+
+        if (/fire/i.test(type)) {
+          circle.color = '#ff0000';
+        }
+        return L.circleMarker(latlng, circle);
       }
     });
   }
