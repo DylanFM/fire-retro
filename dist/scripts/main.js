@@ -13,6 +13,8 @@ var TimelineViewer = _interopRequire(require("./TimelineViewer"));
 
 var d3 = _interopRequire(require("d3"));
 
+var Rx = _interopRequire(require("rx"));
+
 var h = _interopRequire(require("virtual-dom/h"));
 
 var createElement = _interopRequire(require("virtual-dom/create-element"));
@@ -27,17 +29,22 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
     // Render the year as a title
     document.body.appendChild(createElement(h("h1.year", ["2014"])));
 
-    // Construct new map. Pass in the ID of the DOM element
-    map = new Map("map");
-
-    // Initialise the viewer and begin
-    viewer = new TimelineViewer(map, months);
-    // Progress every 3 seconds
-    viewer.play(2000);
+    // Load all data
+    months.map(function (month) {
+      month.loadData();
+      return month;
+    }).toArray().subscribeOnNext(function (monthsArr) {
+      // Initialise the viewer and begin
+      viewer = new TimelineViewer(new Map("map"), // Construct new map. Pass in the ID of the DOM element
+      new Rx.Observable.fromArray(monthsArr) // Convert back into a new observable with data loading
+      );
+      // Progress every 2 seconds
+      viewer.play(2000);
+    });
   });
 })();
 
-},{"./Map":46,"./TimelineViewer":48,"./getSnapshots":52,"d3":5,"virtual-dom/create-element":14,"virtual-dom/h":16}],2:[function(require,module,exports){
+},{"./Map":46,"./TimelineViewer":48,"./getSnapshots":51,"d3":5,"rx":13,"virtual-dom/create-element":14,"virtual-dom/h":16}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
@@ -40805,12 +40812,44 @@ var TimelineViewer = (function () {
   _prototypeProperties(TimelineViewer, null, {
     play: {
       value: function (speed) {
+        this.speed = speed;
+        // Only play if we have all the data
+        this._playIfDataLoaded();
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _playIfDataLoaded: {
+      value: function () {
         var _this = this;
+        // Is the data loaded?
+        this.snapshots.every(function (s) {
+          return s.data;
+        }).subscribeOnNext(function (isLoaded) {
+          var delay;
+          if (isLoaded) {
+            _this._beginPlaying();
+          } else {
+            delay = window.setInterval(function () {
+              _this._playIfDataLoaded();
+              window.clearInterval(delay);
+            }, 500);
+          }
+        });
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _beginPlaying: {
+      value: function () {
+        var _this2 = this;
         var stream = this.snapshots.controlled(), // Make a controllable stream
         timer;
         // On each item, call the updateCurrent method
         stream.subscribeOnNext(function (next) {
-          return _this._updateCurrent(next);
+          return _this2._updateCurrent(next);
         });
         // Subscribe to the timer and hook into the stream
         timer = window.setInterval(function () {
@@ -40821,7 +40860,7 @@ var TimelineViewer = (function () {
             // Complete - we no longer need the timer
             window.clearInterval(timer);
           }
-        }, speed);
+        }, this.speed);
       },
       writable: true,
       enumerable: true,
@@ -40883,13 +40922,13 @@ var TimelineViewer = (function () {
       // Timeline component
       //
       value: function () {
-        var _this2 = this;
+        var _this3 = this;
         var tree, patches;
         // If we don't have a timeline component, create it
         if (!this.timelineComponent) {
           // TimelineComponent wants an array of snapshots instead of the stream
           this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
-            _this2.timelineComponent = new TimelineComponent(snapshotsArray);
+            _this3.timelineComponent = new TimelineComponent(snapshotsArray);
           });
         }
         // Render the info to get a virtual dom tree
@@ -41000,46 +41039,24 @@ var _interopRequire = function (obj) {
   return obj && (obj["default"] || obj);
 };
 
-module.exports = getMonths;
-var moment = _interopRequire(require("moment"));
-
+module.exports = getSnapshots;
 var Rx = _interopRequire(require("rx"));
 
-// Get an observable of moment objects of the months for a given year
-function getMonths(year) {
-  "use strict";
-
-  return Rx.Observable.range(1, 12).map(function (i) {
-    // Make a moment object of the month
-    return moment().set({ year: year, month: i - 1 });
-  });
-}
-
-},{"moment":7,"rx":13}],52:[function(require,module,exports){
-"use strict";
-
-var _interopRequire = function (obj) {
-  return obj && (obj["default"] || obj);
-};
-
-module.exports = getSnapshots;
-var getMonths = _interopRequire(require("./getMonths"));
+var moment = _interopRequire(require("moment"));
 
 var TimeRangeSnapshot = _interopRequire(require("./TimeRangeSnapshot"));
 
-// Get a series of TimeRangeSnapshots for a given year
+// Get a series of TimeRangeSnapshots for months of a given year
 function getSnapshots(year) {
-  return getMonths(2014).map(function (month) {
-    var start = month.clone().startOf("month"),
-        end = month.clone().endOf("month"),
-        shot = new TimeRangeSnapshot(start, end);
-    // Load data
-    shot.loadData();
-    return shot;
+  return Rx.Observable.range(1, 12).map(function (i) {
+    var month = moment().set({ year: year, month: i - 1 }),
+        start = month.clone().startOf("month"),
+        end = month.clone().endOf("month");
+    return new TimeRangeSnapshot(start, end);
   });
 }
 
-},{"./TimeRangeSnapshot":47,"./getMonths":51}]},{},[1])
+},{"./TimeRangeSnapshot":47,"moment":7,"rx":13}]},{},[1])
 
 
 //# sourceMappingURL=main.map

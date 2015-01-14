@@ -1,15 +1,14 @@
-import getMonths from './getMonths';
+import Rx from 'rx';
+import moment from 'moment';
 import TimeRangeSnapshot from './TimeRangeSnapshot';
 
-// Get a series of TimeRangeSnapshots for a given year
+// Get a series of TimeRangeSnapshots for months of a given year
 export default function getSnapshots(year) {
-  return getMonths(2014)
-    .map((month) => {
-      var start = month.clone().startOf('month'),
-          end   = month.clone().endOf('month'),
-          shot  = new TimeRangeSnapshot(start, end);
-      // Load data
-      shot.loadData();
-      return shot;
+  return Rx.Observable.range(1, 12)
+    .map((i) => {
+      var month = moment().set({ year: year, month: i-1 }),
+          start = month.clone().startOf('month'),
+          end   = month.clone().endOf('month');
+      return new TimeRangeSnapshot(start, end);
     });
 }

@@ -13,6 +13,29 @@ export default class TimelineViewer {
   }
 
   play(speed) {
+    this.speed = speed;
+    // Only play if we have all the data
+    this._playIfDataLoaded();
+  }
+
+  _playIfDataLoaded() {
+    // Is the data loaded?
+    this.snapshots
+      .every((s) => s.data)
+      .subscribeOnNext((isLoaded) => {
+        var delay;
+        if (isLoaded) {
+          this._beginPlaying();
+        } else {
+          delay = window.setInterval(() => {
+            this._playIfDataLoaded();
+            window.clearInterval(delay);
+          }, 500);
+        }
+      });
+  }
+
+  _beginPlaying() {
     var stream = this.snapshots.controlled(), // Make a controllable stream
         timer;
     // On each item, call the updateCurrent method
@@ -26,7 +49,7 @@ export default class TimelineViewer {
         // Complete - we no longer need the timer
         window.clearInterval(timer);
       }
-    }, speed);
+    }, this.speed);
   }
 
   _updateCurrent(next) {
