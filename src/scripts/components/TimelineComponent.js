@@ -10,7 +10,7 @@ export default class TimelineComponent {
     var items = this.months.map((month) => {
       return h('li',
         {
-          className: (month === current) ? 'current' : ''
+          className: (month.url === current.url) ? 'current' : ''
         },
         [month.start.format('MMM')]
       );

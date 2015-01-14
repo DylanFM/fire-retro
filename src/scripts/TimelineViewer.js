@@ -3,46 +3,50 @@ import TimelineComponent from './components/TimelineComponent';
 import diff from 'virtual-dom/diff';
 import patch from 'virtual-dom/patch';
 import createElement from 'virtual-dom/create-element';
+import Rx from 'rx';
 
 export default class TimelineViewer {
 
   constructor(map, snapshots) {
     this.map       = map;
-    this.snapshots = snapshots;
-    this.next(); // Begin... select 1st snapshot
+    this.snapshots = snapshots; // This is an RxJS observable
   }
 
-  next() {
-    var next = this._getNextSnapshot();
-    if (next) {
-      // If we already have one current
-      if (this.current) {
-        // Remove it from the map
-        this.map.removeSnapshot(this.current);
+  play(speed) {
+    var stream = this.snapshots.controlled(), // Make a controllable stream
+        timer;
+    // On each item, call the updateCurrent method
+    stream.subscribeOnNext((next) => this._updateCurrent(next));
+    // Subscribe to the timer and hook into the stream
+    timer = window.setInterval(() => {
+      // Request an item - progresses the stream by 1 month
+      stream.request(1);
+      // Check to see if there are still queued months
+      if (!stream.subject.queue.length) {
+        // Complete - we no longer need the timer
+        window.clearInterval(timer);
       }
-      this.current = next;
-      // Add this one to the map
-      this.map.addSnapshot(this.current);
-      // Update the view too
-      this.showTimeline();
-      this.showCount();
-    }
+    }, speed);
   }
 
-  _getNextSnapshot() {
-    var key = 0;
-    // If this is already going
+  _updateCurrent(next) {
+    // If we already have one current
     if (this.current) {
-      // Find the next index
-      key = this.snapshots.indexOf(this.current) + 1;
+      // Remove it from the map
+      this.map.removeSnapshot(this.current);
     }
-    return this.snapshots[key];
+    this.current = next;
+    // Add this one to the map
+    this.map.addSnapshot(this.current);
+    // Update the view too
+    this._showTimeline();
+    this._showCount();
   }
 
   //
   // Count component
   //
-  showCount() {
+  _showCount() {
     var tree, patches;
     // If we don't have a count component, create it
     if (!this.countComponent) {
@@ -69,11 +73,14 @@ export default class TimelineViewer {
   //
   // Timeline component
   //
-  showTimeline() {
+  _showTimeline() {
     var tree, patches;
-    // If we don't have a count component, create it
+    // If we don't have a timeline component, create it
     if (!this.timelineComponent) {
-      this.timelineComponent = new TimelineComponent(this.snapshots);
+      // TimelineComponent wants an array of snapshots instead of the stream
+      this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
+        this.timelineComponent = new TimelineComponent(snapshotsArray);
+      });
     }
     // Render the info to get a virtual dom tree
     tree = this.timelineComponent.render(this.current);
