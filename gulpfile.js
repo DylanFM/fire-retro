@@ -58,10 +58,10 @@ gulp.task('htmlmin', function() {
 // Browserify and 6to5
 gulp.task('buildScripts', function() {
   browserify({ debug: true })
-    .on('error', function (error) { console.log(error); })
     .transform(to5ify.configure())
     .require('./src/scripts/main.js', { entry: true })
     .bundle()
+    .on('error', function (err) { console.log(err.message); })
     .pipe(exorcist('dist/scripts/main.map'))
     .pipe(source('main.js'))
     // .pipe(gzip())
