@@ -58,6 +58,7 @@ gulp.task('htmlmin', function() {
 // Browserify and 6to5
 gulp.task('buildScripts', function() {
   browserify({ debug: true })
+    .on('error', function (error) { console.log(error); })
     .transform(to5ify.configure())
     .require('./src/scripts/main.js', { entry: true })
     .bundle()
@@ -87,4 +88,4 @@ gulp.task('watch', function() {
   gulp.watch(['*.html'], { cwd: 'src' }, ['htmlmin']);
 });
 
-gulp.task('default', ['watch', 'serve']);
+gulp.task('default', ['sass', 'buildScripts', 'htmlmin', 'serve', 'watch']);

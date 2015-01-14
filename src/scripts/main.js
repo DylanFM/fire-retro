@@ -8,14 +8,15 @@ import createElement from 'virtual-dom/create-element';
 (() => {
   'use strict';
 
+  var months = getSnapshots(2014), // Get months for 2014
+      map, viewer;
+
   document.addEventListener('DOMContentLoaded', () => {
-
-    var map    = new Map('map'),     // Construct new map. Pass in the ID of the DOM element
-        months = getSnapshots(2014), // Get months for 2014
-        wait, viewer;
-
     // Render the year as a title
     document.body.appendChild(createElement(h('h1.year', ['2014'])));
+
+    // Construct new map. Pass in the ID of the DOM element
+    map = new Map('map');
 
     // Initialise the viewer and begin
     viewer = new TimelineViewer(map, months);
