@@ -44,7 +44,7 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
   });
 })();
 
-},{"./Map":46,"./TimelineViewer":48,"./getSnapshots":51,"d3":5,"rx":13,"virtual-dom/create-element":14,"virtual-dom/h":16}],2:[function(require,module,exports){
+},{"./Map":46,"./TimelineViewer":48,"./getSnapshots":52,"d3":5,"rx":13,"virtual-dom/create-element":14,"virtual-dom/h":16}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
@@ -40923,46 +40923,39 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
+var _inherits = function (child, parent) {
+  if (typeof parent !== "function" && parent !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
+  }
+  child.prototype = Object.create(parent && parent.prototype, {
+    constructor: {
+      value: child,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (parent) child.__proto__ = parent;
+};
+
 var _interopRequire = function (obj) {
   return obj && (obj["default"] || obj);
 };
 
+var Component = _interopRequire(require("./component"));
+
 var h = _interopRequire(require("virtual-dom/h"));
 
-var diff = _interopRequire(require("virtual-dom/diff"));
+var CountComponent = (function (Component) {
+  var CountComponent = function CountComponent() {
+    if (Object.getPrototypeOf(CountComponent) !== null) {
+      Object.getPrototypeOf(CountComponent).apply(this, arguments);
+    }
+  };
 
-var patch = _interopRequire(require("virtual-dom/patch"));
-
-var createElement = _interopRequire(require("virtual-dom/create-element"));
-
-var CountComponent = (function () {
-  var CountComponent = function CountComponent() {};
+  _inherits(CountComponent, Component);
 
   _prototypeProperties(CountComponent, null, {
-    render: {
-      value: function (count) {
-        var tree, patches;
-        // Render count tree
-        tree = this._getTree(count);
-        // 1st render?
-        if (!this.countRoot) {
-          // Yes: create the root
-          this.countRoot = createElement(tree);
-          // Add to the dom
-          document.body.appendChild(this.countRoot);
-        } else {
-          // No: find the diff patches
-          patches = diff(this.countTree, tree);
-          // Update the dom
-          this.countRoot = patch(this.countRoot, patches);
-        }
-        // Track tree for next render
-        this.countTree = tree;
-      },
-      writable: true,
-      enumerable: true,
-      configurable: true
-    },
     _getTree: {
       value: function (count) {
         return h(".count", [h("span.num", ["" + count]), h("span", ["incidents"])]);
@@ -40974,11 +40967,11 @@ var CountComponent = (function () {
   });
 
   return CountComponent;
-})();
+})(Component);
 
 module.exports = CountComponent;
 
-},{"virtual-dom/create-element":14,"virtual-dom/diff":15,"virtual-dom/h":16,"virtual-dom/patch":24}],50:[function(require,module,exports){
+},{"./component":51,"virtual-dom/h":16}],50:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -40986,49 +40979,37 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
+var _inherits = function (child, parent) {
+  if (typeof parent !== "function" && parent !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
+  }
+  child.prototype = Object.create(parent && parent.prototype, {
+    constructor: {
+      value: child,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (parent) child.__proto__ = parent;
+};
+
 var _interopRequire = function (obj) {
   return obj && (obj["default"] || obj);
 };
 
+var Component = _interopRequire(require("./component"));
+
 var h = _interopRequire(require("virtual-dom/h"));
 
-var diff = _interopRequire(require("virtual-dom/diff"));
-
-var patch = _interopRequire(require("virtual-dom/patch"));
-
-var createElement = _interopRequire(require("virtual-dom/create-element"));
-
-var TimelineComponent = (function () {
+var TimelineComponent = (function (Component) {
   var TimelineComponent = function TimelineComponent(months) {
     this.months = months;
   };
 
+  _inherits(TimelineComponent, Component);
+
   _prototypeProperties(TimelineComponent, null, {
-    render: {
-      value: function (current) {
-        var tree, patches;
-        // If we don't have a timeline component, create it
-        // Render the info to get a virtual dom tree
-        tree = this._getTree(current);
-        // Is this the 1st render?
-        if (!this.timelineRoot) {
-          // Yes: make a new root node
-          this.timelineRoot = createElement(tree);
-          // And add it to the document
-          document.body.appendChild(this.timelineRoot);
-        } else {
-          // No: we're updating the dom
-          patches = diff(this.timelineTree, tree);
-          // Update the root node
-          this.timelineRoot = patch(this.timelineRoot, patches);
-        }
-        // Track the current tree for future diffing
-        this.timelineTree = tree;
-      },
-      writable: true,
-      enumerable: true,
-      configurable: true
-    },
     _getTree: {
       value: function (current) {
         var items = this.months.map(function (month) {
@@ -41045,11 +41026,70 @@ var TimelineComponent = (function () {
   });
 
   return TimelineComponent;
-})();
+})(Component);
 
 module.exports = TimelineComponent;
 
-},{"virtual-dom/create-element":14,"virtual-dom/diff":15,"virtual-dom/h":16,"virtual-dom/patch":24}],51:[function(require,module,exports){
+},{"./component":51,"virtual-dom/h":16}],51:[function(require,module,exports){
+"use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
+var diff = _interopRequire(require("virtual-dom/diff"));
+
+var patch = _interopRequire(require("virtual-dom/patch"));
+
+var createElement = _interopRequire(require("virtual-dom/create-element"));
+
+var Component = (function () {
+  var Component = function Component() {};
+
+  _prototypeProperties(Component, null, {
+    render: {
+      value: function (state) {
+        this._render(this._getTree(state));
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _render: {
+      value: function (tree) {
+        var patches;
+        // Is this the 1st render?
+        if (!this.root) {
+          // Yes: make a new root node
+          this.root = createElement(tree);
+          // And add it to the document
+          document.body.appendChild(this.root);
+        } else {
+          // No: we're updating the dom
+          patches = diff(this.tree, tree);
+          // Update the root node
+          this.root = patch(this.root, patches);
+        }
+        // Track the current tree for future diffing
+        this.tree = tree;
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
+  });
+
+  return Component;
+})();
+
+module.exports = Component;
+
+},{"virtual-dom/create-element":14,"virtual-dom/diff":15,"virtual-dom/patch":24}],52:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) {
