@@ -40795,12 +40795,6 @@ var CountComponent = _interopRequire(require("./components/CountComponent"));
 
 var TimelineComponent = _interopRequire(require("./components/TimelineComponent"));
 
-var diff = _interopRequire(require("virtual-dom/diff"));
-
-var patch = _interopRequire(require("virtual-dom/patch"));
-
-var createElement = _interopRequire(require("virtual-dom/create-element"));
-
 var Rx = _interopRequire(require("rx"));
 
 var TimelineViewer = (function () {
@@ -40877,26 +40871,79 @@ var TimelineViewer = (function () {
         // Add this one to the map
         this.map.addSnapshot(this.current);
         // Update the view too
-        this._showTimeline();
-        this._showCount();
+        this._renderTimeline();
+        this._renderCount();
       },
       writable: true,
       enumerable: true,
       configurable: true
     },
-    _showCount: {
+    _renderCount: {
 
-      //
       // Count component
-      //
       value: function () {
-        var tree, patches;
-        // If we don't have a count component, create it
         if (!this.countComponent) {
           this.countComponent = new CountComponent();
         }
+        this.countComponent.render(this.current.count);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _renderTimeline: {
+
+      // Timeline component
+      value: function () {
+        var _this3 = this;
+        if (!this.timelineComponent) {
+          // TimelineComponent wants an array of snapshots instead of the stream
+          this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
+            _this3.timelineComponent = new TimelineComponent(snapshotsArray);
+          });
+        }
+        this.timelineComponent.render(this.current);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
+  });
+
+  return TimelineViewer;
+})();
+
+module.exports = TimelineViewer;
+
+},{"./components/CountComponent":49,"./components/TimelineComponent":50,"rx":13}],49:[function(require,module,exports){
+"use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
+var h = _interopRequire(require("virtual-dom/h"));
+
+var diff = _interopRequire(require("virtual-dom/diff"));
+
+var patch = _interopRequire(require("virtual-dom/patch"));
+
+var createElement = _interopRequire(require("virtual-dom/create-element"));
+
+var CountComponent = (function () {
+  var CountComponent = function CountComponent() {};
+
+  _prototypeProperties(CountComponent, null, {
+    render: {
+      value: function (count) {
+        var tree, patches;
         // Render count tree
-        tree = this.countComponent.render(this.current.count);
+        tree = this._getTree(count);
         // 1st render?
         if (!this.countRoot) {
           // Yes: create the root
@@ -40916,23 +40963,53 @@ var TimelineViewer = (function () {
       enumerable: true,
       configurable: true
     },
-    _showTimeline: {
+    _getTree: {
+      value: function (count) {
+        return h(".count", [h("span.num", ["" + count]), h("span", ["incidents"])]);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
+  });
 
-      //
-      // Timeline component
-      //
-      value: function () {
-        var _this3 = this;
+  return CountComponent;
+})();
+
+module.exports = CountComponent;
+
+},{"virtual-dom/create-element":14,"virtual-dom/diff":15,"virtual-dom/h":16,"virtual-dom/patch":24}],50:[function(require,module,exports){
+"use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
+var h = _interopRequire(require("virtual-dom/h"));
+
+var diff = _interopRequire(require("virtual-dom/diff"));
+
+var patch = _interopRequire(require("virtual-dom/patch"));
+
+var createElement = _interopRequire(require("virtual-dom/create-element"));
+
+var TimelineComponent = (function () {
+  var TimelineComponent = function TimelineComponent(months) {
+    this.months = months;
+  };
+
+  _prototypeProperties(TimelineComponent, null, {
+    render: {
+      value: function (current) {
         var tree, patches;
         // If we don't have a timeline component, create it
-        if (!this.timelineComponent) {
-          // TimelineComponent wants an array of snapshots instead of the stream
-          this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
-            _this3.timelineComponent = new TimelineComponent(snapshotsArray);
-          });
-        }
         // Render the info to get a virtual dom tree
-        tree = this.timelineComponent.render(this.current);
+        tree = this._getTree(current);
         // Is this the 1st render?
         if (!this.timelineRoot) {
           // Yes: make a new root node
@@ -40951,68 +41028,8 @@ var TimelineViewer = (function () {
       writable: true,
       enumerable: true,
       configurable: true
-    }
-  });
-
-  return TimelineViewer;
-})();
-
-module.exports = TimelineViewer;
-
-},{"./components/CountComponent":49,"./components/TimelineComponent":50,"rx":13,"virtual-dom/create-element":14,"virtual-dom/diff":15,"virtual-dom/patch":24}],49:[function(require,module,exports){
-"use strict";
-
-var _prototypeProperties = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
-var _interopRequire = function (obj) {
-  return obj && (obj["default"] || obj);
-};
-
-var h = _interopRequire(require("virtual-dom/h"));
-
-var CountComponent = (function () {
-  var CountComponent = function CountComponent() {};
-
-  _prototypeProperties(CountComponent, null, {
-    render: {
-      value: function (count) {
-        return h(".count", [h("span.num", ["" + count]), h("span", ["incidents"])]);
-      },
-      writable: true,
-      enumerable: true,
-      configurable: true
-    }
-  });
-
-  return CountComponent;
-})();
-
-module.exports = CountComponent;
-
-},{"virtual-dom/h":16}],50:[function(require,module,exports){
-"use strict";
-
-var _prototypeProperties = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
-var _interopRequire = function (obj) {
-  return obj && (obj["default"] || obj);
-};
-
-var h = _interopRequire(require("virtual-dom/h"));
-
-var TimelineComponent = (function () {
-  var TimelineComponent = function TimelineComponent(months) {
-    this.months = months;
-  };
-
-  _prototypeProperties(TimelineComponent, null, {
-    render: {
+    },
+    _getTree: {
       value: function (current) {
         var items = this.months.map(function (month) {
           return h("li", {
@@ -41032,7 +41049,7 @@ var TimelineComponent = (function () {
 
 module.exports = TimelineComponent;
 
-},{"virtual-dom/h":16}],51:[function(require,module,exports){
+},{"virtual-dom/create-element":14,"virtual-dom/diff":15,"virtual-dom/h":16,"virtual-dom/patch":24}],51:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) {
