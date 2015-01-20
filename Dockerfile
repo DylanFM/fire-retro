@@ -1,4 +1,4 @@
-FROM node:latest-onbuild
+FROM node:latest
 
 ADD . /app
 WORKDIR /app
