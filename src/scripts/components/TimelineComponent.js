@@ -1,4 +1,4 @@
-import Component from './component';
+import Component from './Component';
 import h from 'virtual-dom/h';
 
 export default class TimelineComponent extends Component {

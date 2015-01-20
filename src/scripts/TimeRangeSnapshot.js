@@ -7,7 +7,7 @@ export default class Map {
   constructor(start, end) {
     this.start    = start;
     this.end      = end;
-    this.endpoint = 'http://10.0.0.24:8000/incidents';
+    this.endpoint = 'http://10.0.0.26:8000/incidents';
     this.url      = this._buildUrl();
   }
 

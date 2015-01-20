@@ -53,3 +53,10 @@ html {
     background: rgba(0, 0, 0, 0.5); }
     .timeline li.current {
       background: rgba(0, 0, 0, 0.7); }
+
+.fireTypes {
+  position: absolute;
+  bottom: 5rem;
+  right: .5rem;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1rem 0; }

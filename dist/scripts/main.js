@@ -44,7 +44,7 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
   });
 })();
 
-},{"./Map":46,"./TimelineViewer":48,"./getSnapshots":52,"d3":5,"rx":13,"virtual-dom/create-element":14,"virtual-dom/h":16}],2:[function(require,module,exports){
+},{"./Map":46,"./TimelineViewer":48,"./getSnapshots":53,"d3":5,"rx":13,"virtual-dom/create-element":14,"virtual-dom/h":16}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
@@ -40675,7 +40675,7 @@ var Map = (function () {
   var Map = function Map(start, end) {
     this.start = start;
     this.end = end;
-    this.endpoint = "http://10.0.0.24:8000/incidents";
+    this.endpoint = "http://10.0.0.26:8000/incidents";
     this.url = this._buildUrl();
   };
 
@@ -40793,6 +40793,8 @@ var _interopRequire = function (obj) {
 
 var CountComponent = _interopRequire(require("./components/CountComponent"));
 
+var FireTypeComponent = _interopRequire(require("./components/FireTypeComponent"));
+
 var TimelineComponent = _interopRequire(require("./components/TimelineComponent"));
 
 var Rx = _interopRequire(require("rx"));
@@ -40873,6 +40875,20 @@ var TimelineViewer = (function () {
         // Update the view too
         this._renderTimeline();
         this._renderCount();
+        this._renderFireTypes();
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _renderFireTypes: {
+
+      // Fire type component
+      value: function () {
+        if (!this.fireTypeComponent) {
+          this.fireTypeComponent = new FireTypeComponent();
+        }
+        this.fireTypeComponent.render(this.current.fireTypes);
       },
       writable: true,
       enumerable: true,
@@ -40915,122 +40931,7 @@ var TimelineViewer = (function () {
 
 module.exports = TimelineViewer;
 
-},{"./components/CountComponent":49,"./components/TimelineComponent":50,"rx":13}],49:[function(require,module,exports){
-"use strict";
-
-var _prototypeProperties = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
-var _inherits = function (child, parent) {
-  if (typeof parent !== "function" && parent !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
-  }
-  child.prototype = Object.create(parent && parent.prototype, {
-    constructor: {
-      value: child,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (parent) child.__proto__ = parent;
-};
-
-var _interopRequire = function (obj) {
-  return obj && (obj["default"] || obj);
-};
-
-var Component = _interopRequire(require("./component"));
-
-var h = _interopRequire(require("virtual-dom/h"));
-
-var CountComponent = (function (Component) {
-  var CountComponent = function CountComponent() {
-    if (Object.getPrototypeOf(CountComponent) !== null) {
-      Object.getPrototypeOf(CountComponent).apply(this, arguments);
-    }
-  };
-
-  _inherits(CountComponent, Component);
-
-  _prototypeProperties(CountComponent, null, {
-    _getTree: {
-      value: function (count) {
-        return h(".count", [h("span.num", ["" + count]), h("span", ["incidents"])]);
-      },
-      writable: true,
-      enumerable: true,
-      configurable: true
-    }
-  });
-
-  return CountComponent;
-})(Component);
-
-module.exports = CountComponent;
-
-},{"./component":51,"virtual-dom/h":16}],50:[function(require,module,exports){
-"use strict";
-
-var _prototypeProperties = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
-var _inherits = function (child, parent) {
-  if (typeof parent !== "function" && parent !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
-  }
-  child.prototype = Object.create(parent && parent.prototype, {
-    constructor: {
-      value: child,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (parent) child.__proto__ = parent;
-};
-
-var _interopRequire = function (obj) {
-  return obj && (obj["default"] || obj);
-};
-
-var Component = _interopRequire(require("./component"));
-
-var h = _interopRequire(require("virtual-dom/h"));
-
-var TimelineComponent = (function (Component) {
-  var TimelineComponent = function TimelineComponent(months) {
-    this.months = months;
-  };
-
-  _inherits(TimelineComponent, Component);
-
-  _prototypeProperties(TimelineComponent, null, {
-    _getTree: {
-      value: function (current) {
-        var items = this.months.map(function (month) {
-          return h("li", {
-            className: month.url === current.url ? "current" : ""
-          }, [month.start.format("MMM")]);
-        });
-        return h("ol.timeline", items);
-      },
-      writable: true,
-      enumerable: true,
-      configurable: true
-    }
-  });
-
-  return TimelineComponent;
-})(Component);
-
-module.exports = TimelineComponent;
-
-},{"./component":51,"virtual-dom/h":16}],51:[function(require,module,exports){
+},{"./components/CountComponent":50,"./components/FireTypeComponent":51,"./components/TimelineComponent":52,"rx":13}],49:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -41089,7 +40990,186 @@ var Component = (function () {
 
 module.exports = Component;
 
-},{"virtual-dom/create-element":14,"virtual-dom/diff":15,"virtual-dom/patch":24}],52:[function(require,module,exports){
+},{"virtual-dom/create-element":14,"virtual-dom/diff":15,"virtual-dom/patch":24}],50:[function(require,module,exports){
+"use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var _inherits = function (child, parent) {
+  if (typeof parent !== "function" && parent !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
+  }
+  child.prototype = Object.create(parent && parent.prototype, {
+    constructor: {
+      value: child,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (parent) child.__proto__ = parent;
+};
+
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
+var Component = _interopRequire(require("./Component"));
+
+var h = _interopRequire(require("virtual-dom/h"));
+
+var CountComponent = (function (Component) {
+  var CountComponent = function CountComponent() {
+    if (Object.getPrototypeOf(CountComponent) !== null) {
+      Object.getPrototypeOf(CountComponent).apply(this, arguments);
+    }
+  };
+
+  _inherits(CountComponent, Component);
+
+  _prototypeProperties(CountComponent, null, {
+    _getTree: {
+      value: function (count) {
+        return h(".count", [h("span.num", ["" + count]), h("span", ["incidents"])]);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
+  });
+
+  return CountComponent;
+})(Component);
+
+module.exports = CountComponent;
+
+},{"./Component":49,"virtual-dom/h":16}],51:[function(require,module,exports){
+"use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var _inherits = function (child, parent) {
+  if (typeof parent !== "function" && parent !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
+  }
+  child.prototype = Object.create(parent && parent.prototype, {
+    constructor: {
+      value: child,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (parent) child.__proto__ = parent;
+};
+
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
+var Component = _interopRequire(require("./Component"));
+
+var h = _interopRequire(require("virtual-dom/h"));
+
+var FireTypeComponent = (function (Component) {
+  var FireTypeComponent = function FireTypeComponent() {
+    if (Object.getPrototypeOf(FireTypeComponent) !== null) {
+      Object.getPrototypeOf(FireTypeComponent).apply(this, arguments);
+    }
+  };
+
+  _inherits(FireTypeComponent, Component);
+
+  _prototypeProperties(FireTypeComponent, null, {
+    _getTree: {
+      value: function (fireTypes) {
+        var types = [];
+
+        for (var type in fireTypes) {
+          if (fireTypes.hasOwnProperty(type)) {
+            types.push(h("tr", [h("td", [type]), h("td", ["" + fireTypes[type]])]));
+          }
+        }
+
+        return h("table.fireTypes", [h("tbody", types)]);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
+  });
+
+  return FireTypeComponent;
+})(Component);
+
+module.exports = FireTypeComponent;
+
+},{"./Component":49,"virtual-dom/h":16}],52:[function(require,module,exports){
+"use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var _inherits = function (child, parent) {
+  if (typeof parent !== "function" && parent !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
+  }
+  child.prototype = Object.create(parent && parent.prototype, {
+    constructor: {
+      value: child,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (parent) child.__proto__ = parent;
+};
+
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
+var Component = _interopRequire(require("./Component"));
+
+var h = _interopRequire(require("virtual-dom/h"));
+
+var TimelineComponent = (function (Component) {
+  var TimelineComponent = function TimelineComponent(months) {
+    this.months = months;
+  };
+
+  _inherits(TimelineComponent, Component);
+
+  _prototypeProperties(TimelineComponent, null, {
+    _getTree: {
+      value: function (current) {
+        var items = this.months.map(function (month) {
+          return h("li", {
+            className: month.url === current.url ? "current" : ""
+          }, [month.start.format("MMM")]);
+        });
+        return h("ol.timeline", items);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
+  });
+
+  return TimelineComponent;
+})(Component);
+
+module.exports = TimelineComponent;
+
+},{"./Component":49,"virtual-dom/h":16}],53:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) {

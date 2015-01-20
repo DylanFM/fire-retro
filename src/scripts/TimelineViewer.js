@@ -1,4 +1,5 @@
 import CountComponent from './components/CountComponent';
+import FireTypeComponent from './components/FireTypeComponent';
 import TimelineComponent from './components/TimelineComponent';
 import Rx from 'rx';
 
@@ -61,6 +62,15 @@ export default class TimelineViewer {
     // Update the view too
     this._renderTimeline();
     this._renderCount();
+    this._renderFireTypes();
+  }
+
+  // Fire type component
+  _renderFireTypes() {
+    if (!this.fireTypeComponent) {
+      this.fireTypeComponent = new FireTypeComponent();
+    }
+    this.fireTypeComponent.render(this.current.fireTypes);
   }
 
   // Count component
