@@ -44,7 +44,7 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
   });
 })();
 
-},{"./Map":47,"./TimelineViewer":49,"./getSnapshots":54,"d3":5,"rx":14,"virtual-dom/create-element":15,"virtual-dom/h":17}],2:[function(require,module,exports){
+},{"./Map":49,"./TimelineViewer":51,"./getSnapshots":56,"d3":5,"rx":14,"virtual-dom/create-element":15,"virtual-dom/h":17}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
@@ -45824,7 +45824,7 @@ var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":46}],17:[function(require,module,exports){
+},{"./vtree/diff.js":48}],17:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
@@ -46145,7 +46145,7 @@ function getPrototype(value) {
     }
 }
 
-},{"../vnode/is-vhook.js":38,"is-object":23}],27:[function(require,module,exports){
+},{"../vnode/is-vhook.js":40,"is-object":23}],27:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -46193,7 +46193,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"../vnode/handle-thunk.js":36,"../vnode/is-vnode.js":39,"../vnode/is-vtext.js":40,"../vnode/is-widget.js":41,"./apply-properties":26,"global/document":22}],28:[function(require,module,exports){
+},{"../vnode/handle-thunk.js":38,"../vnode/is-vnode.js":41,"../vnode/is-vtext.js":42,"../vnode/is-widget.js":43,"./apply-properties":26,"global/document":22}],28:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -46465,7 +46465,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"../vnode/is-widget.js":41,"../vnode/vpatch.js":44,"./apply-properties":26,"./create-element":27,"./update-widget":31}],30:[function(require,module,exports){
+},{"../vnode/is-widget.js":43,"../vnode/vpatch.js":46,"./apply-properties":26,"./create-element":27,"./update-widget":31}],30:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -46560,7 +46560,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"../vnode/is-widget.js":41}],32:[function(require,module,exports){
+},{"../vnode/is-widget.js":43}],32:[function(require,module,exports){
 'use strict';
 
 var EvStore = require('ev-store');
@@ -46745,7 +46745,315 @@ function errorString(obj) {
     }
 }
 
-},{"../vnode/is-thunk":37,"../vnode/is-vhook":38,"../vnode/is-vnode":39,"../vnode/is-vtext":40,"../vnode/is-widget":41,"../vnode/vnode.js":43,"../vnode/vtext.js":45,"./hooks/ev-hook.js":32,"./hooks/soft-set-hook.js":33,"./parse-tag.js":35,"x-is-array":24}],35:[function(require,module,exports){
+},{"../vnode/is-thunk":39,"../vnode/is-vhook":40,"../vnode/is-vnode":41,"../vnode/is-vtext":42,"../vnode/is-widget":43,"../vnode/vnode.js":45,"../vnode/vtext.js":47,"./hooks/ev-hook.js":32,"./hooks/soft-set-hook.js":33,"./parse-tag.js":36,"x-is-array":24}],35:[function(require,module,exports){
+'use strict';
+
+// http://www.w3.org/TR/SVGTiny12/attributeTable.html
+// http://www.w3.org/TR/SVG/attindex.html
+var SVG_PROPERTIES = {
+    'about': true,
+    'accent-height': true,
+    'accumulate': true,
+    'additive': true,
+    'alignment-baseline': true,
+    'alphabetic': true,
+    'amplitude': true,
+    'arabic-form': true,
+    'ascent': true,
+    'attributeName': true,
+    'attributeType': true,
+    'azimuth': true,
+    'bandwidth': true,
+    'baseFrequency': true,
+    'baseProfile': true,
+    'baseline-shift': true,
+    'bbox': true,
+    'begin': true,
+    'bias': true,
+    'by': true,
+    'calcMode': true,
+    'cap-height': true,
+    'class': true,
+    'clip': true,
+    'clip-path': true,
+    'clip-rule': true,
+    'clipPathUnits': true,
+    'color': true,
+    'color-interpolation': true,
+    'color-interpolation-filters': true,
+    'color-profile': true,
+    'color-rendering': true,
+    'content': true,
+    'contentScriptType': true,
+    'contentStyleType': true,
+    'cursor': true,
+    'cx': true,
+    'cy': true,
+    'd': true,
+    'datatype': true,
+    'defaultAction': true,
+    'descent': true,
+    'diffuseConstant': true,
+    'direction': true,
+    'display': true,
+    'divisor': true,
+    'dominant-baseline': true,
+    'dur': true,
+    'dx': true,
+    'dy': true,
+    'edgeMode': true,
+    'editable': true,
+    'elevation': true,
+    'enable-background': true,
+    'end': true,
+    'ev:event': true,
+    'event': true,
+    'exponent': true,
+    'externalResourcesRequired': true,
+    'fill': true,
+    'fill-opacity': true,
+    'fill-rule': true,
+    'filter': true,
+    'filterRes': true,
+    'filterUnits': true,
+    'flood-color': true,
+    'flood-opacity': true,
+    'focusHighlight': true,
+    'focusable': true,
+    'font-family': true,
+    'font-size': true,
+    'font-size-adjust': true,
+    'font-stretch': true,
+    'font-style': true,
+    'font-variant': true,
+    'font-weight': true,
+    'format': true,
+    'from': true,
+    'fx': true,
+    'fy': true,
+    'g1': true,
+    'g2': true,
+    'glyph-name': true,
+    'glyph-orientation-horizontal': true,
+    'glyph-orientation-vertical': true,
+    'glyphRef': true,
+    'gradientTransform': true,
+    'gradientUnits': true,
+    'handler': true,
+    'hanging': true,
+    'height': true,
+    'horiz-adv-x': true,
+    'horiz-origin-x': true,
+    'horiz-origin-y': true,
+    'id': true,
+    'ideographic': true,
+    'image-rendering': true,
+    'in': true,
+    'in2': true,
+    'initialVisibility': true,
+    'intercept': true,
+    'k': true,
+    'k1': true,
+    'k2': true,
+    'k3': true,
+    'k4': true,
+    'kernelMatrix': true,
+    'kernelUnitLength': true,
+    'kerning': true,
+    'keyPoints': true,
+    'keySplines': true,
+    'keyTimes': true,
+    'lang': true,
+    'lengthAdjust': true,
+    'letter-spacing': true,
+    'lighting-color': true,
+    'limitingConeAngle': true,
+    'local': true,
+    'marker-end': true,
+    'marker-mid': true,
+    'marker-start': true,
+    'markerHeight': true,
+    'markerUnits': true,
+    'markerWidth': true,
+    'mask': true,
+    'maskContentUnits': true,
+    'maskUnits': true,
+    'mathematical': true,
+    'max': true,
+    'media': true,
+    'mediaCharacterEncoding': true,
+    'mediaContentEncodings': true,
+    'mediaSize': true,
+    'mediaTime': true,
+    'method': true,
+    'min': true,
+    'mode': true,
+    'name': true,
+    'nav-down': true,
+    'nav-down-left': true,
+    'nav-down-right': true,
+    'nav-left': true,
+    'nav-next': true,
+    'nav-prev': true,
+    'nav-right': true,
+    'nav-up': true,
+    'nav-up-left': true,
+    'nav-up-right': true,
+    'numOctaves': true,
+    'observer': true,
+    'offset': true,
+    'opacity': true,
+    'operator': true,
+    'order': true,
+    'orient': true,
+    'orientation': true,
+    'origin': true,
+    'overflow': true,
+    'overlay': true,
+    'overline-position': true,
+    'overline-thickness': true,
+    'panose-1': true,
+    'path': true,
+    'pathLength': true,
+    'patternContentUnits': true,
+    'patternTransform': true,
+    'patternUnits': true,
+    'phase': true,
+    'playbackOrder': true,
+    'pointer-events': true,
+    'points': true,
+    'pointsAtX': true,
+    'pointsAtY': true,
+    'pointsAtZ': true,
+    'preserveAlpha': true,
+    'preserveAspectRatio': true,
+    'primitiveUnits': true,
+    'propagate': true,
+    'property': true,
+    'r': true,
+    'radius': true,
+    'refX': true,
+    'refY': true,
+    'rel': true,
+    'rendering-intent': true,
+    'repeatCount': true,
+    'repeatDur': true,
+    'requiredExtensions': true,
+    'requiredFeatures': true,
+    'requiredFonts': true,
+    'requiredFormats': true,
+    'resource': true,
+    'restart': true,
+    'result': true,
+    'rev': true,
+    'role': true,
+    'rotate': true,
+    'rx': true,
+    'ry': true,
+    'scale': true,
+    'seed': true,
+    'shape-rendering': true,
+    'slope': true,
+    'snapshotTime': true,
+    'spacing': true,
+    'specularConstant': true,
+    'specularExponent': true,
+    'spreadMethod': true,
+    'startOffset': true,
+    'stdDeviation': true,
+    'stemh': true,
+    'stemv': true,
+    'stitchTiles': true,
+    'stop-color': true,
+    'stop-opacity': true,
+    'strikethrough-position': true,
+    'strikethrough-thickness': true,
+    'string': true,
+    'stroke': true,
+    'stroke-dasharray': true,
+    'stroke-dashoffset': true,
+    'stroke-linecap': true,
+    'stroke-linejoin': true,
+    'stroke-miterlimit': true,
+    'stroke-opacity': true,
+    'stroke-width': true,
+    'surfaceScale': true,
+    'syncBehavior': true,
+    'syncBehaviorDefault': true,
+    'syncMaster': true,
+    'syncTolerance': true,
+    'syncToleranceDefault': true,
+    'systemLanguage': true,
+    'tableValues': true,
+    'target': true,
+    'targetX': true,
+    'targetY': true,
+    'text-anchor': true,
+    'text-decoration': true,
+    'text-rendering': true,
+    'textLength': true,
+    'timelineBegin': true,
+    'title': true,
+    'to': true,
+    'transform': true,
+    'transformBehavior': true,
+    'type': true,
+    'typeof': true,
+    'u1': true,
+    'u2': true,
+    'underline-position': true,
+    'underline-thickness': true,
+    'unicode': true,
+    'unicode-bidi': true,
+    'unicode-range': true,
+    'units-per-em': true,
+    'v-alphabetic': true,
+    'v-hanging': true,
+    'v-ideographic': true,
+    'v-mathematical': true,
+    'values': true,
+    'version': true,
+    'vert-adv-y': true,
+    'vert-origin-x': true,
+    'vert-origin-y': true,
+    'viewBox': true,
+    'viewTarget': true,
+    'visibility': true,
+    'width': true,
+    'widths': true,
+    'word-spacing': true,
+    'writing-mode': true,
+    'x': true,
+    'x-height': true,
+    'x1': true,
+    'x2': true,
+    'xChannelSelector': true,
+    'xlink:actuate': true,
+    'xlink:arcrole': true,
+    'xlink:href': true,
+    'xlink:role': true,
+    'xlink:show': true,
+    'xlink:title': true,
+    'xlink:type': true,
+    'xml:base': true,
+    'xml:id': true,
+    'xml:lang': true,
+    'xml:space': true,
+    'y': true,
+    'y1': true,
+    'y2': true,
+    'yChannelSelector': true,
+    'z': true,
+    'zoomAndPan': true
+};
+
+module.exports = isSVGAttribute;
+
+function isSVGAttribute(value) {
+    return SVG_PROPERTIES[value] === true;
+}
+
+},{}],36:[function(require,module,exports){
 'use strict';
 
 var split = require('browser-split');
@@ -46801,7 +47109,63 @@ function parseTag(tag, props) {
     return props.namespace ? tagName : tagName.toUpperCase();
 }
 
-},{"browser-split":18}],36:[function(require,module,exports){
+},{"browser-split":18}],37:[function(require,module,exports){
+'use strict';
+
+var isArray = require('x-is-array');
+
+var h = require('./index.js');
+
+
+var isSVGAttribute = require('./is-svg-attribute');
+
+var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+
+module.exports = svg;
+
+function svg(tagName, properties, children) {
+    if (!children && isChildren(properties)) {
+        children = properties;
+        properties = {};
+    }
+
+    properties = properties || {};
+
+    // set namespace for svg
+    properties.namespace = SVG_NAMESPACE;
+
+    var attributes = properties.attributes || (properties.attributes = {});
+
+    for (var key in properties) {
+        if (!properties.hasOwnProperty(key)) {
+            continue;
+        }
+
+        if (!isSVGAttribute(key)) {
+            continue;
+        }
+
+        var value = properties[key];
+
+        if (typeof value !== 'string' &&
+            typeof value !== 'number' &&
+            typeof value !== 'boolean'
+        ) {
+            continue;
+        }
+
+        attributes[key] = value
+        properties[key] = undefined
+    }
+
+    return h(tagName, properties, children);
+}
+
+function isChildren(x) {
+    return typeof x === 'string' || isArray(x);
+}
+
+},{"./index.js":34,"./is-svg-attribute":35,"x-is-array":24}],38:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -46843,14 +47207,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":37,"./is-vnode":39,"./is-vtext":40,"./is-widget":41}],37:[function(require,module,exports){
+},{"./is-thunk":39,"./is-vnode":41,"./is-vtext":42,"./is-widget":43}],39:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -46858,7 +47222,7 @@ function isHook(hook) {
         !hook.hasOwnProperty("hook")
 }
 
-},{}],39:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -46867,7 +47231,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":42}],40:[function(require,module,exports){
+},{"./version":44}],42:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -46876,17 +47240,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":42}],41:[function(require,module,exports){
+},{"./version":44}],43:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],42:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = "1"
 
-},{}],43:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -46960,7 +47324,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-thunk":37,"./is-vhook":38,"./is-vnode":39,"./is-widget":41,"./version":42}],44:[function(require,module,exports){
+},{"./is-thunk":39,"./is-vhook":40,"./is-vnode":41,"./is-widget":43,"./version":44}],46:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -46984,7 +47348,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":42}],45:[function(require,module,exports){
+},{"./version":44}],47:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -46996,7 +47360,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":42}],46:[function(require,module,exports){
+},{"./version":44}],48:[function(require,module,exports){
 var isArray = require("x-is-array")
 var isObject = require("is-object")
 
@@ -47375,7 +47739,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":36,"../vnode/is-thunk":37,"../vnode/is-vhook":38,"../vnode/is-vnode":39,"../vnode/is-vtext":40,"../vnode/is-widget":41,"../vnode/vpatch":44,"is-object":23,"x-is-array":24}],47:[function(require,module,exports){
+},{"../vnode/handle-thunk":38,"../vnode/is-thunk":39,"../vnode/is-vhook":40,"../vnode/is-vnode":41,"../vnode/is-vtext":42,"../vnode/is-widget":43,"../vnode/vpatch":46,"is-object":23,"x-is-array":24}],49:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -47443,7 +47807,7 @@ var Map = (function () {
 
 module.exports = Map;
 
-},{"leaflet":6}],48:[function(require,module,exports){
+},{"leaflet":6}],50:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -47571,7 +47935,7 @@ var Map = (function () {
 
 module.exports = Map;
 
-},{"d3":5,"leaflet":6,"lodash":7,"q":9}],49:[function(require,module,exports){
+},{"d3":5,"leaflet":6,"lodash":7,"q":9}],51:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -47723,7 +48087,7 @@ var TimelineViewer = (function () {
 
 module.exports = TimelineViewer;
 
-},{"./components/CountComponent":51,"./components/FireTypeComponent":52,"./components/TimelineComponent":53,"lodash":7,"rx":14}],50:[function(require,module,exports){
+},{"./components/CountComponent":53,"./components/FireTypeComponent":54,"./components/TimelineComponent":55,"lodash":7,"rx":14}],52:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -47782,7 +48146,7 @@ var Component = (function () {
 
 module.exports = Component;
 
-},{"virtual-dom/create-element":15,"virtual-dom/diff":16,"virtual-dom/patch":25}],51:[function(require,module,exports){
+},{"virtual-dom/create-element":15,"virtual-dom/diff":16,"virtual-dom/patch":25}],53:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -47838,7 +48202,7 @@ var CountComponent = (function (Component) {
 
 module.exports = CountComponent;
 
-},{"./Component":50,"virtual-dom/h":17}],52:[function(require,module,exports){
+},{"./Component":52,"virtual-dom/h":17}],54:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -47869,13 +48233,14 @@ var Component = _interopRequire(require("./Component"));
 
 var h = _interopRequire(require("virtual-dom/h"));
 
+var svg = _interopRequire(require("virtual-dom/virtual-hyperscript/svg"));
+
 var _ = _interopRequire(require("lodash"));
 
 var FireTypeComponent = (function (Component) {
   var FireTypeComponent = function FireTypeComponent() {
-    if (Object.getPrototypeOf(FireTypeComponent) !== null) {
-      Object.getPrototypeOf(FireTypeComponent).apply(this, arguments);
-    }
+    this.width = 1000;
+    this.height = 300;
   };
 
   _inherits(FireTypeComponent, Component);
@@ -47883,11 +48248,21 @@ var FireTypeComponent = (function (Component) {
   _prototypeProperties(FireTypeComponent, null, {
     _getTree: {
       value: function (fireTypes) {
-        var types = _.map(fireTypes, function (count, type) {
-          return h("tr", [h("td", [type]), h("td", ["" + fireTypes[type]])]);
+        var keys = _.keys(fireTypes),
+            types = _.map(fireTypes, function (count, type) {
+          return svg("rect", {
+            width: 10,
+            height: count,
+            x: _.indexOf(keys, type) * 12,
+            y: 0,
+            fill: "#cccccc"
+          });
         });
 
-        return h("table.fireTypes", [h("tbody", types)]);
+        return h(".fireTypes", svg("svg", {
+          className: "fireTypes",
+          width: this.width,
+          height: this.height }, types));
       },
       writable: true,
       enumerable: true,
@@ -47900,7 +48275,7 @@ var FireTypeComponent = (function (Component) {
 
 module.exports = FireTypeComponent;
 
-},{"./Component":50,"lodash":7,"virtual-dom/h":17}],53:[function(require,module,exports){
+},{"./Component":52,"lodash":7,"virtual-dom/h":17,"virtual-dom/virtual-hyperscript/svg":37}],55:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -47959,7 +48334,7 @@ var TimelineComponent = (function (Component) {
 
 module.exports = TimelineComponent;
 
-},{"./Component":50,"virtual-dom/h":17}],54:[function(require,module,exports){
+},{"./Component":52,"virtual-dom/h":17}],56:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) {
@@ -47983,7 +48358,7 @@ function getSnapshots(year) {
   });
 }
 
-},{"./TimeRangeSnapshot":48,"moment":8,"rx":14}]},{},[1])
+},{"./TimeRangeSnapshot":50,"moment":8,"rx":14}]},{},[1])
 
 
 //# sourceMappingURL=main.map

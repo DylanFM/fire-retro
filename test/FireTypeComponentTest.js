@@ -10,25 +10,28 @@ import FireTypeComponent from '../src/scripts/components/FireTypeComponent';
 
 describe('FireTypeComponent', () => {
 
+  var component, fireTypes;
+
+  beforeEach(() => {
+    component = new FireTypeComponent;
+    fireTypes = {
+      'Grass fire':        100,
+      'Hazard reduction':  50,
+      'MVA':               2,
+      'Fire alarm':        1
+    };
+  });
+
   describe('#_getTree', () => {
-    var component, fireTypes;
+    var chart;
 
     beforeEach(() => {
-      component = new FireTypeComponent;
-      fireTypes = {
-        'Grass fire':        100,
-        'Hazard reduction':  50,
-        'MVA':               2,
-        'Fire alarm':        1
-      };
+      var container = component._getTree(fireTypes); // Containing div
+      chart         = container.children[0];         // Container has 1 child, <svg>
     });
 
-    it('takes a representation of fire types', () => {
-      var table = component._getTree(fireTypes);
-      var tbody = table.children[0];
-      var rows  = tbody.children;
-
-      assert.lengthOf(rows, 4, '4 fire types passed in');
+    it('renders fire types given to it', () => {
+      assert.lengthOf(chart.children, 4);
     });
 
   });
