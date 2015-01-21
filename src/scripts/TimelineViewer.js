@@ -2,6 +2,7 @@ import CountComponent from './components/CountComponent';
 import FireTypeComponent from './components/FireTypeComponent';
 import TimelineComponent from './components/TimelineComponent';
 import Rx from 'rx';
+import _ from 'lodash';
 
 export default class TimelineViewer {
 
@@ -21,14 +22,10 @@ export default class TimelineViewer {
     this.snapshots
       .every((s) => s.data)
       .subscribeOnNext((isLoaded) => {
-        var delay;
         if (isLoaded) {
           this._beginPlaying();
         } else {
-          delay = window.setInterval(() => {
-            this._playIfDataLoaded();
-            window.clearInterval(delay);
-          }, 500);
+          _.delay(() => this._playIfDataLoaded(), 500);
         }
       });
   }

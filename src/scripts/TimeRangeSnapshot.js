@@ -1,6 +1,7 @@
 import Q from 'q';
 import d3 from 'd3';
 import L from 'leaflet';
+import _ from 'lodash';
 
 export default class Map {
 
@@ -71,7 +72,7 @@ export default class Map {
 
   // Read the data and pull out the fire types with counts
   _extractFireTypes() {
-    return this.data.features.reduce((types, incident) => {
+    return _.reduce(this.data.features, (types, incident) => {
       if (!types[incident.properties.fireType]) {
         types[incident.properties.fireType] = 1;
       } else {
