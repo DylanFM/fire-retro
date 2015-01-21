@@ -59,4 +59,6 @@ html {
   bottom: 5rem;
   right: .5rem;
   background: rgba(0, 0, 0, 0.5);
-  padding: 1rem 0; }
+  padding: .5rem;
+  width: 1rem;
+  height: 40vh; }

@@ -48237,10 +48237,12 @@ var svg = _interopRequire(require("virtual-dom/virtual-hyperscript/svg"));
 
 var _ = _interopRequire(require("lodash"));
 
+var d3 = _interopRequire(require("d3"));
+
 var FireTypeComponent = (function (Component) {
   var FireTypeComponent = function FireTypeComponent() {
-    this.width = 1000;
-    this.height = 300;
+    this.width = "100%";
+    this.height = "100%";
   };
 
   _inherits(FireTypeComponent, Component);
@@ -48248,15 +48250,28 @@ var FireTypeComponent = (function (Component) {
   _prototypeProperties(FireTypeComponent, null, {
     _getTree: {
       value: function (fireTypes) {
-        var keys = _.keys(fireTypes),
-            types = _.map(fireTypes, function (count, type) {
-          return svg("rect", {
-            width: 10,
-            height: count,
-            x: _.indexOf(keys, type) * 12,
-            y: 0,
+        var sum = _.reduce(_.values(fireTypes), function (sum, num) {
+          return sum + num;
+        });
+
+        var yScale = d3.scale.linear().domain([0, sum]).range([0, 100]); // Percent
+
+        var keys = _.keys(fireTypes);
+
+        var offset = 0;
+        var types = _.map(fireTypes, function (count, type) {
+          var height = yScale(count),
+              el = svg("rect", {
+            width: "100%",
+            height: "" + height + "%",
+            x: 0,
+            y: "" + offset + "%",
             fill: "#cccccc"
           });
+          // Track offset for next item
+          offset += height;
+          // Return bar element
+          return el;
         });
 
         return h(".fireTypes", svg("svg", {
@@ -48275,7 +48290,7 @@ var FireTypeComponent = (function (Component) {
 
 module.exports = FireTypeComponent;
 
-},{"./Component":52,"lodash":7,"virtual-dom/h":17,"virtual-dom/virtual-hyperscript/svg":37}],55:[function(require,module,exports){
+},{"./Component":52,"d3":5,"lodash":7,"virtual-dom/h":17,"virtual-dom/virtual-hyperscript/svg":37}],55:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {

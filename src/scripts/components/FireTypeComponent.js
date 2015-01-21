@@ -2,25 +2,39 @@ import Component from './Component';
 import h from 'virtual-dom/h';
 import svg from 'virtual-dom/virtual-hyperscript/svg';
 import _ from 'lodash';
+import d3 from 'd3';
 
 export default class FireTypeComponent extends Component {
 
   constructor() {
-    this.width  = 1000;
-    this.height = 300;
+    this.width  = '100%';
+    this.height = '100%';
   }
 
   _getTree(fireTypes) {
-    var keys  = _.keys(fireTypes),
-        types = _.map(fireTypes, (count, type) => {
-          return svg('rect', {
-            width: 10,
-            height: count,
-            x: _.indexOf(keys, type) * 12,
-            y: 0,
-            fill: '#cccccc'
+    var sum = _.reduce(_.values(fireTypes), (sum, num) => sum + num);
+
+    var yScale = d3.scale.linear()
+                  .domain([0, sum])
+                  .range([0, 100]); // Percent
+
+    var keys  = _.keys(fireTypes);
+
+    var offset = 0;
+    var types = _.map(fireTypes, (count, type) => {
+      var height = yScale(count),
+          el     = svg('rect', {
+            width:   '100%',
+            height:  '' + height + '%',
+            x:       0,
+            y:       '' + offset + '%',
+            fill:    '#cccccc'
           });
-        });
+      // Track offset for next item
+      offset += height;
+      // Return bar element
+      return el;
+    });
 
     return h('.fireTypes',
       svg('svg', {
