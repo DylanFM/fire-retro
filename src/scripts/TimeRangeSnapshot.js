@@ -5,11 +5,12 @@ import _ from 'lodash';
 
 export default class Map {
 
-  constructor(start, end) {
+  constructor(start, end, colourer) {
     this.start    = start;
     this.end      = end;
     this.endpoint = 'http://10.0.0.26:8000/incidents';
     this.url      = this._buildUrl();
+    this.colourer = colourer;
   }
 
   loadData() {
@@ -54,17 +55,8 @@ export default class Map {
             },
             type = feature.properties.fireType;
 
-        if (/hazard/i.test(type)) {
-          circle.color = '#30c757';
-        }
+        circle.color = this.colourer.getColour(type).toString();
 
-        if (/mva|motor/i.test(type)) {
-          circle.color = '#000';
-        }
-
-        if (/fire/i.test(type)) {
-          circle.color = '#ff0000';
-        }
         return L.circleMarker(latlng, circle);
       }
     });

@@ -7,13 +7,14 @@ sinon.assert.expose(chai.assert, { prefix: '' });
 var assert = chai.assert;
 
 import FireTypeComponent from '../src/scripts/components/FireTypeComponent';
+import Colourer from '../src/scripts/Colourer';
 
 describe('FireTypeComponent', () => {
 
   var component, fireTypes;
 
   beforeEach(() => {
-    component = new FireTypeComponent;
+    component = new FireTypeComponent(new Colourer);
     fireTypes = {
       'Grass fire':        100,
       'Hazard reduction':  50,

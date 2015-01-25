@@ -8,6 +8,7 @@ var assert = chai.assert;
 
 import moment from 'moment';
 import Map from '../src/scripts/Map';
+import Colourer from '../src/scripts/Colourer';
 import TimeRangeSnapshot from '../src/scripts/TimeRangeSnapshot';
 import TimelineViewer from '../src/scripts/TimelineViewer';
 import Rx from 'rx';
@@ -15,17 +16,18 @@ import Rx from 'rx';
 describe('TimelineViewer', () => {
 
   var tv, map,
+      colourer  = new Colourer,
       jan14     = moment().set({ year: 2014, month: 0 }),
       feb14     = moment().set({ year: 2014, month: 1 }),
-      tr1       = new TimeRangeSnapshot(jan14.startOf('month'), jan14.endOf('month')),
-      tr2       = new TimeRangeSnapshot(feb14.startOf('month'), feb14.endOf('month')),
+      tr1       = new TimeRangeSnapshot(jan14.startOf('month'), jan14.endOf('month'), colourer),
+      tr2       = new TimeRangeSnapshot(feb14.startOf('month'), feb14.endOf('month'), colourer),
       snapshots = Rx.Observable.from([tr1, tr2]);
 
   beforeEach(() => {
     // Mock the map
     map = sinon.createStubInstance(Map);
     // Make new viewer with a our map and snapshot observable
-    tv = new TimelineViewer(map, snapshots);
+    tv = new TimelineViewer(map, snapshots, colourer);
   });
 
   it('has snapshots', () => {

@@ -9,20 +9,22 @@ var assert = chai.assert;
 import Q from 'q';
 import moment from 'moment';
 import TimeRangeSnapshot from '../src/scripts/TimeRangeSnapshot';
+import Colourer from '../src/scripts/Colourer';
 
 describe('TimeRangeSnapshot', () => {
 
   var tr,
-      jan14   = moment().set({ year: 2014, month: 0 }),
-      st      = jan14.startOf('month'),
-      en      = jan14.endOf('month'),
-      geojson = {
-        type: 'FeatureCollection',
-        features: [{
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [100.0, 0.0]
+      jan14    = moment().set({ year: 2014, month: 0 }),
+      st       = jan14.startOf('month'),
+      en       = jan14.endOf('month'),
+      colourer = new Colourer,
+      geojson  = {
+        type:      'FeatureCollection',
+        features:  [{
+          type:      'Feature',
+          geometry:  {
+            type:         'Point',
+            coordinates:  [100.0, 0.0]
           },
           properties: {
             fireType: 'Grass fire'
@@ -32,7 +34,7 @@ describe('TimeRangeSnapshot', () => {
 
   before(() => {
     // Init our test instance
-    tr = new TimeRangeSnapshot(st, en);
+    tr = new TimeRangeSnapshot(st, en, colourer);
     // Stub XHR request to fetch data
     sinon.stub(tr, '_fetchData', () => {
       // Return a promise resolving to fake geojson

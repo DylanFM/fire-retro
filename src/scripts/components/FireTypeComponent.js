@@ -6,9 +6,10 @@ import d3 from 'd3';
 
 export default class FireTypeComponent extends Component {
 
-  constructor() {
-    this.width  = '100%';
-    this.height = '100%';
+  constructor(colourer) {
+    this.width    = '100%';
+    this.height   = '100%';
+    this.colourer = colourer;
   }
 
   _getTree(fireTypes) {
@@ -28,7 +29,7 @@ export default class FireTypeComponent extends Component {
             height:  '' + height + '%',
             x:       0,
             y:       '' + offset + '%',
-            fill:    '#cccccc'
+            fill:    this.colourer.getColour(type).toString()
           });
       // Track offset for next item
       offset += height;

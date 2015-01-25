@@ -6,9 +6,10 @@ import _ from 'lodash';
 
 export default class TimelineViewer {
 
-  constructor(map, snapshots) {
+  constructor(map, snapshots, colourer) {
     this.map       = map;
     this.snapshots = snapshots; // This is an RxJS observable
+    this.colourer  = colourer;
   }
 
   play(speed) {
@@ -65,7 +66,7 @@ export default class TimelineViewer {
   // Fire type component
   _renderFireTypes() {
     if (!this.fireTypeComponent) {
-      this.fireTypeComponent = new FireTypeComponent();
+      this.fireTypeComponent = new FireTypeComponent(this.colourer);
     }
     this.fireTypeComponent.render(this.current.fireTypes);
   }

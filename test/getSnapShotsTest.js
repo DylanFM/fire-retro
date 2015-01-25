@@ -5,10 +5,11 @@ import { assert } from 'chai';
 import moment from 'moment';
 import getSnapshots from '../src/scripts/getSnapshots';
 import TimeRangeSnapshot from '../src/scripts/TimeRangeSnapshot';
+import Colourer from '../src/scripts/Colourer';
 
 describe('getSnapshots', () => {
   it('returns an observable of snapshots for months of a given year', () => {
-    var months = getSnapshots(2014);
+    var months = getSnapshots(2014, new Colourer);
 
     months.toArray().subscribe((arr) => {
       assert.lengthOf(arr, 12, 'there are 12 months');
