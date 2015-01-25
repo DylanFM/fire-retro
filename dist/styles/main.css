@@ -57,8 +57,6 @@ html {
 .fireTypes {
   position: absolute;
   bottom: 5rem;
-  right: .5rem;
-  background: rgba(0, 0, 0, 0.5);
-  padding: .5rem;
-  width: 1rem;
+  right: 1.5rem;
+  width: 1.2rem;
   height: 40vh; }
