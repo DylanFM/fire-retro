@@ -48704,9 +48704,9 @@ var d3 = _interopRequire(require("d3"));
 
 var FireTypeComponent = (function (Component) {
   var FireTypeComponent = function FireTypeComponent(colourer) {
+    this.colourer = colourer;
     this.width = "100%";
     this.height = "100%";
-    this.colourer = colourer;
   };
 
   _inherits(FireTypeComponent, Component);
@@ -48715,16 +48715,11 @@ var FireTypeComponent = (function (Component) {
     _getTree: {
       value: function (fireTypes) {
         var _this = this;
-        var sum = _.reduce(_.values(fireTypes), function (sum, num) {
-          return sum + num;
-        });
-
-        var yScale = d3.scale.linear().domain([0, sum]).range([0, 100]); // Percent
-
-        var keys = _.keys(fireTypes);
-
-        var offset = 0;
-        var types = _.map(fireTypes, function (count, type) {
+        var keys = _.keys(fireTypes),
+            yScale = this._getYScale(fireTypes),
+            offset = 0,
+            // I don't really like having this offset used and accumulated in the map
+        types = _.map(fireTypes, function (count, type) {
           var height = yScale(count),
               el = svg("rect", {
             width: "100%",
@@ -48743,6 +48738,19 @@ var FireTypeComponent = (function (Component) {
           className: "fireTypes",
           width: this.width,
           height: this.height }, types));
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _getYScale: {
+      value: function (fireTypes) {
+        // Total number of incidents
+        var sum = _.reduce(_.values(fireTypes), function (sum, num) {
+          return sum + num;
+        });
+        // Scale to get percentage of total per-type
+        return d3.scale.linear().domain([0, sum]).range([0, 100]); // Percent
       },
       writable: true,
       enumerable: true,
