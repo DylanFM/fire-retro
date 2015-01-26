@@ -48379,10 +48379,11 @@ var Map = (function () {
       // Read the data and pull out the fire types with counts
       value: function () {
         return _.reduce(this.data.features, function (types, incident) {
-          if (!types[incident.properties.fireType]) {
-            types[incident.properties.fireType] = 1;
+          var key = incident.properties.fireType.toUpperCase();
+          if (!types[key]) {
+            types[key] = 1;
           } else {
-            types[incident.properties.fireType]++;
+            types[key]++;
           }
           return types;
         }, {});

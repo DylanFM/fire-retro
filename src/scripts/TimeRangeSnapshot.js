@@ -65,10 +65,11 @@ export default class Map {
   // Read the data and pull out the fire types with counts
   _extractFireTypes() {
     return _.reduce(this.data.features, (types, incident) => {
-      if (!types[incident.properties.fireType]) {
-        types[incident.properties.fireType] = 1;
+      var key = incident.properties.fireType.toUpperCase();
+      if (!types[key]) {
+        types[key] = 1;
       } else {
-        types[incident.properties.fireType]++;
+        types[key]++;
       }
       return types;
     }, {});

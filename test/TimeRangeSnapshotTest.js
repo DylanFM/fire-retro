@@ -29,6 +29,15 @@ describe('TimeRangeSnapshot', () => {
           properties: {
             fireType: 'Grass fire'
           }
+        }, {
+          type:      'Feature',
+          geometry:  {
+            type:         'Point',
+            coordinates:  [100.0, 0.0]
+          },
+          properties: {
+            fireType: 'Grass Fire'
+          }
         }]
       };
 
@@ -59,22 +68,26 @@ describe('TimeRangeSnapshot', () => {
 
   describe('#loadData()', () => {
     it('loads the data using d3.json', (done) => {
-      tr.loadData().then(() => {
-        assert.equal(geojson, tr.data, 'has set geojson as data');
-        assert.equal(1, tr.count, 'set the count to number of features');
-        assert.isDefined(tr.layer, 'layer has been set');
-        assert.lengthOf(tr.layer.toGeoJSON().features, 1, 'has a geojson layer using the data');
-        done();
-      });
+      tr.loadData()
+        .then(() => {
+          assert.equal(geojson, tr.data, 'has set geojson as data');
+          assert.equal(tr.count, 2, 'set the count to number of features');
+          assert.isDefined(tr.layer, 'layer has been set');
+          assert.lengthOf(tr.layer.toGeoJSON().features, 2, 'has a geojson layer using the data');
+          done();
+        })
+        .catch((e) => done(e));
     });
   });
 
   describe('#fireTypes', () => {
     it('parses the data to extract fire types and counts', (done) => {
-      tr.loadData().then(() => {
-        assert.propertyVal(tr.fireTypes, 'Grass fire', 1);
-        done();
-      });
+      tr.loadData()
+        .then(() => {
+          assert.propertyVal(tr.fireTypes, 'GRASS FIRE', 2, '2 grass fires, case insensitive');
+          done();
+        })
+        .catch((e) => done(e));
     });
   });
 });
