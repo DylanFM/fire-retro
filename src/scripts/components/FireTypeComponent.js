@@ -16,14 +16,14 @@ export default class FireTypeComponent extends Component {
     var keys   = _.keys(fireTypes),
         yScale = this._getYScale(fireTypes),
         offset = 0, // I don't really like having this offset used and accumulated in the map
-        types  = _.map(fireTypes, (count, type) => {
-          var height = yScale(count),
+        types  = _.map(this._sortByCount(fireTypes), (type) => {
+          var height = yScale(type[1]),
               el     = svg('rect', {
                 width:   '100%',
                 height:  '' + height + '%',
                 x:       0,
                 y:       '' + offset + '%',
-                fill:    this.colourer.getColour(type).toString()
+                fill:    this.colourer.getColour(type[0]).toString()
               });
           // Track offset for next item
           offset += height;
@@ -47,5 +47,12 @@ export default class FireTypeComponent extends Component {
     return d3.scale.linear()
             .domain([0, sum])
             .range([0, 100]); // Percent
+  }
+
+  // Sort the fireTypes by number of incidents descending
+  _sortByCount(fireTypes) {
+    return _.sortBy(
+      _.pairs(fireTypes), (type) => type[1]
+    ).reverse();
   }
 }
