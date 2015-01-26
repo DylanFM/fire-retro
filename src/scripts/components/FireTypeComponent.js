@@ -18,17 +18,24 @@ export default class FireTypeComponent extends Component {
         offset = 0, // I don't really like having this offset used and accumulated in the map
         types  = _.map(this._sortByCount(fireTypes), (type) => {
           var height = yScale(type[1]),
-              el     = svg('rect', {
-                width:   '100%',
+              rect   = svg('rect', {
+                width:   '10%',
                 height:  '' + height + '%',
-                x:       0,
+                x:       '90%',
                 y:       '' + offset + '%',
                 fill:    this.colourer.getColour(type[0]).toString()
-              });
+              }),
+              label = svg('text', {
+                'text-anchor':        'end',
+                'dominant-baseline':  'hanging',
+                fill:                 '#000',
+                x:                    '85%',
+                y:                    '' + (offset + height/2 - 3) + '%'
+              }, (height > 12 ? type[0] : ''));
           // Track offset for next item
           offset += height;
-          // Return bar element
-          return el;
+          // Return group with text and rectangle
+          return svg('g', [rect, label]);
         });
 
     return h('.fireTypes',
