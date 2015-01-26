@@ -7,7 +7,8 @@ export default class Colourer {
   }
 
   getColour(type) {
-    var colour;
+    var type = type.toUpperCase(),
+        colour;
     if (this.cache[type]) {
       colour = this.cache[type];
     } else {

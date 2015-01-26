@@ -29,6 +29,11 @@ describe('Colourer', () => {
       colour.toString(),
       'uses the same colour for the same type'
     );
+    assert.equal(
+      colourer.getColour('BUSH FIRE').toString(),
+      colour.toString(),
+      'case insensitive'
+    );
     assert.notEqual(
       colourer.getColour('Different').toString(),
       colour.toString(),
