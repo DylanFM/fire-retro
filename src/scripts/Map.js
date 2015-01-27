@@ -6,8 +6,11 @@ export default class Map {
     this.id          = id;
     this.accessToken = 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw';
     this.mapId       = 'fires.kng35dfj';
-
+    this.addedLayers = L.layerGroup();
+    // The leaflet map needs to be setup
     this.initMap();
+    // Add group to map
+    this.addedLayers.addTo(this.map);
   }
 
   initMap() {
@@ -31,11 +34,11 @@ export default class Map {
   }
 
   addSnapshot(snapshot) {
-    snapshot.layer.addTo(this.map);
+    this.addedLayers.addLayer(snapshot.layer);
   }
 
-  removeSnapshot(snapshot) {
-    this.map.removeLayer(snapshot.layer);
+  clear() {
+    this.addedLayers.clearLayers();
   }
 
 }

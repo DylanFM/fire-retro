@@ -48228,8 +48228,11 @@ var Map = (function () {
     this.id = id;
     this.accessToken = "pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw";
     this.mapId = "fires.kng35dfj";
-
+    this.addedLayers = L.layerGroup();
+    // The leaflet map needs to be setup
     this.initMap();
+    // Add group to map
+    this.addedLayers.addTo(this.map);
   };
 
   _prototypeProperties(Map, null, {
@@ -48256,15 +48259,15 @@ var Map = (function () {
     },
     addSnapshot: {
       value: function (snapshot) {
-        snapshot.layer.addTo(this.map);
+        this.addedLayers.addLayer(snapshot.layer);
       },
       writable: true,
       enumerable: true,
       configurable: true
     },
-    removeSnapshot: {
-      value: function (snapshot) {
-        this.map.removeLayer(snapshot.layer);
+    clear: {
+      value: function () {
+        this.addedLayers.clearLayers();
       },
       writable: true,
       enumerable: true,
@@ -48417,15 +48420,23 @@ var FireTypeComponent = _interopRequire(require("./components/FireTypeComponent"
 
 var TimelineComponent = _interopRequire(require("./components/TimelineComponent"));
 
-var Rx = _interopRequire(require("rx"));
+var L = _interopRequire(require("leaflet"));
 
 var _ = _interopRequire(require("lodash"));
 
 var TimelineViewer = (function () {
   var TimelineViewer = function TimelineViewer(map, snapshots, colourer) {
+    var _this = this;
     this.map = map;
     this.snapshots = snapshots; // This is an RxJS observable
     this.colourer = colourer;
+    // Initialise components
+    this.fireTypeComponent = new FireTypeComponent(this.colourer);
+    this.countComponent = new CountComponent();
+    // TimelineComponent wants an array of snapshots instead of the stream
+    this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
+      _this.timelineComponent = new TimelineComponent(snapshotsArray);
+    });
   };
 
   _prototypeProperties(TimelineViewer, null, {
@@ -48441,16 +48452,16 @@ var TimelineViewer = (function () {
     },
     _playIfDataLoaded: {
       value: function () {
-        var _this = this;
+        var _this2 = this;
         // Is the data loaded?
         this.snapshots.every(function (s) {
           return s.data;
         }).subscribeOnNext(function (isLoaded) {
           if (isLoaded) {
-            _this._beginPlaying();
+            _this2._beginPlaying();
           } else {
             _.delay(function () {
-              return _this._playIfDataLoaded();
+              return _this2._playIfDataLoaded();
             }, 500);
           }
         });
@@ -48461,7 +48472,7 @@ var TimelineViewer = (function () {
     },
     _beginPlaying: {
       value: function () {
-        var _this2 = this;
+        var _this3 = this;
         var stream = this.snapshots.controlled(),
             // Make a controllable stream
         step = function () {
@@ -48475,15 +48486,14 @@ var TimelineViewer = (function () {
             } else {
               // No more - schedule to show combined data
               _.delay(function () {
-                _this2.current = null; // We no longer have a current month
-                _this2._showCombinedData(); // Show the entire year
-              }, _this2.speed);
+                return _this3._showCombinedData();
+              }, _this3.speed);
             }
-          }, _this2.speed);
+          }, _this3.speed);
         };
-        // On each item, call the updateCurrent method
+        // Render for each item
         stream.subscribeOnNext(function (next) {
-          return _this2._updateCurrent(next);
+          return _this3._render(next);
         });
         // Begin...
         step();
@@ -48492,63 +48502,21 @@ var TimelineViewer = (function () {
       enumerable: true,
       configurable: true
     },
-    _updateCurrent: {
-      value: function (next) {
-        // If we already have one current
-        if (this.current) {
-          // Remove it from the map
-          this.map.removeSnapshot(this.current);
-        }
-        this.current = next;
-        // Add this one to the map
-        this.map.addSnapshot(this.current);
-        // Update the view too
-        this._renderTimeline();
-        this._renderCount(this.current.count);
-        this._renderFireTypes(this.current.fireTypes);
+    _render: {
+      value: function (snapshot) {
+        this._renderMap(snapshot);
+        this.timelineComponent.render(snapshot);
+        this.countComponent.render(snapshot.count);
+        this.fireTypeComponent.render(snapshot.fireTypes);
       },
       writable: true,
       enumerable: true,
       configurable: true
     },
-    _renderFireTypes: {
-
-      // Fire type component
-      value: function (fireTypes) {
-        if (!this.fireTypeComponent) {
-          this.fireTypeComponent = new FireTypeComponent(this.colourer);
-        }
-        this.fireTypeComponent.render(fireTypes);
-      },
-      writable: true,
-      enumerable: true,
-      configurable: true
-    },
-    _renderCount: {
-
-      // Count component
-      value: function (count) {
-        if (!this.countComponent) {
-          this.countComponent = new CountComponent();
-        }
-        this.countComponent.render(count);
-      },
-      writable: true,
-      enumerable: true,
-      configurable: true
-    },
-    _renderTimeline: {
-
-      // Timeline component
-      value: function () {
-        var _this3 = this;
-        if (!this.timelineComponent) {
-          // TimelineComponent wants an array of snapshots instead of the stream
-          this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
-            _this3.timelineComponent = new TimelineComponent(snapshotsArray);
-          });
-        }
-        this.timelineComponent.render(this.current);
+    _renderMap: {
+      value: function (snapshot) {
+        this.map.clear();
+        this.map.addSnapshot(snapshot);
       },
       writable: true,
       enumerable: true,
@@ -48558,6 +48526,7 @@ var TimelineViewer = (function () {
       value: function () {
         var _this4 = this;
         this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
+          // If we haven't build the combined object yet, do so
           if (!_this4.combined) {
             _this4.combined = {};
             // Extract all fire types
@@ -48575,15 +48544,11 @@ var TimelineViewer = (function () {
             _this4.combined.count = _.reduce(_this4.combined.fireTypes, function (total, num) {
               return total + num;
             }, 0);
+            // A map layer group
+            _this4.combined.layer = L.layerGroup(_.map(snapshotsArray, "layer"));
           }
           // Now render things
-          _this4._renderCount(_this4.combined.count);
-          _this4._renderFireTypes(_this4.combined.fireTypes);
-          _this4._renderTimeline(); // Should deselect the current month
-          // Add all data to map
-          _this4.snapshots.subscribeOnNext(function (snapshot) {
-            _this4.map.addSnapshot(snapshot);
-          });
+          _this4._render(_this4.combined);
         });
       },
       writable: true,
@@ -48597,7 +48562,7 @@ var TimelineViewer = (function () {
 
 module.exports = TimelineViewer;
 
-},{"./components/CountComponent":55,"./components/FireTypeComponent":56,"./components/TimelineComponent":57,"lodash":7,"rx":14}],54:[function(require,module,exports){
+},{"./components/CountComponent":55,"./components/FireTypeComponent":56,"./components/TimelineComponent":57,"leaflet":6,"lodash":7}],54:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {

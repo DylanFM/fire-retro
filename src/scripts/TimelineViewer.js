@@ -1,7 +1,7 @@
 import CountComponent from './components/CountComponent';
 import FireTypeComponent from './components/FireTypeComponent';
 import TimelineComponent from './components/TimelineComponent';
-import Rx from 'rx';
+import L from 'leaflet';
 import _ from 'lodash';
 
 export default class TimelineViewer {
@@ -10,6 +10,13 @@ export default class TimelineViewer {
     this.map       = map;
     this.snapshots = snapshots; // This is an RxJS observable
     this.colourer  = colourer;
+    // Initialise components
+    this.fireTypeComponent = new FireTypeComponent(this.colourer);
+    this.countComponent    = new CountComponent();
+    // TimelineComponent wants an array of snapshots instead of the stream
+    this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
+      this.timelineComponent = new TimelineComponent(snapshotsArray);
+    });
   }
 
   play(speed) {
@@ -43,63 +50,31 @@ export default class TimelineViewer {
               step(); // Schedule this to be run again
             } else {
               // No more - schedule to show combined data
-              _.delay(() => {
-                this.current = null;      // We no longer have a current month
-                this._showCombinedData(); // Show the entire year
-              }, this.speed);
+              _.delay(() => this._showCombinedData(), this.speed);
             }
           }, this.speed);
         };
-    // On each item, call the updateCurrent method
-    stream.subscribeOnNext((next) => this._updateCurrent(next));
+    // Render for each item
+    stream.subscribeOnNext((next) => this._render(next));
     // Begin...
     step();
   }
 
-  _updateCurrent(next) {
-    // If we already have one current
-    if (this.current) {
-      // Remove it from the map
-      this.map.removeSnapshot(this.current);
-    }
-    this.current = next;
-    // Add this one to the map
-    this.map.addSnapshot(this.current);
-    // Update the view too
-    this._renderTimeline();
-    this._renderCount(this.current.count);
-    this._renderFireTypes(this.current.fireTypes);
+  _render(snapshot) {
+    this._renderMap(snapshot);
+    this.timelineComponent.render(snapshot);
+    this.countComponent.render(snapshot.count);
+    this.fireTypeComponent.render(snapshot.fireTypes);
   }
 
-  // Fire type component
-  _renderFireTypes(fireTypes) {
-    if (!this.fireTypeComponent) {
-      this.fireTypeComponent = new FireTypeComponent(this.colourer);
-    }
-    this.fireTypeComponent.render(fireTypes);
-  }
-
-  // Count component
-  _renderCount(count) {
-    if (!this.countComponent) {
-      this.countComponent = new CountComponent();
-    }
-    this.countComponent.render(count);
-  }
-
-  // Timeline component
-  _renderTimeline() {
-    if (!this.timelineComponent) {
-      // TimelineComponent wants an array of snapshots instead of the stream
-      this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
-        this.timelineComponent = new TimelineComponent(snapshotsArray);
-      });
-    }
-    this.timelineComponent.render(this.current);
+  _renderMap(snapshot) {
+    this.map.clear();
+    this.map.addSnapshot(snapshot);
   }
 
   _showCombinedData() {
     this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
+      // If we haven't build the combined object yet, do so
       if (!this.combined) {
         this.combined = {};
         // Extract all fire types
@@ -117,15 +92,11 @@ export default class TimelineViewer {
         this.combined.count = _.reduce(this.combined.fireTypes, (total, num) => {
           return total + num;
         }, 0);
+        // A map layer group
+        this.combined.layer = L.layerGroup(_.map(snapshotsArray, 'layer'));
       }
       // Now render things
-      this._renderCount(this.combined.count);
-      this._renderFireTypes(this.combined.fireTypes);
-      this._renderTimeline(); // Should deselect the current month
-      // Add all data to map
-      this.snapshots.subscribeOnNext((snapshot) => {
-        this.map.addSnapshot(snapshot);
-      });
+      this._render(this.combined);
     });
   }
 }

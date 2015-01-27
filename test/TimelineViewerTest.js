@@ -40,27 +40,11 @@ describe('TimelineViewer', () => {
 
    // This is a private method, called within the playback code that runs on an interval
    // In order to avoid awkward tests around time, I'm testing this underlying method here
-   describe('#_updateCurrent()', () => {
-     it('has added the 1st layer to the map on first call', () => {
-       assert.isUndefined(tv.current, 'does not have a current item on creation');
-
-       tv._updateCurrent(tr1);
-
-       assert(map.addSnapshot.calledOnce, 'map has had layer added once');
-       assert.equal(tr1, map.addSnapshot.firstCall.args[0], 'added the 1st snapshot layer');
-       assert(map.removeSnapshot.notCalled, 'did not need to remove a layer');
-     });
-
-     it('progresses to the given item', () => {
-       tv._updateCurrent(tr2);
-       assert.equal(tr2, tv.current);
-     });
-
-     it('removes existing map layer and adds current for following items', () => {
-       tv._updateCurrent(tr1);
-       tv._updateCurrent(tr2);
-       assert(map.removeSnapshot.calledOnce, 'map snapshot removed once');
-       assert.equal(tr1, map.removeSnapshot.firstCall.args[0], 'removed the 1st snapshot layer');
+   describe('#_render()', () => {
+     it('clears map and adds snapshots provided', () => {
+       tv._render(tr1);
+       tv._render(tr2);
+       assert(map.clear.calledTwice, 'map cleared twice');
        assert(map.addSnapshot.calledTwice, 'map snapshot added twice');
        assert.equal(tr2, map.addSnapshot.getCalls()[1].args[0], 'added the 2nd snapshot layer');
      });
