@@ -11,23 +11,52 @@ import Map from '../src/scripts/Map';
 import Colourer from '../src/scripts/Colourer';
 import TimeRangeSnapshot from '../src/scripts/TimeRangeSnapshot';
 import TimelineViewer from '../src/scripts/TimelineViewer';
+import Q from 'q';
 import Rx from 'rx';
 
 describe('TimelineViewer', () => {
 
-  var tv, map,
+  var tv, map, snapshots,
       colourer  = new Colourer,
       jan14     = moment().set({ year: 2014, month: 0 }),
       feb14     = moment().set({ year: 2014, month: 1 }),
       tr1       = new TimeRangeSnapshot(jan14.startOf('month'), jan14.endOf('month'), colourer),
       tr2       = new TimeRangeSnapshot(feb14.startOf('month'), feb14.endOf('month'), colourer),
-      snapshots = Rx.Observable.from([tr1, tr2]);
+      geojson  = {
+        type:      'FeatureCollection',
+        features:  [{
+          type:      'Feature',
+          geometry:  {
+            type:         'Point',
+            coordinates:  [100.0, 0.0]
+          },
+          properties: {
+            fireType: 'Grass fire'
+          }
+        }]
+      };
 
-  beforeEach(() => {
+  // Stub XHR request to fetch data
+  // Return a promise resolving to fake geojson
+  sinon.stub(tr1, '_fetchData', () => Q.fcall(() => geojson));
+  sinon.stub(tr2, '_fetchData', () => Q.fcall(() => geojson));
+
+  before((done) => {
     // Mock the map
     map = sinon.createStubInstance(Map);
-    // Make new viewer with a our map and snapshot observable
-    tv = new TimelineViewer(map, snapshots, colourer);
+    // Load the data... this seems icky
+    tr1.loadData()
+      .then(() => {
+        tr2.loadData()
+          .then(() => {
+            snapshots = Rx.Observable.from([tr1, tr2]);
+            // Make new viewer with a our map and snapshot observable
+            tv = new TimelineViewer(map, snapshots, colourer);
+            done();
+          })
+          .catch((e) => done(e));
+      })
+      .catch((e) => done(e));
   });
 
   it('has snapshots', () => {

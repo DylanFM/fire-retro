@@ -41,7 +41,7 @@ describe('TimeRangeSnapshot', () => {
         }]
       };
 
-  before(() => {
+  before((done) => {
     // Init our test instance
     tr = new TimeRangeSnapshot(st, en, colourer);
     // Stub XHR request to fetch data
@@ -49,6 +49,10 @@ describe('TimeRangeSnapshot', () => {
       // Return a promise resolving to fake geojson
       return Q.fcall(() => geojson);
     });
+    // Load data before tests run
+    tr.loadData()
+      .then(() => done())
+      .catch((e) => done(e));
   });
 
   it('is created with a start and end time', () => {
@@ -67,27 +71,17 @@ describe('TimeRangeSnapshot', () => {
   });
 
   describe('#loadData()', () => {
-    it('loads the data using d3.json', (done) => {
-      tr.loadData()
-        .then(() => {
-          assert.equal(geojson, tr.data, 'has set geojson as data');
-          assert.equal(tr.count, 2, 'set the count to number of features');
-          assert.isDefined(tr.layer, 'layer has been set');
-          assert.lengthOf(tr.layer.toGeoJSON().features, 2, 'has a geojson layer using the data');
-          done();
-        })
-        .catch((e) => done(e));
+    it('loads the data using d3.json', () => {
+      assert.equal(geojson, tr.data, 'has set geojson as data');
+      assert.equal(tr.count, 2, 'set the count to number of features');
+      assert.isDefined(tr.layer, 'layer has been set');
+      assert.lengthOf(tr.layer.toGeoJSON().features, 2, 'has a geojson layer using the data');
     });
   });
 
   describe('#fireTypes', () => {
-    it('parses the data to extract fire types and counts', (done) => {
-      tr.loadData()
-        .then(() => {
-          assert.propertyVal(tr.fireTypes, 'GRASS FIRE', 2, '2 grass fires, case insensitive');
-          done();
-        })
-        .catch((e) => done(e));
+    it('parses the data to extract fire types and counts', () => {
+      assert.propertyVal(tr.fireTypes, 'GRASS FIRE', 2, '2 grass fires, case insensitive');
     });
   });
 });

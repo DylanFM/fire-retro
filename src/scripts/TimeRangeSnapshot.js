@@ -3,7 +3,7 @@ import d3 from 'd3';
 import L from 'leaflet';
 import _ from 'lodash';
 
-export default class Map {
+export default class TimeRangeSnapshot {
 
   constructor(start, end, colourer) {
     this.start    = start;

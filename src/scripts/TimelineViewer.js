@@ -1,3 +1,4 @@
+import AggregateSnapshot from './AggregateSnapshot';
 import CountComponent from './components/CountComponent';
 import FireTypeComponent from './components/FireTypeComponent';
 import TimelineComponent from './components/TimelineComponent';
@@ -13,7 +14,7 @@ export default class TimelineViewer {
     // Initialise components
     this.fireTypeComponent = new FireTypeComponent(this.colourer);
     this.countComponent    = new CountComponent();
-    // TimelineComponent wants an array of snapshots instead of the stream
+    // We want an array
     this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
       this.timelineComponent = new TimelineComponent(snapshotsArray);
     });
@@ -32,6 +33,10 @@ export default class TimelineViewer {
       .subscribeOnNext((isLoaded) => {
         if (isLoaded) {
           this._beginPlaying();
+          // Get an aggregate of the snapshots
+          this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
+            this.combined = new AggregateSnapshot(snapshotsArray);
+          });
         } else {
           _.delay(() => this._playIfDataLoaded(), 500);
         }
@@ -50,7 +55,7 @@ export default class TimelineViewer {
               step(); // Schedule this to be run again
             } else {
               // No more - schedule to show combined data
-              _.delay(() => this._showCombinedData(), this.speed);
+              _.delay(() => this._render(this.combined), this.speed);
             }
           }, this.speed);
         };
@@ -70,33 +75,5 @@ export default class TimelineViewer {
   _renderMap(snapshot) {
     this.map.clear();
     this.map.addSnapshot(snapshot);
-  }
-
-  _showCombinedData() {
-    this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
-      // If we haven't build the combined object yet, do so
-      if (!this.combined) {
-        this.combined = {};
-        // Extract all fire types
-        this.combined.fireTypes = _.reduce(snapshotsArray, (types, month) => {
-          _.keys(month.fireTypes).forEach((k) => {
-            if (!types[k]) {
-              types[k] = month.fireTypes[k];  // Init with value
-            } else {
-              types[k] += month.fireTypes[k]; // Add value
-            }
-          });
-          return types;
-        }, {});
-        // Extract total incidents
-        this.combined.count = _.reduce(this.combined.fireTypes, (total, num) => {
-          return total + num;
-        }, 0);
-        // A map layer group
-        this.combined.layer = L.layerGroup(_.map(snapshotsArray, 'layer'));
-      }
-      // Now render things
-      this._render(this.combined);
-    });
   }
 }

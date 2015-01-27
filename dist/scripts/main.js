@@ -47,7 +47,7 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
   });
 })();
 
-},{"./Colourer":50,"./Map":51,"./TimelineViewer":53,"./getSnapshots":58,"d3":5,"rx":14,"virtual-dom/create-element":15,"virtual-dom/h":17}],2:[function(require,module,exports){
+},{"./Colourer":51,"./Map":52,"./TimelineViewer":54,"./getSnapshots":59,"d3":5,"rx":14,"virtual-dom/create-element":15,"virtual-dom/h":17}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
@@ -48170,6 +48170,75 @@ var _interopRequire = function (obj) {
   return obj && (obj["default"] || obj);
 };
 
+var L = _interopRequire(require("leaflet"));
+
+var _ = _interopRequire(require("lodash"));
+
+var AggregateSnapshot = (function () {
+  var AggregateSnapshot = function AggregateSnapshot(snapshots) {
+    this.snapshots = snapshots;
+    this.fireTypes = this._extractFireTypes();
+    this.count = this._getCount();
+    this.layer = this._buildLayer();
+  };
+
+  _prototypeProperties(AggregateSnapshot, null, {
+    _extractFireTypes: {
+
+      // Extract all fire types across snapshots
+      value: function () {
+        return _.reduce(this.snapshots, function (types, month) {
+          _.keys(month.fireTypes).forEach(function (k) {
+            if (!types[k]) {
+              types[k] = month.fireTypes[k]; // Init with value
+            } else {
+              types[k] += month.fireTypes[k]; // Add value
+            }
+          });
+          return types;
+        }, {});
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _getCount: {
+      value: function () {
+        return _.reduce(this.fireTypes, function (total, num) {
+          return total + num;
+        }, 0);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _buildLayer: {
+      value: function () {
+        return L.layerGroup(_.compact(_.map(this.snapshots, "layer")));
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }
+  });
+
+  return AggregateSnapshot;
+})();
+
+module.exports = AggregateSnapshot;
+
+},{"leaflet":6,"lodash":7}],51:[function(require,module,exports){
+"use strict";
+
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
 var d3 = _interopRequire(require("d3"));
 
 var Colourer = (function () {
@@ -48209,7 +48278,7 @@ var Colourer = (function () {
 
 module.exports = Colourer;
 
-},{"d3":5}],51:[function(require,module,exports){
+},{"d3":5}],52:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48280,7 +48349,7 @@ var Map = (function () {
 
 module.exports = Map;
 
-},{"leaflet":6}],52:[function(require,module,exports){
+},{"leaflet":6}],53:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48300,8 +48369,8 @@ var L = _interopRequire(require("leaflet"));
 
 var _ = _interopRequire(require("lodash"));
 
-var Map = (function () {
-  var Map = function Map(start, end, colourer) {
+var TimeRangeSnapshot = (function () {
+  var TimeRangeSnapshot = function TimeRangeSnapshot(start, end, colourer) {
     this.start = start;
     this.end = end;
     this.endpoint = "http://10.0.0.26:8000/incidents";
@@ -48309,7 +48378,7 @@ var Map = (function () {
     this.colourer = colourer;
   };
 
-  _prototypeProperties(Map, null, {
+  _prototypeProperties(TimeRangeSnapshot, null, {
     loadData: {
       value: function () {
         var _this = this;
@@ -48397,12 +48466,12 @@ var Map = (function () {
     }
   });
 
-  return Map;
+  return TimeRangeSnapshot;
 })();
 
-module.exports = Map;
+module.exports = TimeRangeSnapshot;
 
-},{"d3":5,"leaflet":6,"lodash":7,"q":9}],53:[function(require,module,exports){
+},{"d3":5,"leaflet":6,"lodash":7,"q":9}],54:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48413,6 +48482,8 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
 var _interopRequire = function (obj) {
   return obj && (obj["default"] || obj);
 };
+
+var AggregateSnapshot = _interopRequire(require("./AggregateSnapshot"));
 
 var CountComponent = _interopRequire(require("./components/CountComponent"));
 
@@ -48433,7 +48504,7 @@ var TimelineViewer = (function () {
     // Initialise components
     this.fireTypeComponent = new FireTypeComponent(this.colourer);
     this.countComponent = new CountComponent();
-    // TimelineComponent wants an array of snapshots instead of the stream
+    // We want an array
     this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
       _this.timelineComponent = new TimelineComponent(snapshotsArray);
     });
@@ -48459,6 +48530,10 @@ var TimelineViewer = (function () {
         }).subscribeOnNext(function (isLoaded) {
           if (isLoaded) {
             _this2._beginPlaying();
+            // Get an aggregate of the snapshots
+            _this2.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
+              _this2.combined = new AggregateSnapshot(snapshotsArray);
+            });
           } else {
             _.delay(function () {
               return _this2._playIfDataLoaded();
@@ -48486,7 +48561,7 @@ var TimelineViewer = (function () {
             } else {
               // No more - schedule to show combined data
               _.delay(function () {
-                return _this3._showCombinedData();
+                return _this3._render(_this3.combined);
               }, _this3.speed);
             }
           }, _this3.speed);
@@ -48521,39 +48596,6 @@ var TimelineViewer = (function () {
       writable: true,
       enumerable: true,
       configurable: true
-    },
-    _showCombinedData: {
-      value: function () {
-        var _this4 = this;
-        this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
-          // If we haven't build the combined object yet, do so
-          if (!_this4.combined) {
-            _this4.combined = {};
-            // Extract all fire types
-            _this4.combined.fireTypes = _.reduce(snapshotsArray, function (types, month) {
-              _.keys(month.fireTypes).forEach(function (k) {
-                if (!types[k]) {
-                  types[k] = month.fireTypes[k]; // Init with value
-                } else {
-                  types[k] += month.fireTypes[k]; // Add value
-                }
-              });
-              return types;
-            }, {});
-            // Extract total incidents
-            _this4.combined.count = _.reduce(_this4.combined.fireTypes, function (total, num) {
-              return total + num;
-            }, 0);
-            // A map layer group
-            _this4.combined.layer = L.layerGroup(_.map(snapshotsArray, "layer"));
-          }
-          // Now render things
-          _this4._render(_this4.combined);
-        });
-      },
-      writable: true,
-      enumerable: true,
-      configurable: true
     }
   });
 
@@ -48562,7 +48604,7 @@ var TimelineViewer = (function () {
 
 module.exports = TimelineViewer;
 
-},{"./components/CountComponent":55,"./components/FireTypeComponent":56,"./components/TimelineComponent":57,"leaflet":6,"lodash":7}],54:[function(require,module,exports){
+},{"./AggregateSnapshot":50,"./components/CountComponent":56,"./components/FireTypeComponent":57,"./components/TimelineComponent":58,"leaflet":6,"lodash":7}],55:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48621,7 +48663,7 @@ var Component = (function () {
 
 module.exports = Component;
 
-},{"virtual-dom/create-element":15,"virtual-dom/diff":16,"virtual-dom/patch":25}],55:[function(require,module,exports){
+},{"virtual-dom/create-element":15,"virtual-dom/diff":16,"virtual-dom/patch":25}],56:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48677,7 +48719,7 @@ var CountComponent = (function (Component) {
 
 module.exports = CountComponent;
 
-},{"./Component":54,"virtual-dom/h":17}],56:[function(require,module,exports){
+},{"./Component":55,"virtual-dom/h":17}],57:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48794,7 +48836,7 @@ var FireTypeComponent = (function (Component) {
 
 module.exports = FireTypeComponent;
 
-},{"./Component":54,"d3":5,"lodash":7,"virtual-dom/h":17,"virtual-dom/virtual-hyperscript/svg":38}],57:[function(require,module,exports){
+},{"./Component":55,"d3":5,"lodash":7,"virtual-dom/h":17,"virtual-dom/virtual-hyperscript/svg":38}],58:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48853,7 +48895,7 @@ var TimelineComponent = (function (Component) {
 
 module.exports = TimelineComponent;
 
-},{"./Component":54,"virtual-dom/h":17}],58:[function(require,module,exports){
+},{"./Component":55,"virtual-dom/h":17}],59:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) {
@@ -48877,7 +48919,7 @@ function getSnapshots(year, colourer) {
   });
 }
 
-},{"./TimeRangeSnapshot":52,"moment":8,"rx":14}]},{},[1])
+},{"./TimeRangeSnapshot":53,"moment":8,"rx":14}]},{},[1])
 
 
 //# sourceMappingURL=main.map
