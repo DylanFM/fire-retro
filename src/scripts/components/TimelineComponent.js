@@ -11,7 +11,7 @@ export default class TimelineComponent extends Component {
     var items = this.months.map((month) => {
       return h('li',
         {
-          className: (month.url === current.url) ? 'current' : ''
+          className: (current && month.url === current.url) ? 'current' : ''
         },
         [month.start.format('MMM')]
       );

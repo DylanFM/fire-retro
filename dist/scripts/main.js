@@ -48462,22 +48462,31 @@ var TimelineViewer = (function () {
     _beginPlaying: {
       value: function () {
         var _this2 = this;
-        var stream = this.snapshots.controlled(), // Make a controllable stream
-        timer;
+        var stream = this.snapshots.controlled(),
+            // Make a controllable stream
+        step = function () {
+          // In speed ms...
+          _.delay(function () {
+            // Request an item - progresses the stream by 1 month
+            stream.request(1);
+            // Check to see if there are still queued months
+            if (stream.subject.queue.length) {
+              step(); // Schedule this to be run again
+            } else {
+              // No more - schedule to show combined data
+              _.delay(function () {
+                _this2.current = null; // We no longer have a current month
+                _this2._showCombinedData(); // Show the entire year
+              }, _this2.speed);
+            }
+          }, _this2.speed);
+        };
         // On each item, call the updateCurrent method
         stream.subscribeOnNext(function (next) {
           return _this2._updateCurrent(next);
         });
-        // Subscribe to the timer and hook into the stream
-        timer = window.setInterval(function () {
-          // Request an item - progresses the stream by 1 month
-          stream.request(1);
-          // Check to see if there are still queued months
-          if (!stream.subject.queue.length) {
-            // Complete - we no longer need the timer
-            window.clearInterval(timer);
-          }
-        }, this.speed);
+        // Begin...
+        step();
       },
       writable: true,
       enumerable: true,
@@ -48495,8 +48504,8 @@ var TimelineViewer = (function () {
         this.map.addSnapshot(this.current);
         // Update the view too
         this._renderTimeline();
-        this._renderCount();
-        this._renderFireTypes();
+        this._renderCount(this.current.count);
+        this._renderFireTypes(this.current.fireTypes);
       },
       writable: true,
       enumerable: true,
@@ -48505,11 +48514,11 @@ var TimelineViewer = (function () {
     _renderFireTypes: {
 
       // Fire type component
-      value: function () {
+      value: function (fireTypes) {
         if (!this.fireTypeComponent) {
           this.fireTypeComponent = new FireTypeComponent(this.colourer);
         }
-        this.fireTypeComponent.render(this.current.fireTypes);
+        this.fireTypeComponent.render(fireTypes);
       },
       writable: true,
       enumerable: true,
@@ -48518,11 +48527,11 @@ var TimelineViewer = (function () {
     _renderCount: {
 
       // Count component
-      value: function () {
+      value: function (count) {
         if (!this.countComponent) {
           this.countComponent = new CountComponent();
         }
-        this.countComponent.render(this.current.count);
+        this.countComponent.render(count);
       },
       writable: true,
       enumerable: true,
@@ -48540,6 +48549,42 @@ var TimelineViewer = (function () {
           });
         }
         this.timelineComponent.render(this.current);
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _showCombinedData: {
+      value: function () {
+        var _this4 = this;
+        this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
+          if (!_this4.combined) {
+            _this4.combined = {};
+            // Extract all fire types
+            _this4.combined.fireTypes = _.reduce(snapshotsArray, function (types, month) {
+              _.keys(month.fireTypes).forEach(function (k) {
+                if (!types[k]) {
+                  types[k] = month.fireTypes[k]; // Init with value
+                } else {
+                  types[k] += month.fireTypes[k]; // Add value
+                }
+              });
+              return types;
+            }, {});
+            // Extract total incidents
+            _this4.combined.count = _.reduce(_this4.combined.fireTypes, function (total, num) {
+              return total + num;
+            }, 0);
+          }
+          // Now render things
+          _this4._renderCount(_this4.combined.count);
+          _this4._renderFireTypes(_this4.combined.fireTypes);
+          _this4._renderTimeline(); // Should deselect the current month
+          // Add all data to map
+          _this4.snapshots.subscribeOnNext(function (snapshot) {
+            _this4.map.addSnapshot(snapshot);
+          });
+        });
       },
       writable: true,
       enumerable: true,
@@ -48827,7 +48872,7 @@ var TimelineComponent = (function (Component) {
       value: function (current) {
         var items = this.months.map(function (month) {
           return h("li", {
-            className: month.url === current.url ? "current" : ""
+            className: current && month.url === current.url ? "current" : ""
           }, [month.start.format("MMM")]);
         });
         return h("ol.timeline", items);
