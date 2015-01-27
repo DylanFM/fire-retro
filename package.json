@@ -66,6 +66,10 @@
     "moment": "^2.9.0",
     "q": "^1.1.2",
     "rx": "^2.3.22",
+    "turf-count": "^1.0.1",
+    "turf-featurecollection": "^1.0.0",
+    "turf-hex": "^1.0.1",
+    "turf-point": "^2.0.0",
     "virtual-dom": "^1.1.0"
   }
 }

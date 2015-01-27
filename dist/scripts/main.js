@@ -38,7 +38,7 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
       return month;
     }).toArray().subscribeOnNext(function (monthsArr) {
       // Initialise the viewer and begin
-      viewer = new TimelineViewer(new Map("map"), // Construct new map. Pass in the ID of the DOM element
+      viewer = new TimelineViewer(new Map("map", colourer), // Construct new map. Pass in the ID of the DOM element
       new Rx.Observable.fromArray(monthsArr), // Convert back into a new observable with data loading
       colourer);
       // Progress every 2 seconds
@@ -47,7 +47,7 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
   });
 })();
 
-},{"./Colourer":51,"./Map":52,"./TimelineViewer":54,"./getSnapshots":59,"d3":5,"rx":14,"virtual-dom/create-element":15,"virtual-dom/h":17}],2:[function(require,module,exports){
+},{"./Colourer":57,"./Map":58,"./TimelineViewer":60,"./getSnapshots":65,"d3":5,"rx":14,"virtual-dom/create-element":21,"virtual-dom/h":23}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
@@ -46189,21 +46189,252 @@ Rx.Observable.prototype.pipe = function (dest) {
 module.exports = Rx;
 
 },{"./dist/rx.all":10,"./dist/rx.sorting":12,"./dist/rx.testing":13,"events":3}],15:[function(require,module,exports){
+var inside = require('turf-inside');
+
+module.exports = function(polyFC, ptFC, outField, done){
+  polyFC.features.forEach(function(poly){
+    if(!poly.properties) poly.properties = {};
+    var values = [];
+    ptFC.features.forEach(function(pt){
+      if (inside(pt, poly)) {
+        values.push(1);
+      }
+    })
+    poly.properties[outField] = values.length;
+  })
+
+  return polyFC;
+}
+
+},{"turf-inside":16}],16:[function(require,module,exports){
+// http://en.wikipedia.org/wiki/Even%E2%80%93odd_rule
+// modified from: https://github.com/substack/point-in-polygon/blob/master/index.js
+// which was modified from http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+
+module.exports = function(point, polygon) {
+  var polys = polygon.geometry.coordinates;
+  var pt = [point.geometry.coordinates[0], point.geometry.coordinates[1]];
+  // normalize to multipolygon
+  if(polygon.geometry.type === 'Polygon') polys = [polys];
+
+  var insidePoly = false;
+  var i = 0;
+  while (i < polys.length && !insidePoly) {
+    // check if it is in the outer ring first
+    if(inRing(pt, polys[i][0])) {
+      var inHole = false;
+      var k = 1;
+      // check for the point in any of the holes
+      while(k < polys[i].length && !inHole) {
+        if(inRing(pt, polys[i][k])) {
+          inHole = true;
+        }
+        k++;
+      }
+      if(!inHole) insidePoly = true;
+    }
+    i++;
+  }
+  return insidePoly;
+}
+
+// pt is [x,y] and ring is [[x,y], [x,y],..]
+function inRing (pt, ring) {
+  var isInside = false;
+  for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    var xi = ring[i][0], yi = ring[i][1];
+    var xj = ring[j][0], yj = ring[j][1];
+    
+    var intersect = ((yi > pt[1]) != (yj > pt[1]))
+        && (pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi);
+    if (intersect) isInside = !isInside;
+  }
+  return isInside;
+}
+
+
+},{}],17:[function(require,module,exports){
+module.exports = function(features){
+  var fc = {
+    "type": "FeatureCollection",
+    "features": features
+  };
+
+  return fc;
+}
+},{}],18:[function(require,module,exports){
+var polygon = require('turf-polygon');
+
+module.exports = hexgrid;
+
+//Precompute cosines and sines of angles used in hexagon creation
+// for performance gain
+var cosines = [];
+var sines = [];
+for (var i = 0; i < 6; i++) {
+  var angle = 2 * Math.PI/6 * i;
+  cosines.push(Math.cos(angle));
+  sines.push(Math.sin(angle));
+}
+
+//Center should be [x, y]
+function hexagon(center, radius) {
+  var vertices = [];
+
+  for (var i = 0; i < 6; i++) {
+    var x = center[0] + radius * cosines[i];
+    var y = center[1] + radius * sines[i];
+
+    vertices.push([x,y]);
+  }
+
+  //first and last vertex must be the same
+  vertices.push(vertices[0]);
+
+  return polygon([vertices]);
+}
+
+// Creates a FeatureCollection of flat-topped
+// hexagons aligned in an "odd-q" vertical grid as
+// described on http://www.redblobgames.com/grids/hexagons/
+//
+// bbox: [xmin, ymin, xmax, ymax]
+// radius: distance from hex center to vertex (in degrees)
+// done: node-style callback (optional)
+//
+// Returns a GeoJSON FeatureCollection of tessellated hexagons
+// that cover the given bbox
+function hexgrid(bbox, radius, done) {
+  var xmin = bbox[0];
+  var ymin = bbox[1];
+  var xmax = bbox[2];
+  var ymax = bbox[3];
+
+  var fc = {
+    type: 'FeatureCollection',
+    features: []
+  };
+
+  var hex_width = radius * 2;
+  var hex_height = Math.sqrt(3)/2 * hex_width;
+  
+  var box_width = xmax - xmin;
+  var box_height = ymax - ymin;
+
+  var x_interval = 3/4 * hex_width;
+  var y_interval = hex_height;
+
+  var x_span = box_width / (hex_width - radius/2);
+  var x_count = Math.ceil(x_span);
+  if (Math.round(x_span) === x_count) {
+    x_count++;
+  }
+  
+  var x_adjust = ((x_count * x_interval - radius/2) - box_width)/2 - radius/2;
+
+  var y_count = Math.ceil(box_height / hex_height);
+
+  var y_adjust = (box_height - y_count * hex_height)/2;
+
+  var hasOffsetY = y_count * hex_height - box_height > hex_height/2;
+  if (hasOffsetY) {
+    y_adjust -= hex_height/4;
+  }
+  
+  for (var x = 0; x < x_count; x++) {
+    for (var y = 0; y <= y_count; y++) {
+    
+      var isOdd = x % 2 === 1;
+      if (y === 0 && isOdd) {
+        continue;
+      }
+
+      if (y === 0 && hasOffsetY) {
+        continue;
+      }
+
+      var center_x = x * x_interval + xmin - x_adjust;
+      var center_y = y * y_interval + ymin + y_adjust;
+      
+      if (isOdd) {
+        center_y -= hex_height/2;
+      }
+
+      fc.features.push(hexagon([center_x, center_y], radius));
+    }
+  }
+
+  done = done || function () {};
+  done(null, fc);
+
+  return fc;
+}
+
+},{"turf-polygon":19}],19:[function(require,module,exports){
+module.exports = function(coordinates, properties){
+  if(coordinates === null) return new Error('No coordinates passed')
+  var polygon = { 
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": coordinates
+    },
+    "properties": properties
+  }
+
+  if(!polygon.properties){
+    polygon.properties = {}
+  }
+  
+  return polygon
+}
+},{}],20:[function(require,module,exports){
+/**
+ * Generates a new {@link Point} feature, given coordinates
+ * and, optionally, properties.
+ *
+ * @module turf/point
+ * @param {number} longitude - position west to east in decimal degrees
+ * @param {number} latitude - position south to north in decimal degrees
+ * @param {Object} properties - an optional object that is used as the Feature's
+ * properties
+ * @return {Point} output
+ * @example
+ * var pt1 = turf.point([-75.343, 39.984]);
+ * //=pt1
+ */
+var isArray = Array.isArray || function(arg) {
+  return Object.prototype.toString.call(arg) === '[object Array]';
+};
+module.exports = function(coordinates, properties) {
+  if (!isArray(coordinates)) throw new Error('Coordinates must be an array');
+  if (coordinates.length < 2) throw new Error('Coordinates must be at least 2 numbers long');
+  return {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: coordinates
+    },
+    properties: properties || {}
+  };
+};
+
+},{}],21:[function(require,module,exports){
 var createElement = require("./vdom/create-element.js")
 
 module.exports = createElement
 
-},{"./vdom/create-element.js":27}],16:[function(require,module,exports){
+},{"./vdom/create-element.js":33}],22:[function(require,module,exports){
 var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":49}],17:[function(require,module,exports){
+},{"./vtree/diff.js":55}],23:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
 
-},{"./virtual-hyperscript/index.js":35}],18:[function(require,module,exports){
+},{"./virtual-hyperscript/index.js":41}],24:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
@@ -46311,7 +46542,7 @@ module.exports = (function split(undef) {
   return self;
 })();
 
-},{}],19:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 var OneVersionConstraint = require('individual/one-version');
@@ -46333,7 +46564,7 @@ function EvStore(elem) {
     return hash;
 }
 
-},{"individual/one-version":21}],20:[function(require,module,exports){
+},{"individual/one-version":27}],26:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -46357,7 +46588,7 @@ function Individual(key, value) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],21:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 var Individual = require('./index.js');
@@ -46381,7 +46612,7 @@ function OneVersion(moduleName, version, defaultValue) {
     return Individual(key, defaultValue);
 }
 
-},{"./index.js":20}],22:[function(require,module,exports){
+},{"./index.js":26}],28:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -46401,14 +46632,14 @@ if (typeof document !== 'undefined') {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"min-document":2}],23:[function(require,module,exports){
+},{"min-document":2}],29:[function(require,module,exports){
 "use strict";
 
 module.exports = function isObject(x) {
 	return typeof x === "object" && x !== null;
 };
 
-},{}],24:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -46418,12 +46649,12 @@ function isArray(obj) {
     return toString.call(obj) === "[object Array]"
 }
 
-},{}],25:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var patch = require("./vdom/patch.js")
 
 module.exports = patch
 
-},{"./vdom/patch.js":30}],26:[function(require,module,exports){
+},{"./vdom/patch.js":36}],32:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook.js")
 
@@ -46520,7 +46751,7 @@ function getPrototype(value) {
     }
 }
 
-},{"../vnode/is-vhook.js":41,"is-object":23}],27:[function(require,module,exports){
+},{"../vnode/is-vhook.js":47,"is-object":29}],33:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -46568,7 +46799,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"../vnode/handle-thunk.js":39,"../vnode/is-vnode.js":42,"../vnode/is-vtext.js":43,"../vnode/is-widget.js":44,"./apply-properties":26,"global/document":22}],28:[function(require,module,exports){
+},{"../vnode/handle-thunk.js":45,"../vnode/is-vnode.js":48,"../vnode/is-vtext.js":49,"../vnode/is-widget.js":50,"./apply-properties":32,"global/document":28}],34:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -46655,7 +46886,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],29:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("../vnode/is-widget.js")
@@ -46840,7 +47071,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"../vnode/is-widget.js":44,"../vnode/vpatch.js":47,"./apply-properties":26,"./create-element":27,"./update-widget":31}],30:[function(require,module,exports){
+},{"../vnode/is-widget.js":50,"../vnode/vpatch.js":53,"./apply-properties":32,"./create-element":33,"./update-widget":37}],36:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -46918,7 +47149,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":28,"./patch-op":29,"global/document":22,"x-is-array":24}],31:[function(require,module,exports){
+},{"./dom-index":34,"./patch-op":35,"global/document":28,"x-is-array":30}],37:[function(require,module,exports){
 var isWidget = require("../vnode/is-widget.js")
 
 module.exports = updateWidget
@@ -46935,7 +47166,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"../vnode/is-widget.js":44}],32:[function(require,module,exports){
+},{"../vnode/is-widget.js":50}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = AttributeHook;
@@ -46963,7 +47194,7 @@ AttributeHook.prototype.unhook = function (node, prop) {
     node.removeAttributeNS(this.namespace, localName);
 };
 
-},{}],33:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 var EvStore = require('ev-store');
@@ -46992,7 +47223,7 @@ EvHook.prototype.unhook = function(node, propertyName) {
     es[propName] = undefined;
 };
 
-},{"ev-store":19}],34:[function(require,module,exports){
+},{"ev-store":25}],40:[function(require,module,exports){
 'use strict';
 
 module.exports = SoftSetHook;
@@ -47011,7 +47242,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],35:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 
 var isArray = require('x-is-array');
@@ -47148,7 +47379,7 @@ function errorString(obj) {
     }
 }
 
-},{"../vnode/is-thunk":40,"../vnode/is-vhook":41,"../vnode/is-vnode":42,"../vnode/is-vtext":43,"../vnode/is-widget":44,"../vnode/vnode.js":46,"../vnode/vtext.js":48,"./hooks/ev-hook.js":33,"./hooks/soft-set-hook.js":34,"./parse-tag.js":36,"x-is-array":24}],36:[function(require,module,exports){
+},{"../vnode/is-thunk":46,"../vnode/is-vhook":47,"../vnode/is-vnode":48,"../vnode/is-vtext":49,"../vnode/is-widget":50,"../vnode/vnode.js":52,"../vnode/vtext.js":54,"./hooks/ev-hook.js":39,"./hooks/soft-set-hook.js":40,"./parse-tag.js":42,"x-is-array":30}],42:[function(require,module,exports){
 'use strict';
 
 var split = require('browser-split');
@@ -47204,7 +47435,7 @@ function parseTag(tag, props) {
     return props.namespace ? tagName : tagName.toUpperCase();
 }
 
-},{"browser-split":18}],37:[function(require,module,exports){
+},{"browser-split":24}],43:[function(require,module,exports){
 'use strict';
 
 var DEFAULT_NAMESPACE = null;
@@ -47519,7 +47750,7 @@ function SVGAttributeNamespace(value) {
   }
 }
 
-},{}],38:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 var isArray = require('x-is-array');
@@ -47583,7 +47814,7 @@ function isChildren(x) {
     return typeof x === 'string' || isArray(x);
 }
 
-},{"./hooks/attribute-hook":32,"./index.js":35,"./svg-attribute-namespace":37,"x-is-array":24}],39:[function(require,module,exports){
+},{"./hooks/attribute-hook":38,"./index.js":41,"./svg-attribute-namespace":43,"x-is-array":30}],45:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -47625,14 +47856,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":40,"./is-vnode":42,"./is-vtext":43,"./is-widget":44}],40:[function(require,module,exports){
+},{"./is-thunk":46,"./is-vnode":48,"./is-vtext":49,"./is-widget":50}],46:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],41:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -47641,7 +47872,7 @@ function isHook(hook) {
        typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
 }
 
-},{}],42:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -47650,7 +47881,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":45}],43:[function(require,module,exports){
+},{"./version":51}],49:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -47659,17 +47890,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":45}],44:[function(require,module,exports){
+},{"./version":51}],50:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],45:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = "1"
 
-},{}],46:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -47743,7 +47974,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-thunk":40,"./is-vhook":41,"./is-vnode":42,"./is-widget":44,"./version":45}],47:[function(require,module,exports){
+},{"./is-thunk":46,"./is-vhook":47,"./is-vnode":48,"./is-widget":50,"./version":51}],53:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -47767,7 +47998,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":45}],48:[function(require,module,exports){
+},{"./version":51}],54:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -47779,7 +48010,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":45}],49:[function(require,module,exports){
+},{"./version":51}],55:[function(require,module,exports){
 var isArray = require("x-is-array")
 var isObject = require("is-object")
 
@@ -48158,7 +48389,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":39,"../vnode/is-thunk":40,"../vnode/is-vhook":41,"../vnode/is-vnode":42,"../vnode/is-vtext":43,"../vnode/is-widget":44,"../vnode/vpatch":47,"is-object":23,"x-is-array":24}],50:[function(require,module,exports){
+},{"../vnode/handle-thunk":45,"../vnode/is-thunk":46,"../vnode/is-vhook":47,"../vnode/is-vnode":48,"../vnode/is-vtext":49,"../vnode/is-widget":50,"../vnode/vpatch":53,"is-object":29,"x-is-array":30}],56:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48227,7 +48458,7 @@ var AggregateSnapshot = (function () {
 
 module.exports = AggregateSnapshot;
 
-},{"leaflet":6,"lodash":7}],51:[function(require,module,exports){
+},{"leaflet":6,"lodash":7}],57:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48263,6 +48494,14 @@ var Colourer = (function () {
       enumerable: true,
       configurable: true
     },
+    getSequentialScale: {
+      value: function (min, max) {
+        return d3.scale.linear().domain([min, max]).range(["rgb(240,249,232)", "rgb(204,235,197)", "rgb(168,221,181)", "rgb(123,204,196)", "rgb(78,179,211)", "rgb(43,140,190)", "rgb(8,88,158)"]); // Colorbrewer
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
     _getD3Colour: {
       value: function () {
         return new d3.rgb(Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255));
@@ -48278,7 +48517,7 @@ var Colourer = (function () {
 
 module.exports = Colourer;
 
-},{"d3":5}],52:[function(require,module,exports){
+},{"d3":5}],58:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48292,20 +48531,34 @@ var _interopRequire = function (obj) {
 
 var L = _interopRequire(require("leaflet"));
 
+var hex = _interopRequire(require("turf-hex"));
+
+var count = _interopRequire(require("turf-count"));
+
+var point = _interopRequire(require("turf-point"));
+
+var featurecollection = _interopRequire(require("turf-featurecollection"));
+
+var _ = _interopRequire(require("lodash"));
+
 var Map = (function () {
-  var Map = function Map(id) {
+  var Map = function Map(id, colourer) {
     this.id = id;
+    this.colourer = colourer;
     this.accessToken = "pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw";
     this.mapId = "fires.kng35dfj";
     this.addedLayers = L.layerGroup();
+    this.bounds = [[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]];
     // The leaflet map needs to be setup
-    this.initMap();
+    this._initMap();
     // Add group to map
     this.addedLayers.addTo(this.map);
+    // Setup hexgrid layer
+    this._buildHexGrid();
   };
 
   _prototypeProperties(Map, null, {
-    initMap: {
+    _initMap: {
       value: function () {
         var tiles = L.tileLayer("https://{s}.tiles.mapbox.com/v3/{mapboxId}/{z}/{x}/{y}.png", {
           mapboxId: this.mapId
@@ -48320,15 +48573,23 @@ var Map = (function () {
           layers: [tiles]
         });
         // Fit to NSW
-        this.map.fitBounds([[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]]);
+        this.map.fitBounds(this.bounds);
       },
       writable: true,
       enumerable: true,
       configurable: true
     },
-    addSnapshot: {
-      value: function (snapshot) {
-        this.addedLayers.addLayer(snapshot.layer);
+    _buildHexGrid: {
+
+      // Generate the base hex grid layer used later, just build this once
+      value: function () {
+        // New hex grid, same bounds as big map, but a different way
+        var hexBounds = _.flatten(this.bounds.map(function (c) {
+          return c.reverse();
+        }));
+        this.hexGrid = hex(hexBounds, 0.2);
+        // Add a new layerGroup to handle the hexbinnage
+        this.hexGroup = L.layerGroup().addTo(this.map);
       },
       writable: true,
       enumerable: true,
@@ -48337,6 +48598,53 @@ var Map = (function () {
     clear: {
       value: function () {
         this.addedLayers.clearLayers();
+        this.hexGroup.clearLayers();
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    addSnapshot: {
+      value: function (snapshot) {
+        // Add points layer
+        this.addedLayers.addLayer(snapshot.layer);
+        // Use hexgrid to setup hex styles
+        if (snapshot.data) {
+          // Could be AggregateSnapshot
+          this.hexGroup.addLayer(this._pointsToHex(snapshot.data));
+        }
+      },
+      writable: true,
+      enumerable: true,
+      configurable: true
+    },
+    _pointsToHex: {
+
+      // Return a layer of the hex grid with coloured polygons ready for adding
+      value: function (geojson) {
+        // Unfortunately the geojson has features that have MultiPoint geometries
+        // TODO fix the API to return Point geometries
+        // Extract the 1st point from the multipoints for each layer to use in the hexbinning
+        var pointJson = featurecollection(geojson.features.map(function (mp) {
+          return point(mp.geometry.coordinates[0]);
+        }) // map into an array of turf points
+        ),
+            countedGrid = count(this.hexGrid, pointJson, "ptCount"),
+            max = _.max(_.map(countedGrid.features, function (cell) {
+          return cell.properties.ptCount;
+        })),
+            // We need the maximum value in this set of data
+        scale = this.colourer.getSequentialScale(0, max); // Get a scale... min is 0
+        // Build the layer for mappage
+        return L.geoJson(countedGrid, {
+          style: function (cell) {
+            return {
+              stroke: false,
+              fillOpacity: cell.properties.ptCount > 0 ? 0.96 : 0, // Show if there's data
+              fillColor: scale(cell.properties.ptCount) // Work out colour using scale
+            };
+          }
+        });
       },
       writable: true,
       enumerable: true,
@@ -48349,7 +48657,7 @@ var Map = (function () {
 
 module.exports = Map;
 
-},{"leaflet":6}],53:[function(require,module,exports){
+},{"leaflet":6,"lodash":7,"turf-count":15,"turf-featurecollection":17,"turf-hex":18,"turf-point":20}],59:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48471,7 +48779,7 @@ var TimeRangeSnapshot = (function () {
 
 module.exports = TimeRangeSnapshot;
 
-},{"d3":5,"leaflet":6,"lodash":7,"q":9}],54:[function(require,module,exports){
+},{"d3":5,"leaflet":6,"lodash":7,"q":9}],60:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48604,7 +48912,7 @@ var TimelineViewer = (function () {
 
 module.exports = TimelineViewer;
 
-},{"./AggregateSnapshot":50,"./components/CountComponent":56,"./components/FireTypeComponent":57,"./components/TimelineComponent":58,"leaflet":6,"lodash":7}],55:[function(require,module,exports){
+},{"./AggregateSnapshot":56,"./components/CountComponent":62,"./components/FireTypeComponent":63,"./components/TimelineComponent":64,"leaflet":6,"lodash":7}],61:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48663,7 +48971,7 @@ var Component = (function () {
 
 module.exports = Component;
 
-},{"virtual-dom/create-element":15,"virtual-dom/diff":16,"virtual-dom/patch":25}],56:[function(require,module,exports){
+},{"virtual-dom/create-element":21,"virtual-dom/diff":22,"virtual-dom/patch":31}],62:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48719,7 +49027,7 @@ var CountComponent = (function (Component) {
 
 module.exports = CountComponent;
 
-},{"./Component":55,"virtual-dom/h":17}],57:[function(require,module,exports){
+},{"./Component":61,"virtual-dom/h":23}],63:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48836,7 +49144,7 @@ var FireTypeComponent = (function (Component) {
 
 module.exports = FireTypeComponent;
 
-},{"./Component":55,"d3":5,"lodash":7,"virtual-dom/h":17,"virtual-dom/virtual-hyperscript/svg":38}],58:[function(require,module,exports){
+},{"./Component":61,"d3":5,"lodash":7,"virtual-dom/h":23,"virtual-dom/virtual-hyperscript/svg":44}],64:[function(require,module,exports){
 "use strict";
 
 var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -48895,7 +49203,7 @@ var TimelineComponent = (function (Component) {
 
 module.exports = TimelineComponent;
 
-},{"./Component":55,"virtual-dom/h":17}],59:[function(require,module,exports){
+},{"./Component":61,"virtual-dom/h":23}],65:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) {
@@ -48919,7 +49227,7 @@ function getSnapshots(year, colourer) {
   });
 }
 
-},{"./TimeRangeSnapshot":53,"moment":8,"rx":14}]},{},[1])
+},{"./TimeRangeSnapshot":59,"moment":8,"rx":14}]},{},[1])
 
 
 //# sourceMappingURL=main.map
