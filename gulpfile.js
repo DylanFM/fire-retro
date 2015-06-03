@@ -5,7 +5,7 @@ var gulp         = require('gulp'),
     usemin       = require('gulp-usemin'),
     minifyCSS    = require('gulp-minify-css'),
     htmlmin      = require('gulp-htmlmin'),
-    to5ify       = require('6to5ify'),
+    babelify     = require('babelify'),
     source       = require('vinyl-source-stream'),
     streamify    = require('gulp-streamify'),
     browserify   = require('browserify'),
@@ -55,10 +55,10 @@ gulp.task('htmlmin', function() {
     }));
 });
 
-// Browserify and 6to5
+// Browserify and babel
 gulp.task('buildScripts', function() {
   browserify({ debug: true })
-    .transform(to5ify.configure())
+    .transform(babelify)
     .require('./src/scripts/main.js', { entry: true })
     .bundle()
     .on('error', function (err) { console.log(err.message); })
