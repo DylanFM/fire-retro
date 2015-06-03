@@ -4,7 +4,6 @@ import h from 'virtual-dom/h';
 export default class TimelineComponent extends Component {
 
   constructor(months) {
-    super();
     this.months = months;
   }
 

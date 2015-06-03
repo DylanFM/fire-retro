@@ -24,12 +24,9 @@ var createElement = _interopRequire(require("virtual-dom/create-element"));
 (function () {
   "use strict";
 
-  var colourer = new Colourer(),
-      // To handle colours for this run
-  months = getSnapshots(2014, colourer),
-      // Get months for 2014
-  map,
-      viewer;
+  var colourer = new Colourer(), // To handle colours for this run
+  months = getSnapshots(2014, colourer), // Get months for 2014
+  map, viewer;
 
   document.addEventListener("DOMContentLoaded", function () {
     // Render the year as a title
@@ -48409,18 +48406,18 @@ var L = _interopRequire(require("leaflet"));
 var _ = _interopRequire(require("lodash"));
 
 var AggregateSnapshot = (function () {
-  function AggregateSnapshot(snapshots) {
+  var AggregateSnapshot = function AggregateSnapshot(snapshots) {
     this.snapshots = snapshots;
     this.fireTypes = this._extractFireTypes();
     this.count = this._getCount();
     this.layer = this._buildLayer();
-  }
+  };
 
   _prototypeProperties(AggregateSnapshot, null, {
     _extractFireTypes: {
 
       // Extract all fire types across snapshots
-      value: function ExtractFireTypes() {
+      value: function () {
         return _.reduce(this.snapshots, function (types, month) {
           _.keys(month.fireTypes).forEach(function (k) {
             if (!types[k]) {
@@ -48437,7 +48434,7 @@ var AggregateSnapshot = (function () {
       configurable: true
     },
     _getCount: {
-      value: function GetCount() {
+      value: function () {
         return _.reduce(this.fireTypes, function (total, num) {
           return total + num;
         }, 0);
@@ -48447,7 +48444,7 @@ var AggregateSnapshot = (function () {
       configurable: true
     },
     _buildLayer: {
-      value: function BuildLayer() {
+      value: function () {
         return L.layerGroup(_.compact(_.map(this.snapshots, "layer")));
       },
       writable: true,
@@ -48476,13 +48473,13 @@ var _interopRequire = function (obj) {
 var d3 = _interopRequire(require("d3"));
 
 var Colourer = (function () {
-  function Colourer() {
+  var Colourer = function Colourer() {
     this.cache = {};
-  }
+  };
 
   _prototypeProperties(Colourer, null, {
     getColour: {
-      value: function getColour(type) {
+      value: function (type) {
         var colour;
         type = type.toUpperCase();
         if (this.cache[type]) {
@@ -48498,7 +48495,7 @@ var Colourer = (function () {
       configurable: true
     },
     getSequentialScale: {
-      value: function getSequentialScale(min, max) {
+      value: function (min, max) {
         return d3.scale.linear().domain([min, max]).range(["rgb(240,249,232)", "rgb(204,235,197)", "rgb(168,221,181)", "rgb(123,204,196)", "rgb(78,179,211)", "rgb(43,140,190)", "rgb(8,88,158)"]); // Colorbrewer
       },
       writable: true,
@@ -48506,7 +48503,7 @@ var Colourer = (function () {
       configurable: true
     },
     _getD3Colour: {
-      value: function GetD3Colour() {
+      value: function () {
         return new d3.rgb(Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255));
       },
       writable: true,
@@ -48545,7 +48542,7 @@ var featurecollection = _interopRequire(require("turf-featurecollection"));
 var _ = _interopRequire(require("lodash"));
 
 var Map = (function () {
-  function Map(id, colourer) {
+  var Map = function Map(id, colourer) {
     this.id = id;
     this.colourer = colourer;
     this.accessToken = "pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw";
@@ -48558,11 +48555,11 @@ var Map = (function () {
     this.addedLayers.addTo(this.map);
     // Setup hexgrid layer
     this._buildHexGrid();
-  }
+  };
 
   _prototypeProperties(Map, null, {
     _initMap: {
-      value: function InitMap() {
+      value: function () {
         var tiles = L.tileLayer("https://{s}.tiles.mapbox.com/v3/{mapboxId}/{z}/{x}/{y}.png", {
           mapboxId: this.mapId
         });
@@ -48585,7 +48582,7 @@ var Map = (function () {
     _buildHexGrid: {
 
       // Generate the base hex grid layer used later, just build this once
-      value: function BuildHexGrid() {
+      value: function () {
         // New hex grid, same bounds as big map, but a different way
         var hexBounds = _.flatten(this.bounds.map(function (c) {
           return c.reverse();
@@ -48599,7 +48596,7 @@ var Map = (function () {
       configurable: true
     },
     clear: {
-      value: function clear() {
+      value: function () {
         this.addedLayers.clearLayers();
         this.hexGroup.clearLayers();
       },
@@ -48608,7 +48605,7 @@ var Map = (function () {
       configurable: true
     },
     addSnapshot: {
-      value: function addSnapshot(snapshot) {
+      value: function (snapshot) {
         // Add points layer
         this.addedLayers.addLayer(snapshot.layer);
         // Use hexgrid to setup hex styles
@@ -48624,7 +48621,7 @@ var Map = (function () {
     _pointsToHex: {
 
       // Return a layer of the hex grid with coloured polygons ready for adding
-      value: function PointsToHex(geojson) {
+      value: function (geojson) {
         // Unfortunately the geojson has features that have MultiPoint geometries
         // TODO fix the API to return Point geometries
         // Extract the 1st point from the multipoints for each layer to use in the hexbinning
@@ -48681,17 +48678,17 @@ var L = _interopRequire(require("leaflet"));
 var _ = _interopRequire(require("lodash"));
 
 var TimeRangeSnapshot = (function () {
-  function TimeRangeSnapshot(start, end, colourer) {
+  var TimeRangeSnapshot = function TimeRangeSnapshot(start, end, colourer) {
     this.start = start;
     this.end = end;
-    this.endpoint = "http://10.0.0.29:8000/incidents";
+    this.endpoint = "http://10.0.0.26:8000/incidents";
     this.url = this._buildUrl();
     this.colourer = colourer;
-  }
+  };
 
   _prototypeProperties(TimeRangeSnapshot, null, {
     loadData: {
-      value: function loadData() {
+      value: function () {
         var _this = this;
         return this._fetchData().then(function (json) {
           _this.data = json;
@@ -48705,7 +48702,7 @@ var TimeRangeSnapshot = (function () {
       configurable: true
     },
     _buildUrl: {
-      value: function BuildUrl() {
+      value: function () {
         var st = window.encodeURIComponent(this.start.clone().utc().format()),
             en = window.encodeURIComponent(this.end.clone().utc().format());
         return this.endpoint + "?timeStart=" + st + "&timeEnd=" + en;
@@ -48715,7 +48712,7 @@ var TimeRangeSnapshot = (function () {
       configurable: true
     },
     _fetchData: {
-      value: function FetchData() {
+      value: function () {
         var _this2 = this;
         return Q.Promise(function (resolve, reject) {
           d3.json(_this2.url, function (err, json) {
@@ -48734,7 +48731,7 @@ var TimeRangeSnapshot = (function () {
     _buildLayer: {
 
       // Using data, build a Leaflet GeoJSON layer
-      value: function BuildLayer() {
+      value: function () {
         var _this3 = this;
         // Build GeoJSON layer
         return L.geoJson(this.data, {
@@ -48760,7 +48757,7 @@ var TimeRangeSnapshot = (function () {
     _extractFireTypes: {
 
       // Read the data and pull out the fire types with counts
-      value: function ExtractFireTypes() {
+      value: function () {
         return _.reduce(this.data.features, function (types, incident) {
           var key = incident.properties.fireType.toUpperCase();
           if (!types[key]) {
@@ -48807,7 +48804,7 @@ var L = _interopRequire(require("leaflet"));
 var _ = _interopRequire(require("lodash"));
 
 var TimelineViewer = (function () {
-  function TimelineViewer(map, snapshots, colourer) {
+  var TimelineViewer = function TimelineViewer(map, snapshots, colourer) {
     var _this = this;
     this.map = map;
     this.snapshots = snapshots; // This is an RxJS observable
@@ -48819,11 +48816,11 @@ var TimelineViewer = (function () {
     this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
       _this.timelineComponent = new TimelineComponent(snapshotsArray);
     });
-  }
+  };
 
   _prototypeProperties(TimelineViewer, null, {
     play: {
-      value: function play(speed) {
+      value: function (speed) {
         this.speed = speed;
         // Only play if we have all the data
         this._playIfDataLoaded();
@@ -48833,7 +48830,7 @@ var TimelineViewer = (function () {
       configurable: true
     },
     _playIfDataLoaded: {
-      value: function PlayIfDataLoaded() {
+      value: function () {
         var _this2 = this;
         // Is the data loaded?
         this.snapshots.every(function (s) {
@@ -48857,7 +48854,7 @@ var TimelineViewer = (function () {
       configurable: true
     },
     _beginPlaying: {
-      value: function BeginPlaying() {
+      value: function () {
         var _this3 = this;
         var stream = this.snapshots.controlled(),
             // Make a controllable stream
@@ -48889,7 +48886,7 @@ var TimelineViewer = (function () {
       configurable: true
     },
     _render: {
-      value: function Render(snapshot) {
+      value: function (snapshot) {
         this._renderMap(snapshot);
         this.timelineComponent.render(snapshot);
         this.countComponent.render(snapshot.count);
@@ -48900,7 +48897,7 @@ var TimelineViewer = (function () {
       configurable: true
     },
     _renderMap: {
-      value: function RenderMap(snapshot) {
+      value: function (snapshot) {
         this.map.clear();
         this.map.addSnapshot(snapshot);
       },
@@ -48934,11 +48931,11 @@ var patch = _interopRequire(require("virtual-dom/patch"));
 var createElement = _interopRequire(require("virtual-dom/create-element"));
 
 var Component = (function () {
-  function Component() {}
+  var Component = function Component() {};
 
   _prototypeProperties(Component, null, {
     render: {
-      value: function render(state) {
+      value: function (state) {
         this._render(this._getTree(state));
       },
       writable: true,
@@ -48946,7 +48943,7 @@ var Component = (function () {
       configurable: true
     },
     _render: {
-      value: function Render(tree) {
+      value: function (tree) {
         var patches;
         // Is this the 1st render?
         if (!this.root) {
@@ -48982,19 +48979,19 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
-var _inherits = function (subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+var _inherits = function (child, parent) {
+  if (typeof parent !== "function" && parent !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
   }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
+  child.prototype = Object.create(parent && parent.prototype, {
     constructor: {
-      value: subClass,
+      value: child,
       enumerable: false,
       writable: true,
       configurable: true
     }
   });
-  if (superClass) subClass.__proto__ = superClass;
+  if (parent) child.__proto__ = parent;
 };
 
 var _interopRequire = function (obj) {
@@ -49006,17 +49003,17 @@ var Component = _interopRequire(require("./Component"));
 var h = _interopRequire(require("virtual-dom/h"));
 
 var CountComponent = (function (Component) {
-  function CountComponent() {
+  var CountComponent = function CountComponent() {
     if (Object.getPrototypeOf(CountComponent) !== null) {
       Object.getPrototypeOf(CountComponent).apply(this, arguments);
     }
-  }
+  };
 
   _inherits(CountComponent, Component);
 
   _prototypeProperties(CountComponent, null, {
     _getTree: {
-      value: function GetTree(count) {
+      value: function (count) {
         return h(".count", [h("span.num", ["" + count]), h("span", ["incidents"])]);
       },
       writable: true,
@@ -49038,19 +49035,19 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
-var _inherits = function (subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+var _inherits = function (child, parent) {
+  if (typeof parent !== "function" && parent !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
   }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
+  child.prototype = Object.create(parent && parent.prototype, {
     constructor: {
-      value: subClass,
+      value: child,
       enumerable: false,
       writable: true,
       configurable: true
     }
   });
-  if (superClass) subClass.__proto__ = superClass;
+  if (parent) child.__proto__ = parent;
 };
 
 var _interopRequire = function (obj) {
@@ -49068,17 +49065,17 @@ var _ = _interopRequire(require("lodash"));
 var d3 = _interopRequire(require("d3"));
 
 var FireTypeComponent = (function (Component) {
-  function FireTypeComponent(colourer) {
+  var FireTypeComponent = function FireTypeComponent(colourer) {
     this.colourer = colourer;
     this.width = "100%";
     this.height = "100%";
-  }
+  };
 
   _inherits(FireTypeComponent, Component);
 
   _prototypeProperties(FireTypeComponent, null, {
     _getTree: {
-      value: function GetTree(fireTypes) {
+      value: function (fireTypes) {
         var _this = this;
         var keys = _.keys(fireTypes),
             yScale = this._getYScale(fireTypes),
@@ -49116,7 +49113,7 @@ var FireTypeComponent = (function (Component) {
       configurable: true
     },
     _getYScale: {
-      value: function GetYScale(fireTypes) {
+      value: function (fireTypes) {
         // Total number of incidents
         var sum = _.reduce(_.values(fireTypes), function (sum, num) {
           return sum + num;
@@ -49131,7 +49128,7 @@ var FireTypeComponent = (function (Component) {
     _sortByCount: {
 
       // Sort the fireTypes by number of incidents descending
-      value: function SortByCount(fireTypes) {
+      value: function (fireTypes) {
         return _.sortBy(_.pairs(fireTypes), function (type) {
           return type[1];
         }).reverse();
@@ -49155,19 +49152,19 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
-var _inherits = function (subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+var _inherits = function (child, parent) {
+  if (typeof parent !== "function" && parent !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof parent);
   }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
+  child.prototype = Object.create(parent && parent.prototype, {
     constructor: {
-      value: subClass,
+      value: child,
       enumerable: false,
       writable: true,
       configurable: true
     }
   });
-  if (superClass) subClass.__proto__ = superClass;
+  if (parent) child.__proto__ = parent;
 };
 
 var _interopRequire = function (obj) {
@@ -49179,15 +49176,15 @@ var Component = _interopRequire(require("./Component"));
 var h = _interopRequire(require("virtual-dom/h"));
 
 var TimelineComponent = (function (Component) {
-  function TimelineComponent(months) {
+  var TimelineComponent = function TimelineComponent(months) {
     this.months = months;
-  }
+  };
 
   _inherits(TimelineComponent, Component);
 
   _prototypeProperties(TimelineComponent, null, {
     _getTree: {
-      value: function GetTree(current) {
+      value: function (current) {
         var items = this.months.map(function (month) {
           return h("li", {
             className: current && month.url === current.url ? "current" : ""

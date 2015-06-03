@@ -7,7 +7,6 @@ import d3 from 'd3';
 export default class FireTypeComponent extends Component {
 
   constructor(colourer) {
-    super();
     this.colourer = colourer;
     this.width    = '100%';
     this.height   = '100%';
