@@ -1,4 +1,4 @@
-import '6to5/register';
+import 'babel/register';
 
 import chai from 'chai';
 import sinon from 'sinon';
@@ -42,8 +42,12 @@ describe('TimelineViewer', () => {
   sinon.stub(tr2, '_fetchData', () => Q.fcall(() => geojson));
 
   before((done) => {
+    // Babel is making methods on classes not enumerable, which means the Map class isn't able to be stubbed like this
+    // Instead make something that mimics a map and then make a stub instance of it instead
+    var FakeMap = () => {};
+    FakeMap.prototype = { clear: () => {}, addSnapshot: () => {} };
     // Mock the map
-    map = sinon.createStubInstance(Map);
+    map = sinon.createStubInstance(FakeMap);
     // Load the data... this seems icky
     tr1.loadData()
       .then(() => {

@@ -1,4 +1,4 @@
-import '6to5/register';
+import 'babel/register';
 
 import chai from 'chai';
 import sinon from 'sinon';
