@@ -49572,14 +49572,14 @@ var Colourer = (function () {
       return colour;
     }
   }, {
-    key: 'getSequentialScale',
-    value: function getSequentialScale(min, max) {
-      return _d32['default'].scale.linear().domain([min, max]).range(['rgb(240,249,232)', 'rgb(204,235,197)', 'rgb(168,221,181)', 'rgb(123,204,196)', 'rgb(78,179,211)', 'rgb(43,140,190)', 'rgb(8,88,158)']); // Colorbrewer
-    }
-  }, {
     key: '_getD3Colour',
     value: function _getD3Colour() {
       return new _d32['default'].rgb(Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255));
+    }
+  }, {
+    key: 'getSequentialScale',
+    value: function getSequentialScale(min, max) {
+      return _d32['default'].scale.quantize().domain([min, max]).range(['rgb(254,240,217)', 'rgb(253,212,158)', 'rgb(253,187,132)', 'rgb(252,141,89)', 'rgb(239,101,72)', 'rgb(215,48,31)', 'rgb(153,0,0)']); // Colorbrewer
     }
   }]);
 
@@ -49671,7 +49671,7 @@ var Map = (function () {
       var hexBounds = _lodash2['default'].flatten(this.bounds.map(function (c) {
         return c.reverse();
       }));
-      this.hexGrid = (0, _turfHex2['default'])(hexBounds, 0.2);
+      this.hexGrid = (0, _turfHex2['default'])(hexBounds, 0.1, 'kilometers');
       // Add a new layerGroup to handle the hexbinnage
       this.hexGroup = _leaflet2['default'].layerGroup().addTo(this.map);
     }
@@ -49715,7 +49715,7 @@ var Map = (function () {
         style: function style(cell) {
           return {
             stroke: false,
-            fillOpacity: cell.properties.ptCount > 0 ? 0.96 : 0, // Show if there's data
+            fillOpacity: cell.properties.ptCount > 0 ? 0.6 : 0, // Show if there's data
             fillColor: scale(cell.properties.ptCount) // Work out colour using scale
           };
         }

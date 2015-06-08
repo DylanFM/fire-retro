@@ -46,7 +46,7 @@ export default class Map {
   _buildHexGrid() {
     // New hex grid, same bounds as big map, but a different way
     var hexBounds = _.flatten(this.bounds.map((c) => c.reverse()));
-    this.hexGrid = hex(hexBounds, 0.2);
+    this.hexGrid = hex(hexBounds, 0.1, 'kilometers');
     // Add a new layerGroup to handle the hexbinnage
     this.hexGroup = L.layerGroup().addTo(this.map);
   }
