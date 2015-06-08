@@ -18,17 +18,17 @@ export default class Colourer {
     return colour;
   }
 
-  getSequentialScale(min, max) {
-    return d3.scale.linear()
-      .domain([min, max])
-      .range(['rgb(240,249,232)','rgb(204,235,197)','rgb(168,221,181)','rgb(123,204,196)','rgb(78,179,211)','rgb(43,140,190)','rgb(8,88,158)']); // Colorbrewer
-  }
-
   _getD3Colour() {
     return new d3.rgb(
       Math.floor(Math.random() * 255),
       Math.floor(Math.random() * 255),
       Math.floor(Math.random() * 255)
     );
+  }
+
+  getSequentialScale(min, max) {
+    return d3.scale.quantize()
+      .domain([min, max])
+      .range(['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)']); // Colorbrewer
   }
 }

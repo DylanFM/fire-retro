@@ -81,8 +81,8 @@ export default class Map {
       style: (cell) => {
         return {
           stroke:       false,
-          fillOpacity:  cell.properties.ptCount > 0 ? 0.96 : 0, // Show if there's data
-          fillColor:    scale(cell.properties.ptCount)          // Work out colour using scale
+          fillOpacity:  cell.properties.ptCount > 0 ? 0.6 : 0, // Show if there's data
+          fillColor:    scale(cell.properties.ptCount)         // Work out colour using scale
         };
       }
     });
