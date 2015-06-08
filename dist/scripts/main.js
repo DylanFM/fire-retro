@@ -49633,7 +49633,7 @@ var Map = (function () {
     this.id = id;
     this.colourer = colourer;
     this.accessToken = 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw';
-    this.mapId = 'fires.kng35dfj';
+    this.mapId = 'fires.1b505148';
     this.addedLayers = _leaflet2['default'].layerGroup();
     this.bounds = [[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]];
     // The leaflet map needs to be setup
