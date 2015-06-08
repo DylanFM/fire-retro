@@ -14,8 +14,7 @@ export default class FireTypeComponent extends Component {
   }
 
   _getTree(fireTypes) {
-    var keys   = _.keys(fireTypes),
-        yScale = this._getYScale(fireTypes),
+    var yScale = this._getYScale(fireTypes),
         offset = 0, // I don't really like having this offset used and accumulated in the map
         types  = _.map(this._sortByCount(fireTypes), (type) => {
           var height = yScale(type[1]),

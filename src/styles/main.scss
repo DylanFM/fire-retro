@@ -64,11 +64,25 @@ html {
   }
 }
 
-.fireTypes {
+.fireTypeCount {
+  text-align: right;
+  font-size: 0.8rem;
   position: absolute;
   bottom: 5rem;
   right: 1.5rem;
-  width: 12rem;
-  height: 40vh;
-  color: #ffffee;
+
+  th {
+    text-transform: uppercase;
+    border-bottom: 1px solid #ffffee;
+    padding-bottom: .5em;
+  }
+  tbody tr:first-child td {
+    padding-top: .5em;
+  }
+  th, td {
+    padding: .2rem 0;
+  }
+  td:last-child {
+    width: 3rem;
+  }
 }

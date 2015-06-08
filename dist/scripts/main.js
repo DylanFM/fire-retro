@@ -64,7 +64,7 @@ var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement)
   });
 })();
 
-},{"./Colourer":53,"./Map":54,"./TimelineViewer":56,"./getSnapshots":61,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
+},{"./Colourer":50,"./Map":51,"./TimelineViewer":53,"./getSnapshots":58,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -47417,12 +47417,12 @@ var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":51}],18:[function(require,module,exports){
+},{"./vtree/diff.js":48}],18:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
 
-},{"./virtual-hyperscript/index.js":36}],19:[function(require,module,exports){
+},{"./virtual-hyperscript/index.js":35}],19:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
@@ -47741,7 +47741,7 @@ function getPrototype(value) {
     }
 }
 
-},{"../vnode/is-vhook.js":42,"is-object":24}],28:[function(require,module,exports){
+},{"../vnode/is-vhook.js":39,"is-object":24}],28:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -47789,7 +47789,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"../vnode/handle-thunk.js":40,"../vnode/is-vnode.js":43,"../vnode/is-vtext.js":44,"../vnode/is-widget.js":45,"./apply-properties":27,"global/document":23}],29:[function(require,module,exports){
+},{"../vnode/handle-thunk.js":37,"../vnode/is-vnode.js":40,"../vnode/is-vtext.js":41,"../vnode/is-widget.js":42,"./apply-properties":27,"global/document":23}],29:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -48030,7 +48030,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"../vnode/is-widget.js":45,"../vnode/vpatch.js":48,"./apply-properties":27,"./create-element":28,"./update-widget":32}],31:[function(require,module,exports){
+},{"../vnode/is-widget.js":42,"../vnode/vpatch.js":45,"./apply-properties":27,"./create-element":28,"./update-widget":32}],31:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -48125,44 +48125,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"../vnode/is-widget.js":45}],33:[function(require,module,exports){
-'use strict';
-
-module.exports = AttributeHook;
-
-function AttributeHook(namespace, value) {
-    if (!(this instanceof AttributeHook)) {
-        return new AttributeHook(namespace, value);
-    }
-
-    this.namespace = namespace;
-    this.value = value;
-}
-
-AttributeHook.prototype.hook = function (node, prop, prev) {
-    if (prev && prev.type === 'AttributeHook' &&
-        prev.value === this.value &&
-        prev.namespace === this.namespace) {
-        return;
-    }
-
-    node.setAttributeNS(this.namespace, prop, this.value);
-};
-
-AttributeHook.prototype.unhook = function (node, prop, next) {
-    if (next && next.type === 'AttributeHook' &&
-        next.namespace === this.namespace) {
-        return;
-    }
-
-    var colonPosition = prop.indexOf(':');
-    var localName = colonPosition > -1 ? prop.substr(colonPosition + 1) : prop;
-    node.removeAttributeNS(this.namespace, localName);
-};
-
-AttributeHook.prototype.type = 'AttributeHook';
-
-},{}],34:[function(require,module,exports){
+},{"../vnode/is-widget.js":42}],33:[function(require,module,exports){
 'use strict';
 
 var EvStore = require('ev-store');
@@ -48191,7 +48154,7 @@ EvHook.prototype.unhook = function(node, propertyName) {
     es[propName] = undefined;
 };
 
-},{"ev-store":20}],35:[function(require,module,exports){
+},{"ev-store":20}],34:[function(require,module,exports){
 'use strict';
 
 module.exports = SoftSetHook;
@@ -48210,7 +48173,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 var isArray = require('x-is-array');
@@ -48347,7 +48310,7 @@ function errorString(obj) {
     }
 }
 
-},{"../vnode/is-thunk":41,"../vnode/is-vhook":42,"../vnode/is-vnode":43,"../vnode/is-vtext":44,"../vnode/is-widget":45,"../vnode/vnode.js":47,"../vnode/vtext.js":49,"./hooks/ev-hook.js":34,"./hooks/soft-set-hook.js":35,"./parse-tag.js":37,"x-is-array":25}],37:[function(require,module,exports){
+},{"../vnode/is-thunk":38,"../vnode/is-vhook":39,"../vnode/is-vnode":40,"../vnode/is-vtext":41,"../vnode/is-widget":42,"../vnode/vnode.js":44,"../vnode/vtext.js":46,"./hooks/ev-hook.js":33,"./hooks/soft-set-hook.js":34,"./parse-tag.js":36,"x-is-array":25}],36:[function(require,module,exports){
 'use strict';
 
 var split = require('browser-split');
@@ -48403,386 +48366,7 @@ function parseTag(tag, props) {
     return props.namespace ? tagName : tagName.toUpperCase();
 }
 
-},{"browser-split":19}],38:[function(require,module,exports){
-'use strict';
-
-var DEFAULT_NAMESPACE = null;
-var EV_NAMESPACE = 'http://www.w3.org/2001/xml-events';
-var XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
-var XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace';
-
-// http://www.w3.org/TR/SVGTiny12/attributeTable.html
-// http://www.w3.org/TR/SVG/attindex.html
-var SVG_PROPERTIES = {
-    'about': DEFAULT_NAMESPACE,
-    'accent-height': DEFAULT_NAMESPACE,
-    'accumulate': DEFAULT_NAMESPACE,
-    'additive': DEFAULT_NAMESPACE,
-    'alignment-baseline': DEFAULT_NAMESPACE,
-    'alphabetic': DEFAULT_NAMESPACE,
-    'amplitude': DEFAULT_NAMESPACE,
-    'arabic-form': DEFAULT_NAMESPACE,
-    'ascent': DEFAULT_NAMESPACE,
-    'attributeName': DEFAULT_NAMESPACE,
-    'attributeType': DEFAULT_NAMESPACE,
-    'azimuth': DEFAULT_NAMESPACE,
-    'bandwidth': DEFAULT_NAMESPACE,
-    'baseFrequency': DEFAULT_NAMESPACE,
-    'baseProfile': DEFAULT_NAMESPACE,
-    'baseline-shift': DEFAULT_NAMESPACE,
-    'bbox': DEFAULT_NAMESPACE,
-    'begin': DEFAULT_NAMESPACE,
-    'bias': DEFAULT_NAMESPACE,
-    'by': DEFAULT_NAMESPACE,
-    'calcMode': DEFAULT_NAMESPACE,
-    'cap-height': DEFAULT_NAMESPACE,
-    'class': DEFAULT_NAMESPACE,
-    'clip': DEFAULT_NAMESPACE,
-    'clip-path': DEFAULT_NAMESPACE,
-    'clip-rule': DEFAULT_NAMESPACE,
-    'clipPathUnits': DEFAULT_NAMESPACE,
-    'color': DEFAULT_NAMESPACE,
-    'color-interpolation': DEFAULT_NAMESPACE,
-    'color-interpolation-filters': DEFAULT_NAMESPACE,
-    'color-profile': DEFAULT_NAMESPACE,
-    'color-rendering': DEFAULT_NAMESPACE,
-    'content': DEFAULT_NAMESPACE,
-    'contentScriptType': DEFAULT_NAMESPACE,
-    'contentStyleType': DEFAULT_NAMESPACE,
-    'cursor': DEFAULT_NAMESPACE,
-    'cx': DEFAULT_NAMESPACE,
-    'cy': DEFAULT_NAMESPACE,
-    'd': DEFAULT_NAMESPACE,
-    'datatype': DEFAULT_NAMESPACE,
-    'defaultAction': DEFAULT_NAMESPACE,
-    'descent': DEFAULT_NAMESPACE,
-    'diffuseConstant': DEFAULT_NAMESPACE,
-    'direction': DEFAULT_NAMESPACE,
-    'display': DEFAULT_NAMESPACE,
-    'divisor': DEFAULT_NAMESPACE,
-    'dominant-baseline': DEFAULT_NAMESPACE,
-    'dur': DEFAULT_NAMESPACE,
-    'dx': DEFAULT_NAMESPACE,
-    'dy': DEFAULT_NAMESPACE,
-    'edgeMode': DEFAULT_NAMESPACE,
-    'editable': DEFAULT_NAMESPACE,
-    'elevation': DEFAULT_NAMESPACE,
-    'enable-background': DEFAULT_NAMESPACE,
-    'end': DEFAULT_NAMESPACE,
-    'ev:event': EV_NAMESPACE,
-    'event': DEFAULT_NAMESPACE,
-    'exponent': DEFAULT_NAMESPACE,
-    'externalResourcesRequired': DEFAULT_NAMESPACE,
-    'fill': DEFAULT_NAMESPACE,
-    'fill-opacity': DEFAULT_NAMESPACE,
-    'fill-rule': DEFAULT_NAMESPACE,
-    'filter': DEFAULT_NAMESPACE,
-    'filterRes': DEFAULT_NAMESPACE,
-    'filterUnits': DEFAULT_NAMESPACE,
-    'flood-color': DEFAULT_NAMESPACE,
-    'flood-opacity': DEFAULT_NAMESPACE,
-    'focusHighlight': DEFAULT_NAMESPACE,
-    'focusable': DEFAULT_NAMESPACE,
-    'font-family': DEFAULT_NAMESPACE,
-    'font-size': DEFAULT_NAMESPACE,
-    'font-size-adjust': DEFAULT_NAMESPACE,
-    'font-stretch': DEFAULT_NAMESPACE,
-    'font-style': DEFAULT_NAMESPACE,
-    'font-variant': DEFAULT_NAMESPACE,
-    'font-weight': DEFAULT_NAMESPACE,
-    'format': DEFAULT_NAMESPACE,
-    'from': DEFAULT_NAMESPACE,
-    'fx': DEFAULT_NAMESPACE,
-    'fy': DEFAULT_NAMESPACE,
-    'g1': DEFAULT_NAMESPACE,
-    'g2': DEFAULT_NAMESPACE,
-    'glyph-name': DEFAULT_NAMESPACE,
-    'glyph-orientation-horizontal': DEFAULT_NAMESPACE,
-    'glyph-orientation-vertical': DEFAULT_NAMESPACE,
-    'glyphRef': DEFAULT_NAMESPACE,
-    'gradientTransform': DEFAULT_NAMESPACE,
-    'gradientUnits': DEFAULT_NAMESPACE,
-    'handler': DEFAULT_NAMESPACE,
-    'hanging': DEFAULT_NAMESPACE,
-    'height': DEFAULT_NAMESPACE,
-    'horiz-adv-x': DEFAULT_NAMESPACE,
-    'horiz-origin-x': DEFAULT_NAMESPACE,
-    'horiz-origin-y': DEFAULT_NAMESPACE,
-    'id': DEFAULT_NAMESPACE,
-    'ideographic': DEFAULT_NAMESPACE,
-    'image-rendering': DEFAULT_NAMESPACE,
-    'in': DEFAULT_NAMESPACE,
-    'in2': DEFAULT_NAMESPACE,
-    'initialVisibility': DEFAULT_NAMESPACE,
-    'intercept': DEFAULT_NAMESPACE,
-    'k': DEFAULT_NAMESPACE,
-    'k1': DEFAULT_NAMESPACE,
-    'k2': DEFAULT_NAMESPACE,
-    'k3': DEFAULT_NAMESPACE,
-    'k4': DEFAULT_NAMESPACE,
-    'kernelMatrix': DEFAULT_NAMESPACE,
-    'kernelUnitLength': DEFAULT_NAMESPACE,
-    'kerning': DEFAULT_NAMESPACE,
-    'keyPoints': DEFAULT_NAMESPACE,
-    'keySplines': DEFAULT_NAMESPACE,
-    'keyTimes': DEFAULT_NAMESPACE,
-    'lang': DEFAULT_NAMESPACE,
-    'lengthAdjust': DEFAULT_NAMESPACE,
-    'letter-spacing': DEFAULT_NAMESPACE,
-    'lighting-color': DEFAULT_NAMESPACE,
-    'limitingConeAngle': DEFAULT_NAMESPACE,
-    'local': DEFAULT_NAMESPACE,
-    'marker-end': DEFAULT_NAMESPACE,
-    'marker-mid': DEFAULT_NAMESPACE,
-    'marker-start': DEFAULT_NAMESPACE,
-    'markerHeight': DEFAULT_NAMESPACE,
-    'markerUnits': DEFAULT_NAMESPACE,
-    'markerWidth': DEFAULT_NAMESPACE,
-    'mask': DEFAULT_NAMESPACE,
-    'maskContentUnits': DEFAULT_NAMESPACE,
-    'maskUnits': DEFAULT_NAMESPACE,
-    'mathematical': DEFAULT_NAMESPACE,
-    'max': DEFAULT_NAMESPACE,
-    'media': DEFAULT_NAMESPACE,
-    'mediaCharacterEncoding': DEFAULT_NAMESPACE,
-    'mediaContentEncodings': DEFAULT_NAMESPACE,
-    'mediaSize': DEFAULT_NAMESPACE,
-    'mediaTime': DEFAULT_NAMESPACE,
-    'method': DEFAULT_NAMESPACE,
-    'min': DEFAULT_NAMESPACE,
-    'mode': DEFAULT_NAMESPACE,
-    'name': DEFAULT_NAMESPACE,
-    'nav-down': DEFAULT_NAMESPACE,
-    'nav-down-left': DEFAULT_NAMESPACE,
-    'nav-down-right': DEFAULT_NAMESPACE,
-    'nav-left': DEFAULT_NAMESPACE,
-    'nav-next': DEFAULT_NAMESPACE,
-    'nav-prev': DEFAULT_NAMESPACE,
-    'nav-right': DEFAULT_NAMESPACE,
-    'nav-up': DEFAULT_NAMESPACE,
-    'nav-up-left': DEFAULT_NAMESPACE,
-    'nav-up-right': DEFAULT_NAMESPACE,
-    'numOctaves': DEFAULT_NAMESPACE,
-    'observer': DEFAULT_NAMESPACE,
-    'offset': DEFAULT_NAMESPACE,
-    'opacity': DEFAULT_NAMESPACE,
-    'operator': DEFAULT_NAMESPACE,
-    'order': DEFAULT_NAMESPACE,
-    'orient': DEFAULT_NAMESPACE,
-    'orientation': DEFAULT_NAMESPACE,
-    'origin': DEFAULT_NAMESPACE,
-    'overflow': DEFAULT_NAMESPACE,
-    'overlay': DEFAULT_NAMESPACE,
-    'overline-position': DEFAULT_NAMESPACE,
-    'overline-thickness': DEFAULT_NAMESPACE,
-    'panose-1': DEFAULT_NAMESPACE,
-    'path': DEFAULT_NAMESPACE,
-    'pathLength': DEFAULT_NAMESPACE,
-    'patternContentUnits': DEFAULT_NAMESPACE,
-    'patternTransform': DEFAULT_NAMESPACE,
-    'patternUnits': DEFAULT_NAMESPACE,
-    'phase': DEFAULT_NAMESPACE,
-    'playbackOrder': DEFAULT_NAMESPACE,
-    'pointer-events': DEFAULT_NAMESPACE,
-    'points': DEFAULT_NAMESPACE,
-    'pointsAtX': DEFAULT_NAMESPACE,
-    'pointsAtY': DEFAULT_NAMESPACE,
-    'pointsAtZ': DEFAULT_NAMESPACE,
-    'preserveAlpha': DEFAULT_NAMESPACE,
-    'preserveAspectRatio': DEFAULT_NAMESPACE,
-    'primitiveUnits': DEFAULT_NAMESPACE,
-    'propagate': DEFAULT_NAMESPACE,
-    'property': DEFAULT_NAMESPACE,
-    'r': DEFAULT_NAMESPACE,
-    'radius': DEFAULT_NAMESPACE,
-    'refX': DEFAULT_NAMESPACE,
-    'refY': DEFAULT_NAMESPACE,
-    'rel': DEFAULT_NAMESPACE,
-    'rendering-intent': DEFAULT_NAMESPACE,
-    'repeatCount': DEFAULT_NAMESPACE,
-    'repeatDur': DEFAULT_NAMESPACE,
-    'requiredExtensions': DEFAULT_NAMESPACE,
-    'requiredFeatures': DEFAULT_NAMESPACE,
-    'requiredFonts': DEFAULT_NAMESPACE,
-    'requiredFormats': DEFAULT_NAMESPACE,
-    'resource': DEFAULT_NAMESPACE,
-    'restart': DEFAULT_NAMESPACE,
-    'result': DEFAULT_NAMESPACE,
-    'rev': DEFAULT_NAMESPACE,
-    'role': DEFAULT_NAMESPACE,
-    'rotate': DEFAULT_NAMESPACE,
-    'rx': DEFAULT_NAMESPACE,
-    'ry': DEFAULT_NAMESPACE,
-    'scale': DEFAULT_NAMESPACE,
-    'seed': DEFAULT_NAMESPACE,
-    'shape-rendering': DEFAULT_NAMESPACE,
-    'slope': DEFAULT_NAMESPACE,
-    'snapshotTime': DEFAULT_NAMESPACE,
-    'spacing': DEFAULT_NAMESPACE,
-    'specularConstant': DEFAULT_NAMESPACE,
-    'specularExponent': DEFAULT_NAMESPACE,
-    'spreadMethod': DEFAULT_NAMESPACE,
-    'startOffset': DEFAULT_NAMESPACE,
-    'stdDeviation': DEFAULT_NAMESPACE,
-    'stemh': DEFAULT_NAMESPACE,
-    'stemv': DEFAULT_NAMESPACE,
-    'stitchTiles': DEFAULT_NAMESPACE,
-    'stop-color': DEFAULT_NAMESPACE,
-    'stop-opacity': DEFAULT_NAMESPACE,
-    'strikethrough-position': DEFAULT_NAMESPACE,
-    'strikethrough-thickness': DEFAULT_NAMESPACE,
-    'string': DEFAULT_NAMESPACE,
-    'stroke': DEFAULT_NAMESPACE,
-    'stroke-dasharray': DEFAULT_NAMESPACE,
-    'stroke-dashoffset': DEFAULT_NAMESPACE,
-    'stroke-linecap': DEFAULT_NAMESPACE,
-    'stroke-linejoin': DEFAULT_NAMESPACE,
-    'stroke-miterlimit': DEFAULT_NAMESPACE,
-    'stroke-opacity': DEFAULT_NAMESPACE,
-    'stroke-width': DEFAULT_NAMESPACE,
-    'surfaceScale': DEFAULT_NAMESPACE,
-    'syncBehavior': DEFAULT_NAMESPACE,
-    'syncBehaviorDefault': DEFAULT_NAMESPACE,
-    'syncMaster': DEFAULT_NAMESPACE,
-    'syncTolerance': DEFAULT_NAMESPACE,
-    'syncToleranceDefault': DEFAULT_NAMESPACE,
-    'systemLanguage': DEFAULT_NAMESPACE,
-    'tableValues': DEFAULT_NAMESPACE,
-    'target': DEFAULT_NAMESPACE,
-    'targetX': DEFAULT_NAMESPACE,
-    'targetY': DEFAULT_NAMESPACE,
-    'text-anchor': DEFAULT_NAMESPACE,
-    'text-decoration': DEFAULT_NAMESPACE,
-    'text-rendering': DEFAULT_NAMESPACE,
-    'textLength': DEFAULT_NAMESPACE,
-    'timelineBegin': DEFAULT_NAMESPACE,
-    'title': DEFAULT_NAMESPACE,
-    'to': DEFAULT_NAMESPACE,
-    'transform': DEFAULT_NAMESPACE,
-    'transformBehavior': DEFAULT_NAMESPACE,
-    'type': DEFAULT_NAMESPACE,
-    'typeof': DEFAULT_NAMESPACE,
-    'u1': DEFAULT_NAMESPACE,
-    'u2': DEFAULT_NAMESPACE,
-    'underline-position': DEFAULT_NAMESPACE,
-    'underline-thickness': DEFAULT_NAMESPACE,
-    'unicode': DEFAULT_NAMESPACE,
-    'unicode-bidi': DEFAULT_NAMESPACE,
-    'unicode-range': DEFAULT_NAMESPACE,
-    'units-per-em': DEFAULT_NAMESPACE,
-    'v-alphabetic': DEFAULT_NAMESPACE,
-    'v-hanging': DEFAULT_NAMESPACE,
-    'v-ideographic': DEFAULT_NAMESPACE,
-    'v-mathematical': DEFAULT_NAMESPACE,
-    'values': DEFAULT_NAMESPACE,
-    'version': DEFAULT_NAMESPACE,
-    'vert-adv-y': DEFAULT_NAMESPACE,
-    'vert-origin-x': DEFAULT_NAMESPACE,
-    'vert-origin-y': DEFAULT_NAMESPACE,
-    'viewBox': DEFAULT_NAMESPACE,
-    'viewTarget': DEFAULT_NAMESPACE,
-    'visibility': DEFAULT_NAMESPACE,
-    'width': DEFAULT_NAMESPACE,
-    'widths': DEFAULT_NAMESPACE,
-    'word-spacing': DEFAULT_NAMESPACE,
-    'writing-mode': DEFAULT_NAMESPACE,
-    'x': DEFAULT_NAMESPACE,
-    'x-height': DEFAULT_NAMESPACE,
-    'x1': DEFAULT_NAMESPACE,
-    'x2': DEFAULT_NAMESPACE,
-    'xChannelSelector': DEFAULT_NAMESPACE,
-    'xlink:actuate': XLINK_NAMESPACE,
-    'xlink:arcrole': XLINK_NAMESPACE,
-    'xlink:href': XLINK_NAMESPACE,
-    'xlink:role': XLINK_NAMESPACE,
-    'xlink:show': XLINK_NAMESPACE,
-    'xlink:title': XLINK_NAMESPACE,
-    'xlink:type': XLINK_NAMESPACE,
-    'xml:base': XML_NAMESPACE,
-    'xml:id': XML_NAMESPACE,
-    'xml:lang': XML_NAMESPACE,
-    'xml:space': XML_NAMESPACE,
-    'y': DEFAULT_NAMESPACE,
-    'y1': DEFAULT_NAMESPACE,
-    'y2': DEFAULT_NAMESPACE,
-    'yChannelSelector': DEFAULT_NAMESPACE,
-    'z': DEFAULT_NAMESPACE,
-    'zoomAndPan': DEFAULT_NAMESPACE
-};
-
-module.exports = SVGAttributeNamespace;
-
-function SVGAttributeNamespace(value) {
-  if (SVG_PROPERTIES.hasOwnProperty(value)) {
-    return SVG_PROPERTIES[value];
-  }
-}
-
-},{}],39:[function(require,module,exports){
-'use strict';
-
-var isArray = require('x-is-array');
-
-var h = require('./index.js');
-
-
-var SVGAttributeNamespace = require('./svg-attribute-namespace');
-var attributeHook = require('./hooks/attribute-hook');
-
-var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-
-module.exports = svg;
-
-function svg(tagName, properties, children) {
-    if (!children && isChildren(properties)) {
-        children = properties;
-        properties = {};
-    }
-
-    properties = properties || {};
-
-    // set namespace for svg
-    properties.namespace = SVG_NAMESPACE;
-
-    var attributes = properties.attributes || (properties.attributes = {});
-
-    for (var key in properties) {
-        if (!properties.hasOwnProperty(key)) {
-            continue;
-        }
-
-        var namespace = SVGAttributeNamespace(key);
-
-        if (namespace === undefined) { // not a svg attribute
-            continue;
-        }
-
-        var value = properties[key];
-
-        if (typeof value !== 'string' &&
-            typeof value !== 'number' &&
-            typeof value !== 'boolean'
-        ) {
-            continue;
-        }
-
-        if (namespace !== null) { // namespaced attribute
-            properties[key] = attributeHook(namespace, value);
-            continue;
-        }
-
-        attributes[key] = value
-        properties[key] = undefined
-    }
-
-    return h(tagName, properties, children);
-}
-
-function isChildren(x) {
-    return typeof x === 'string' || isArray(x);
-}
-
-},{"./hooks/attribute-hook":33,"./index.js":36,"./svg-attribute-namespace":38,"x-is-array":25}],40:[function(require,module,exports){
+},{"browser-split":19}],37:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -48824,14 +48408,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":41,"./is-vnode":43,"./is-vtext":44,"./is-widget":45}],41:[function(require,module,exports){
+},{"./is-thunk":38,"./is-vnode":40,"./is-vtext":41,"./is-widget":42}],38:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],42:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -48840,7 +48424,7 @@ function isHook(hook) {
        typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
 }
 
-},{}],43:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -48849,7 +48433,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":46}],44:[function(require,module,exports){
+},{"./version":43}],41:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -48858,17 +48442,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":46}],45:[function(require,module,exports){
+},{"./version":43}],42:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],46:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = "2"
 
-},{}],47:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -48942,7 +48526,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-thunk":41,"./is-vhook":42,"./is-vnode":43,"./is-widget":45,"./version":46}],48:[function(require,module,exports){
+},{"./is-thunk":38,"./is-vhook":39,"./is-vnode":40,"./is-widget":42,"./version":43}],45:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -48966,7 +48550,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":46}],49:[function(require,module,exports){
+},{"./version":43}],46:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -48978,7 +48562,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":46}],50:[function(require,module,exports){
+},{"./version":43}],47:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook")
 
@@ -49038,7 +48622,7 @@ function getPrototype(value) {
   }
 }
 
-},{"../vnode/is-vhook":42,"is-object":24}],51:[function(require,module,exports){
+},{"../vnode/is-vhook":39,"is-object":24}],48:[function(require,module,exports){
 var isArray = require("x-is-array")
 
 var VPatch = require("../vnode/vpatch")
@@ -49467,7 +49051,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":40,"../vnode/is-thunk":41,"../vnode/is-vnode":43,"../vnode/is-vtext":44,"../vnode/is-widget":45,"../vnode/vpatch":48,"./diff-props":50,"x-is-array":25}],52:[function(require,module,exports){
+},{"../vnode/handle-thunk":37,"../vnode/is-thunk":38,"../vnode/is-vnode":40,"../vnode/is-vtext":41,"../vnode/is-widget":42,"../vnode/vpatch":45,"./diff-props":47,"x-is-array":25}],49:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49534,7 +49118,7 @@ var AggregateSnapshot = (function () {
 exports['default'] = AggregateSnapshot;
 module.exports = exports['default'];
 
-},{"leaflet":5,"lodash":6}],53:[function(require,module,exports){
+},{"leaflet":5,"lodash":6}],50:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49589,7 +49173,7 @@ var Colourer = (function () {
 exports['default'] = Colourer;
 module.exports = exports['default'];
 
-},{"d3":4}],54:[function(require,module,exports){
+},{"d3":4}],51:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49685,7 +49269,7 @@ var Map = (function () {
     key: 'addSnapshot',
     value: function addSnapshot(snapshot) {
       // Add points layer
-      this.addedLayers.addLayer(snapshot.layer);
+      //this.addedLayers.addLayer(snapshot.layer);
       // Use hexgrid to setup hex styles
       if (snapshot.data) {
         // Could be AggregateSnapshot
@@ -49729,7 +49313,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"leaflet":5,"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-hex":13,"turf-point":15}],55:[function(require,module,exports){
+},{"leaflet":5,"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-hex":13,"turf-point":15}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49850,7 +49434,7 @@ var TimeRangeSnapshot = (function () {
 exports['default'] = TimeRangeSnapshot;
 module.exports = exports['default'];
 
-},{"d3":4,"leaflet":5,"lodash":6,"q":8}],56:[function(require,module,exports){
+},{"d3":4,"leaflet":5,"lodash":6,"q":8}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49871,9 +49455,9 @@ var _componentsCountComponent = require('./components/CountComponent');
 
 var _componentsCountComponent2 = _interopRequireDefault(_componentsCountComponent);
 
-var _componentsFireTypeComponent = require('./components/FireTypeComponent');
+var _componentsFireTypeCountComponent = require('./components/FireTypeCountComponent');
 
-var _componentsFireTypeComponent2 = _interopRequireDefault(_componentsFireTypeComponent);
+var _componentsFireTypeCountComponent2 = _interopRequireDefault(_componentsFireTypeCountComponent);
 
 var _componentsTimelineComponent = require('./components/TimelineComponent');
 
@@ -49897,7 +49481,7 @@ var TimelineViewer = (function () {
     this.snapshots = snapshots; // This is an RxJS observable
     this.colourer = colourer;
     // Initialise components
-    this.fireTypeComponent = new _componentsFireTypeComponent2['default'](this.colourer);
+    this.fireTypeComponent = new _componentsFireTypeCountComponent2['default']();
     this.countComponent = new _componentsCountComponent2['default']();
     // We want an array
     this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
@@ -49987,7 +49571,7 @@ var TimelineViewer = (function () {
 exports['default'] = TimelineViewer;
 module.exports = exports['default'];
 
-},{"./AggregateSnapshot":52,"./components/CountComponent":58,"./components/FireTypeComponent":59,"./components/TimelineComponent":60,"leaflet":5,"lodash":6}],57:[function(require,module,exports){
+},{"./AggregateSnapshot":49,"./components/CountComponent":55,"./components/FireTypeCountComponent":56,"./components/TimelineComponent":57,"leaflet":5,"lodash":6}],54:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50049,7 +49633,7 @@ var Component = (function () {
 exports['default'] = Component;
 module.exports = exports['default'];
 
-},{"virtual-dom/create-element":16,"virtual-dom/diff":17,"virtual-dom/patch":26}],58:[function(require,module,exports){
+},{"virtual-dom/create-element":16,"virtual-dom/diff":17,"virtual-dom/patch":26}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50096,7 +49680,7 @@ var CountComponent = (function (_Component) {
 exports['default'] = CountComponent;
 module.exports = exports['default'];
 
-},{"./Component":57,"virtual-dom/h":18}],59:[function(require,module,exports){
+},{"./Component":54,"virtual-dom/h":18}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50105,13 +49689,15 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _Component2 = require('./Component');
 
@@ -50121,75 +49707,29 @@ var _virtualDomH = require('virtual-dom/h');
 
 var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 
-var _virtualDomVirtualHyperscriptSvg = require('virtual-dom/virtual-hyperscript/svg');
+var FireTypeCountComponent = (function (_Component) {
+  function FireTypeCountComponent() {
+    _classCallCheck(this, FireTypeCountComponent);
 
-var _virtualDomVirtualHyperscriptSvg2 = _interopRequireDefault(_virtualDomVirtualHyperscriptSvg);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _d3 = require('d3');
-
-var _d32 = _interopRequireDefault(_d3);
-
-var FireTypeComponent = (function (_Component) {
-  function FireTypeComponent(colourer) {
-    _classCallCheck(this, FireTypeComponent);
-
-    _get(Object.getPrototypeOf(FireTypeComponent.prototype), 'constructor', this).call(this);
-    this.colourer = colourer;
-    this.width = '100%';
-    this.height = '100%';
+    if (_Component != null) {
+      _Component.apply(this, arguments);
+    }
   }
 
-  _inherits(FireTypeComponent, _Component);
+  _inherits(FireTypeCountComponent, _Component);
 
-  _createClass(FireTypeComponent, [{
+  _createClass(FireTypeCountComponent, [{
     key: '_getTree',
     value: function _getTree(fireTypes) {
       var _this = this;
 
-      var keys = _lodash2['default'].keys(fireTypes),
-          yScale = this._getYScale(fireTypes),
-          offset = 0,
-          // I don't really like having this offset used and accumulated in the map
-      types = _lodash2['default'].map(this._sortByCount(fireTypes), function (type) {
-        var height = yScale(type[1]),
-            rect = (0, _virtualDomVirtualHyperscriptSvg2['default'])('rect', {
-          width: '10%',
-          height: '' + height + '%',
-          x: '90%',
-          y: '' + offset + '%',
-          fill: _this.colourer.getColour(type[0]).toString()
-        }),
-            label = (0, _virtualDomVirtualHyperscriptSvg2['default'])('text', {
-          'text-anchor': 'end',
-          'dominant-baseline': 'hanging',
-          fill: '#ffffee',
-          x: '85%',
-          y: '' + (offset + height / 2 - 3) + '%'
-        }, height > 12 ? type[0] : '');
-        // Track offset for next item
-        offset += height;
-        // Return group with text and rectangle
-        return (0, _virtualDomVirtualHyperscriptSvg2['default'])('g', [rect, label]);
+      var types = _lodash2['default'].map(_lodash2['default'].slice(this._sortByCount(fireTypes), 0, 5), function (type) {
+        return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', _this._prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
       });
 
-      return (0, _virtualDomH2['default'])('.fireTypes', (0, _virtualDomVirtualHyperscriptSvg2['default'])('svg', {
-        className: 'fireTypes',
-        width: this.width,
-        height: this.height }, types));
-    }
-  }, {
-    key: '_getYScale',
-    value: function _getYScale(fireTypes) {
-      // Total number of incidents
-      var sum = _lodash2['default'].reduce(_lodash2['default'].values(fireTypes), function (sum, num) {
-        return sum + num;
-      });
-      // Scale to get percentage of total per-type
-      return _d32['default'].scale.linear().domain([0, sum]).range([0, 100]); // Percent
+      return (0, _virtualDomH2['default'])('table.fireTypeCount', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
+        attributes: { colspan: '2' }
+      }, 'Top incident types'))), (0, _virtualDomH2['default'])('tbody', types)]);
     }
   }, {
     key: '_sortByCount',
@@ -50200,15 +49740,22 @@ var FireTypeComponent = (function (_Component) {
         return type[1];
       }).reverse();
     }
+  }, {
+    key: '_prepForDisplay',
+
+    // Avoid super long names
+    value: function _prepForDisplay(type) {
+      return _lodash2['default'].trim(type.replace(/\(.*\)/, ''));
+    }
   }]);
 
-  return FireTypeComponent;
+  return FireTypeCountComponent;
 })(_Component3['default']);
 
-exports['default'] = FireTypeComponent;
+exports['default'] = FireTypeCountComponent;
 module.exports = exports['default'];
 
-},{"./Component":57,"d3":4,"lodash":6,"virtual-dom/h":18,"virtual-dom/virtual-hyperscript/svg":39}],60:[function(require,module,exports){
+},{"./Component":54,"lodash":6,"virtual-dom/h":18}],57:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50261,7 +49808,7 @@ var TimelineComponent = (function (_Component) {
 exports['default'] = TimelineComponent;
 module.exports = exports['default'];
 
-},{"./Component":57,"virtual-dom/h":18}],61:[function(require,module,exports){
+},{"./Component":54,"virtual-dom/h":18}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -50296,5 +49843,5 @@ function getSnapshots(year, colourer) {
 
 module.exports = exports['default'];
 
-},{"./TimeRangeSnapshot":55,"moment":7,"rx":9}]},{},[1])
+},{"./TimeRangeSnapshot":52,"moment":7,"rx":9}]},{},[1])
 //# sourceMappingURL=main.map

@@ -1,6 +1,6 @@
 import AggregateSnapshot from './AggregateSnapshot';
 import CountComponent from './components/CountComponent';
-import FireTypeComponent from './components/FireTypeComponent';
+import FireTypeCountComponent from './components/FireTypeCountComponent';
 import TimelineComponent from './components/TimelineComponent';
 import L from 'leaflet';
 import _ from 'lodash';
@@ -12,7 +12,7 @@ export default class TimelineViewer {
     this.snapshots = snapshots; // This is an RxJS observable
     this.colourer  = colourer;
     // Initialise components
-    this.fireTypeComponent = new FireTypeComponent(this.colourer);
+    this.fireTypeComponent = new FireTypeCountComponent();
     this.countComponent    = new CountComponent();
     // We want an array
     this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
