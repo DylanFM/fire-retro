@@ -50166,7 +50166,7 @@ var FireTypeComponent = (function (_Component) {
             label = (0, _virtualDomVirtualHyperscriptSvg2['default'])('text', {
           'text-anchor': 'end',
           'dominant-baseline': 'hanging',
-          fill: '#000',
+          fill: '#ffffee',
           x: '85%',
           y: '' + (offset + height / 2 - 3) + '%'
         }, height > 12 ? type[0] : '');

@@ -16,14 +16,14 @@ html {
   margin-top: 0;
   text-align: center;
   padding: 1rem;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.9);
 }
 
 .count {
   position: absolute;
   top: 0;
   right: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.9);
   padding: 1rem;
   text-align: center;
   margin-top: 0;
@@ -55,10 +55,11 @@ html {
     text-align: center;
     display: inline-block;
     padding: 1rem 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.9);
 
     &.current {
-      background: rgba(0,0,0,0.7);
+      text-decoration: underline;
+      background: rgba(0,0,0,1);
     }
   }
 }
@@ -69,4 +70,5 @@ html {
   right: 1.5rem;
   width: 12rem;
   height: 40vh;
+  color: #ffffee;
 }
