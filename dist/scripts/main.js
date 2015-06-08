@@ -49962,7 +49962,8 @@ var TimelineViewer = (function () {
         return _this3._render(next);
       });
       // Begin...
-      step();
+      stream.request(1); // No delay on 1st
+      step(); // ... and start the delayed rendering
     }
   }, {
     key: '_render',

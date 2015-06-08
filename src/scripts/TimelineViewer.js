@@ -62,7 +62,8 @@ export default class TimelineViewer {
     // Render for each item
     stream.subscribeOnNext((next) => this._render(next));
     // Begin...
-    step();
+    stream.request(1); // No delay on 1st
+    step();            // ... and start the delayed rendering
   }
 
   _render(snapshot) {
