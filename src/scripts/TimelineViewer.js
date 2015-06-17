@@ -1,4 +1,3 @@
-import AggregateSnapshot from './AggregateSnapshot';
 import CountComponent from './components/CountComponent';
 import FireTypeCountComponent from './components/FireTypeCountComponent';
 import TimelineComponent from './components/TimelineComponent';
@@ -33,10 +32,6 @@ export default class TimelineViewer {
       .subscribeOnNext((isLoaded) => {
         if (isLoaded) {
           this._beginPlaying();
-          // Get an aggregate of the snapshots
-          this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
-            this.combined = new AggregateSnapshot(snapshotsArray);
-          });
         } else {
           _.delay(() => this._playIfDataLoaded(), 500);
         }

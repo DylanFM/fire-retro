@@ -64,7 +64,7 @@ var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement)
   });
 })();
 
-},{"./Colourer":50,"./Map":51,"./TimelineViewer":53,"./getSnapshots":59,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
+},{"./Colourer":49,"./Map":50,"./TimelineViewer":52,"./getSnapshots":58,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -49064,73 +49064,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _leaflet = require('leaflet');
-
-var _leaflet2 = _interopRequireDefault(_leaflet);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var AggregateSnapshot = (function () {
-  function AggregateSnapshot(snapshots) {
-    _classCallCheck(this, AggregateSnapshot);
-
-    this.snapshots = snapshots;
-    this.fireTypes = this._extractFireTypes();
-    this.count = this._getCount();
-    this.layer = this._buildLayer();
-  }
-
-  _createClass(AggregateSnapshot, [{
-    key: '_extractFireTypes',
-
-    // Extract all fire types across snapshots
-    value: function _extractFireTypes() {
-      return _lodash2['default'].reduce(this.snapshots, function (types, month) {
-        _lodash2['default'].keys(month.fireTypes).forEach(function (k) {
-          if (!types[k]) {
-            types[k] = month.fireTypes[k]; // Init with value
-          } else {
-            types[k] += month.fireTypes[k]; // Add value
-          }
-        });
-        return types;
-      }, {});
-    }
-  }, {
-    key: '_getCount',
-    value: function _getCount() {
-      return _lodash2['default'].reduce(this.fireTypes, function (total, num) {
-        return total + num;
-      }, 0);
-    }
-  }, {
-    key: '_buildLayer',
-    value: function _buildLayer() {
-      return _leaflet2['default'].layerGroup(_lodash2['default'].compact(_lodash2['default'].map(this.snapshots, 'layer')));
-    }
-  }]);
-
-  return AggregateSnapshot;
-})();
-
-exports['default'] = AggregateSnapshot;
-module.exports = exports['default'];
-
-},{"leaflet":5,"lodash":6}],50:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
 var _d3 = require('d3');
 
 var _d32 = _interopRequireDefault(_d3);
@@ -49173,7 +49106,7 @@ var Colourer = (function () {
 exports['default'] = Colourer;
 module.exports = exports['default'];
 
-},{"d3":4}],51:[function(require,module,exports){
+},{"d3":4}],50:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49317,7 +49250,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":58,"leaflet":5,"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-hex":13,"turf-point":15}],52:[function(require,module,exports){
+},{"./config":57,"leaflet":5,"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-hex":13,"turf-point":15}],51:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49442,7 +49375,7 @@ var TimeRangeSnapshot = (function () {
 exports['default'] = TimeRangeSnapshot;
 module.exports = exports['default'];
 
-},{"./config":58,"d3":4,"leaflet":5,"lodash":6,"q":8}],53:[function(require,module,exports){
+},{"./config":57,"d3":4,"leaflet":5,"lodash":6,"q":8}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49454,10 +49387,6 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _AggregateSnapshot = require('./AggregateSnapshot');
-
-var _AggregateSnapshot2 = _interopRequireDefault(_AggregateSnapshot);
 
 var _componentsCountComponent = require('./components/CountComponent');
 
@@ -49515,10 +49444,6 @@ var TimelineViewer = (function () {
       }).subscribeOnNext(function (isLoaded) {
         if (isLoaded) {
           _this2._beginPlaying();
-          // Get an aggregate of the snapshots
-          _this2.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
-            _this2.combined = new _AggregateSnapshot2['default'](snapshotsArray);
-          });
         } else {
           _lodash2['default'].delay(function () {
             return _this2._playIfDataLoaded();
@@ -49579,7 +49504,7 @@ var TimelineViewer = (function () {
 exports['default'] = TimelineViewer;
 module.exports = exports['default'];
 
-},{"./AggregateSnapshot":49,"./components/CountComponent":55,"./components/FireTypeCountComponent":56,"./components/TimelineComponent":57,"leaflet":5,"lodash":6}],54:[function(require,module,exports){
+},{"./components/CountComponent":54,"./components/FireTypeCountComponent":55,"./components/TimelineComponent":56,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49641,7 +49566,7 @@ var Component = (function () {
 exports['default'] = Component;
 module.exports = exports['default'];
 
-},{"virtual-dom/create-element":16,"virtual-dom/diff":17,"virtual-dom/patch":26}],55:[function(require,module,exports){
+},{"virtual-dom/create-element":16,"virtual-dom/diff":17,"virtual-dom/patch":26}],54:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49688,7 +49613,7 @@ var CountComponent = (function (_Component) {
 exports['default'] = CountComponent;
 module.exports = exports['default'];
 
-},{"./Component":54,"virtual-dom/h":18}],56:[function(require,module,exports){
+},{"./Component":53,"virtual-dom/h":18}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49763,7 +49688,7 @@ var FireTypeCountComponent = (function (_Component) {
 exports['default'] = FireTypeCountComponent;
 module.exports = exports['default'];
 
-},{"./Component":54,"lodash":6,"virtual-dom/h":18}],57:[function(require,module,exports){
+},{"./Component":53,"lodash":6,"virtual-dom/h":18}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49816,7 +49741,7 @@ var TimelineComponent = (function (_Component) {
 exports['default'] = TimelineComponent;
 module.exports = exports['default'];
 
-},{"./Component":54,"virtual-dom/h":18}],58:[function(require,module,exports){
+},{"./Component":53,"virtual-dom/h":18}],57:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49829,7 +49754,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}],59:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49864,5 +49789,5 @@ function getSnapshots(year, colourer) {
 
 module.exports = exports['default'];
 
-},{"./TimeRangeSnapshot":52,"moment":7,"rx":9}]},{},[1])
+},{"./TimeRangeSnapshot":51,"moment":7,"rx":9}]},{},[1])
 //# sourceMappingURL=main.map
