@@ -79,10 +79,15 @@ export default class TimeRangeSnapshot {
     // Build the layer for mappage
     return L.geoJson(countedGrid, {
       style: (cell) => {
+        var c = scale(cell.properties.ptCount); // Work out colour using scale
         return {
-          stroke:       false,
-          fillOpacity:  cell.properties.ptCount > 0 ? 0.6 : 0, // Show if there's data
-          fillColor:    scale(cell.properties.ptCount)         // Work out colour using scale
+          stroke:       cell.properties.ptCount > 0, // Show if there's data
+          fill:         cell.properties.ptCount > 0,
+          color:        c,
+          weight:       1,
+          opacity:      0.3,
+          fillColor:    c,
+          fillOpacity:  0.7
         };
       }
     });

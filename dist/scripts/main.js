@@ -46,9 +46,6 @@ var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement)
       viewer;
 
   document.addEventListener('DOMContentLoaded', function () {
-    // Render the year as a title
-    document.body.appendChild((0, _virtualDomCreateElement2['default'])((0, _virtualDomH2['default'])('h1.year', ['2014'])));
-
     // Load all data
     months.map(function (month) {
       month.loadData();
@@ -49177,7 +49174,7 @@ var Map = (function () {
       var hexBounds = _lodash2['default'].flatten(this.bounds.map(function (c) {
         return c.reverse();
       }));
-      this.hexGrid = (0, _turfHex2['default'])(hexBounds, 0.2, 'kilometers');
+      this.hexGrid = (0, _turfHex2['default'])(hexBounds, 0.15, 'kilometers');
     }
   }, {
     key: 'clear',
@@ -49354,10 +49351,15 @@ var TimeRangeSnapshot = (function () {
       // Build the layer for mappage
       return _leaflet2['default'].geoJson(countedGrid, {
         style: function style(cell) {
+          var c = scale(cell.properties.ptCount); // Work out colour using scale
           return {
-            stroke: false,
-            fillOpacity: cell.properties.ptCount > 0 ? 0.6 : 0, // Show if there's data
-            fillColor: scale(cell.properties.ptCount) // Work out colour using scale
+            stroke: cell.properties.ptCount > 0, // Show if there's data
+            fill: cell.properties.ptCount > 0,
+            color: c,
+            weight: 1,
+            opacity: 0.3,
+            fillColor: c,
+            fillOpacity: 0.7
           };
         }
       });
@@ -49700,6 +49702,8 @@ var TimelineComponent = (function (_Component) {
           className: current && month.url === current.url ? 'current' : ''
         }, [month.start.format('MMM')]);
       });
+      // Prepend the year
+      items.unshift((0, _virtualDomH2['default'])('li.year', this.months[0].start.format('YYYY')));
       return (0, _virtualDomH2['default'])('ol.timeline', items);
     }
   }]);

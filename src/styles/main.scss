@@ -9,12 +9,14 @@ html {
   height: 100vh;
 }
 
-.year {
+h1 {
+  z-index: 1;
   position: absolute;
   top: 0;
   left: 0;
   margin-top: 0;
   text-align: center;
+  text-transform: uppercase;
   padding: 1rem;
 }
 
@@ -34,6 +36,9 @@ html {
     display: inline-block;
     padding: 1rem 0;
 
+    &.year {
+      background: rgba(0,0,0,0.8);
+    }
     &.current {
       text-decoration: underline;
       background: rgba(0,0,0,0.3);

@@ -17,6 +17,8 @@ export default class TimelineComponent extends Component {
         [month.start.format('MMM')]
       );
     });
+    // Prepend the year
+    items.unshift(h('li.year', this.months[0].start.format('YYYY')));
     return h('ol.timeline', items);
   }
 }
