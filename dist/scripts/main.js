@@ -64,7 +64,7 @@ var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement)
   });
 })();
 
-},{"./Colourer":49,"./Map":50,"./TimelineViewer":52,"./getSnapshots":58,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
+},{"./Colourer":49,"./Map":50,"./TimelineViewer":52,"./getSnapshots":57,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -49220,7 +49220,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":57,"leaflet":5,"lodash":6,"turf-hex":13}],51:[function(require,module,exports){
+},{"./config":56,"leaflet":5,"lodash":6,"turf-hex":13}],51:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49385,7 +49385,7 @@ var TimeRangeSnapshot = (function () {
 exports['default'] = TimeRangeSnapshot;
 module.exports = exports['default'];
 
-},{"./config":57,"d3":4,"leaflet":5,"lodash":6,"q":8,"turf-count":10,"turf-featurecollection":12,"turf-point":15}],52:[function(require,module,exports){
+},{"./config":56,"d3":4,"leaflet":5,"lodash":6,"q":8,"turf-count":10,"turf-featurecollection":12,"turf-point":15}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49397,10 +49397,6 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _componentsCountComponent = require('./components/CountComponent');
-
-var _componentsCountComponent2 = _interopRequireDefault(_componentsCountComponent);
 
 var _componentsFireTypeCountComponent = require('./components/FireTypeCountComponent');
 
@@ -49432,9 +49428,7 @@ var TimelineViewer = (function () {
     };
     this.colourer = colourer;
     // Initialise components
-    this.fireTypeComponent = new _componentsFireTypeCountComponent2['default']();
-    this.countComponent = new _componentsCountComponent2['default']();
-    // We want an array
+    this.summary = new _componentsFireTypeCountComponent2['default']();
     this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
       _this.timelineComponent = new _componentsTimelineComponent2['default'](snapshotsArray);
     });
@@ -49501,8 +49495,7 @@ var TimelineViewer = (function () {
     value: function _render(snapshot) {
       this._renderMap(snapshot);
       this.timelineComponent.render(snapshot);
-      this.countComponent.render(snapshot.count);
-      this.fireTypeComponent.render(snapshot.fireTypes);
+      this.summary.render(snapshot.fireTypes, snapshot.count);
     }
   }, {
     key: '_renderMap',
@@ -49527,7 +49520,7 @@ var TimelineViewer = (function () {
 exports['default'] = TimelineViewer;
 module.exports = exports['default'];
 
-},{"./components/CountComponent":54,"./components/FireTypeCountComponent":55,"./components/TimelineComponent":56,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
+},{"./components/FireTypeCountComponent":54,"./components/TimelineComponent":55,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49559,8 +49552,8 @@ var Component = (function () {
 
   _createClass(Component, [{
     key: 'render',
-    value: function render(state) {
-      this._render(this._getTree(state));
+    value: function render() {
+      this._render(this._getTree.apply(this, arguments));
     }
   }, {
     key: '_render',
@@ -49604,53 +49597,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-var _Component2 = require('./Component');
-
-var _Component3 = _interopRequireDefault(_Component2);
-
-var _virtualDomH = require('virtual-dom/h');
-
-var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
-
-var CountComponent = (function (_Component) {
-  function CountComponent() {
-    _classCallCheck(this, CountComponent);
-
-    if (_Component != null) {
-      _Component.apply(this, arguments);
-    }
-  }
-
-  _inherits(CountComponent, _Component);
-
-  _createClass(CountComponent, [{
-    key: '_getTree',
-    value: function _getTree(count) {
-      return (0, _virtualDomH2['default'])('.count', [(0, _virtualDomH2['default'])('span.num', ['' + count]), (0, _virtualDomH2['default'])('span', ['incidents'])]);
-    }
-  }]);
-
-  return CountComponent;
-})(_Component3['default']);
-
-exports['default'] = CountComponent;
-module.exports = exports['default'];
-
-},{"./Component":53,"virtual-dom/h":18}],55:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
-
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -49676,7 +49622,7 @@ var FireTypeCountComponent = (function (_Component) {
 
   _createClass(FireTypeCountComponent, [{
     key: '_getTree',
-    value: function _getTree(fireTypes) {
+    value: function _getTree(fireTypes, totalCount) {
       var _this = this;
 
       var types = _lodash2['default'].map(_lodash2['default'].slice(this._sortByCount(fireTypes), 0, 5), function (type) {
@@ -49685,7 +49631,7 @@ var FireTypeCountComponent = (function (_Component) {
 
       return (0, _virtualDomH2['default'])('table.fireTypeCount', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
         attributes: { colspan: '2' }
-      }, 'Top incident types'))), (0, _virtualDomH2['default'])('tbody', types)]);
+      }, 'Top incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + totalCount)]))]);
     }
   }, {
     key: '_sortByCount',
@@ -49711,7 +49657,7 @@ var FireTypeCountComponent = (function (_Component) {
 exports['default'] = FireTypeCountComponent;
 module.exports = exports['default'];
 
-},{"./Component":53,"lodash":6,"virtual-dom/h":18}],56:[function(require,module,exports){
+},{"./Component":53,"lodash":6,"virtual-dom/h":18}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49764,7 +49710,7 @@ var TimelineComponent = (function (_Component) {
 exports['default'] = TimelineComponent;
 module.exports = exports['default'];
 
-},{"./Component":53,"virtual-dom/h":18}],57:[function(require,module,exports){
+},{"./Component":53,"virtual-dom/h":18}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49777,7 +49723,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}],58:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

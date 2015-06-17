@@ -4,7 +4,7 @@ import h from 'virtual-dom/h';
 
 export default class FireTypeCountComponent extends Component {
 
-  _getTree(fireTypes) {
+  _getTree(fireTypes, totalCount) {
     var types = _.map(_.slice(this._sortByCount(fireTypes), 0, 5), (type) => {
       return h('tr', [
         h('td', this._prepForDisplay(type[0])),
@@ -20,7 +20,13 @@ export default class FireTypeCountComponent extends Component {
           }, 'Top incident types')
         )
       ),
-      h('tbody', types)
+      h('tbody', types),
+      h('tfoot',
+        h('tr', [
+          h('td', 'Total'),
+          h('td', '' + totalCount)
+        ])
+       )
     ]);
   }
 

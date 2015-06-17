@@ -57,9 +57,9 @@ html {
   font-size: 0.8rem;
   position: absolute;
   bottom: 5rem;
-  right: 1.5rem; }
+  right: 1.5rem;
+  text-transform: uppercase; }
   .fireTypeCount th {
-    text-transform: uppercase;
     border-bottom: 1px solid #ffffee;
     padding-bottom: .5em; }
   .fireTypeCount tbody tr:first-child td {
@@ -68,3 +68,6 @@ html {
     padding: .2rem 0; }
   .fireTypeCount td:last-child {
     width: 3rem; }
+  .fireTypeCount tfoot td {
+    border-top: 1px solid #ffffee;
+    padding-top: .5em; }

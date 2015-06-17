@@ -1,4 +1,3 @@
-import CountComponent from './components/CountComponent';
 import FireTypeCountComponent from './components/FireTypeCountComponent';
 import TimelineComponent from './components/TimelineComponent';
 import L from 'leaflet';
@@ -15,9 +14,7 @@ export default class TimelineViewer {
     };
     this.colourer  = colourer;
     // Initialise components
-    this.fireTypeComponent = new FireTypeCountComponent();
-    this.countComponent    = new CountComponent();
-    // We want an array
+    this.summary = new FireTypeCountComponent();
     this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
       this.timelineComponent = new TimelineComponent(snapshotsArray);
     });
@@ -68,8 +65,7 @@ export default class TimelineViewer {
   _render(snapshot) {
     this._renderMap(snapshot);
     this.timelineComponent.render(snapshot);
-    this.countComponent.render(snapshot.count);
-    this.fireTypeComponent.render(snapshot.fireTypes);
+    this.summary.render(snapshot.fireTypes, snapshot.count);
   }
 
   _renderMap(snapshot) {

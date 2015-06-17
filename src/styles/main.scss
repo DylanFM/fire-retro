@@ -67,9 +67,9 @@ html {
   position: absolute;
   bottom: 5rem;
   right: 1.5rem;
+  text-transform: uppercase;
 
   th {
-    text-transform: uppercase;
     border-bottom: 1px solid #ffffee;
     padding-bottom: .5em;
   }
@@ -81,5 +81,9 @@ html {
   }
   td:last-child {
     width: 3rem;
+  }
+  tfoot td {
+    border-top: 1px solid #ffffee;
+    padding-top: .5em;
   }
 }

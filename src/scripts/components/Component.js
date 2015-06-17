@@ -4,9 +4,9 @@ import createElement from 'virtual-dom/create-element';
 
 export default class Component {
 
-  render(state) {
+  render() {
     this._render(
-      this._getTree(state)
+      this._getTree.apply(this, arguments)
     );
   }
 
