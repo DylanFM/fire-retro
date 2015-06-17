@@ -49771,9 +49771,9 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 exports['default'] = {
-  endpoint: 'http://domain-for-bushfires-api/incidents',
-  mapboxAccessToken: 'token',
-  mapboxMapId: 'map.id'
+  endpoint: 'http://10.0.0.15:8000/incidents',
+  mapboxAccessToken: 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw',
+  mapboxMapId: 'fires.1b505148'
 };
 module.exports = exports['default'];
 
