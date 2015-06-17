@@ -49255,7 +49255,7 @@ var Map = (function () {
       var hexBounds = _lodash2['default'].flatten(this.bounds.map(function (c) {
         return c.reverse();
       }));
-      this.hexGrid = (0, _turfHex2['default'])(hexBounds, 0.1, 'kilometers');
+      this.hexGrid = (0, _turfHex2['default'])(hexBounds, 0.2, 'kilometers');
       // Add a new layerGroup to handle the hexbinnage
       this.hexGroup = _leaflet2['default'].layerGroup().addTo(this.map);
     }
@@ -49348,7 +49348,7 @@ var TimeRangeSnapshot = (function () {
 
     this.start = start;
     this.end = end;
-    this.endpoint = 'http://10.0.0.55:8000/incidents';
+    this.endpoint = 'http://10.0.0.15:8000/incidents';
     this.url = this._buildUrl();
     this.colourer = colourer;
   }

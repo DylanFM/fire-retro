@@ -8,7 +8,7 @@ export default class TimeRangeSnapshot {
   constructor(start, end, colourer) {
     this.start    = start;
     this.end      = end;
-    this.endpoint = 'http://10.0.0.26:8000/incidents';
+    this.endpoint = 'http://10.0.0.15:8000/incidents';
     this.url      = this._buildUrl();
     this.colourer = colourer;
   }

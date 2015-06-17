@@ -46,7 +46,7 @@ export default class Map {
   _buildHexGrid() {
     // New hex grid, same bounds as big map, but a different way
     var hexBounds = _.flatten(this.bounds.map((c) => c.reverse()));
-    this.hexGrid = hex(hexBounds, 0.1, 'kilometers');
+    this.hexGrid = hex(hexBounds, 0.2, 'kilometers');
     // Add a new layerGroup to handle the hexbinnage
     this.hexGroup = L.layerGroup().addTo(this.map);
   }
@@ -58,7 +58,7 @@ export default class Map {
 
   addSnapshot(snapshot) {
     // Add points layer
-    this.addedLayers.addLayer(snapshot.layer);
+    //this.addedLayers.addLayer(snapshot.layer);
     // Use hexgrid to setup hex styles
     if (snapshot.data) { // Could be AggregateSnapshot
       this.hexGroup.addLayer(this._pointsToHex(snapshot.data));
