@@ -53,8 +53,8 @@ export default class TimelineViewer {
             if (stream.subject.queue.length) {
               step(); // Schedule this to be run again
             } else {
-              // No more - schedule to show combined data
-              _.delay(() => this._render(this.combined), this.speed);
+              // No more - schedule to play again
+              _.delay(() => this._beginPlaying(), this.speed);
             }
           }, this.speed);
         };

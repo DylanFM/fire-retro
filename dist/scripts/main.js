@@ -49481,9 +49481,9 @@ var TimelineViewer = (function () {
           if (stream.subject.queue.length) {
             step(); // Schedule this to be run again
           } else {
-            // No more - schedule to show combined data
+            // No more - schedule to play again
             _lodash2['default'].delay(function () {
-              return _this3._render(_this3.combined);
+              return _this3._beginPlaying();
             }, _this3.speed);
           }
         }, _this3.speed);
