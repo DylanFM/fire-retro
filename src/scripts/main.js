@@ -28,8 +28,8 @@ import createElement from 'virtual-dom/create-element';
       .subscribeOnNext((monthsArr) => {
         // Initialise the viewer and begin
         viewer = new TimelineViewer(
-          new Map('map', colourer),                // Construct new map. Pass in the ID of the DOM element
-          new Rx.Observable.fromArray(monthsArr),  // Convert back into a new observable with data loading
+          new Map('map'),                         // Construct new map. Pass in the ID of the DOM element
+          new Rx.Observable.fromArray(monthsArr), // Convert back into a new observable with data loading
           colourer
         );
         // Progress every 2 seconds

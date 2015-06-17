@@ -55,7 +55,7 @@ var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement)
       return month;
     }).toArray().subscribeOnNext(function (monthsArr) {
       // Initialise the viewer and begin
-      viewer = new _TimelineViewer2['default'](new _Map2['default']('map', colourer), // Construct new map. Pass in the ID of the DOM element
+      viewer = new _TimelineViewer2['default'](new _Map2['default']('map'), // Construct new map. Pass in the ID of the DOM element
       new _rx2['default'].Observable.fromArray(monthsArr), // Convert back into a new observable with data loading
       colourer);
       // Progress every 2 seconds
@@ -49127,18 +49127,6 @@ var _turfHex = require('turf-hex');
 
 var _turfHex2 = _interopRequireDefault(_turfHex);
 
-var _turfCount = require('turf-count');
-
-var _turfCount2 = _interopRequireDefault(_turfCount);
-
-var _turfPoint = require('turf-point');
-
-var _turfPoint2 = _interopRequireDefault(_turfPoint);
-
-var _turfFeaturecollection = require('turf-featurecollection');
-
-var _turfFeaturecollection2 = _interopRequireDefault(_turfFeaturecollection);
-
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -49148,19 +49136,18 @@ var _config = require('./config');
 var _config2 = _interopRequireDefault(_config);
 
 var Map = (function () {
-  function Map(id, colourer) {
+  function Map(id) {
     _classCallCheck(this, Map);
 
     this.id = id;
-    this.colourer = colourer;
     this.accessToken = _config2['default'].mapboxAccessToken;
     this.mapId = _config2['default'].mapboxMapId;
-    this.addedLayers = _leaflet2['default'].layerGroup();
+    this.layers = _leaflet2['default'].layerGroup();
     this.bounds = [[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]];
     // The leaflet map needs to be setup
     this._initMap();
     // Add group to map
-    this.addedLayers.addTo(this.map);
+    this.layers.addTo(this.map);
     // Setup hexgrid layer
     this._buildHexGrid();
   }
@@ -49171,8 +49158,6 @@ var Map = (function () {
       var tiles = _leaflet2['default'].tileLayer('https://{s}.tiles.mapbox.com/v3/{mapboxId}/{z}/{x}/{y}.png', {
         mapboxId: this.mapId
       });
-
-      // L.mapbox.accessToken = this.accessToken;
 
       // Initialise map
       this.map = _leaflet2['default'].map(this.id, {
@@ -49193,54 +49178,39 @@ var Map = (function () {
         return c.reverse();
       }));
       this.hexGrid = (0, _turfHex2['default'])(hexBounds, 0.2, 'kilometers');
-      // Add a new layerGroup to handle the hexbinnage
-      this.hexGroup = _leaflet2['default'].layerGroup().addTo(this.map);
     }
   }, {
     key: 'clear',
     value: function clear() {
-      this.addedLayers.clearLayers();
-      this.hexGroup.clearLayers();
+      this.layers.clearLayers();
     }
   }, {
-    key: 'addSnapshot',
-    value: function addSnapshot(snapshot) {
-      // Add points layer
-      //this.addedLayers.addLayer(snapshot.layer);
-      // Use hexgrid to setup hex styles
-      if (snapshot.data) {
-        // Could be AggregateSnapshot
-        this.hexGroup.addLayer(this._pointsToHex(snapshot.data));
-      }
-    }
-  }, {
-    key: '_pointsToHex',
+    key: 'render',
+    value: function render(layers) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
 
-    // Return a layer of the hex grid with coloured polygons ready for adding
-    value: function _pointsToHex(geojson) {
-      // Unfortunately the geojson has features that have MultiPoint geometries
-      // TODO fix the API to return Point geometries
-      // Extract the 1st point from the multipoints for each layer to use in the hexbinning
-      var pointJson = (0, _turfFeaturecollection2['default'])(geojson.features.map(function (mp) {
-        return (0, _turfPoint2['default'])(mp.geometry.coordinates[0]);
-      }) // map into an array of turf points
-      ),
-          countedGrid = (0, _turfCount2['default'])(this.hexGrid, pointJson, 'ptCount'),
-          max = _lodash2['default'].max(_lodash2['default'].map(countedGrid.features, function (cell) {
-        return cell.properties.ptCount;
-      })),
-          // We need the maximum value in this set of data
-      scale = this.colourer.getSequentialScale(0, max); // Get a scale... min is 0
-      // Build the layer for mappage
-      return _leaflet2['default'].geoJson(countedGrid, {
-        style: function style(cell) {
-          return {
-            stroke: false,
-            fillOpacity: cell.properties.ptCount > 0 ? 0.6 : 0, // Show if there's data
-            fillColor: scale(cell.properties.ptCount) // Work out colour using scale
-          };
+      try {
+        for (var _iterator = layers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var layer = _step.value;
+
+          this.layers.addLayer(layer);
         }
-      });
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator['return']) {
+            _iterator['return']();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
     }
   }]);
 
@@ -49250,7 +49220,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":57,"leaflet":5,"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-hex":13,"turf-point":15}],51:[function(require,module,exports){
+},{"./config":57,"leaflet":5,"lodash":6,"turf-hex":13}],51:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49283,6 +49253,18 @@ var _config = require('./config');
 
 var _config2 = _interopRequireDefault(_config);
 
+var _turfFeaturecollection = require('turf-featurecollection');
+
+var _turfFeaturecollection2 = _interopRequireDefault(_turfFeaturecollection);
+
+var _turfCount = require('turf-count');
+
+var _turfCount2 = _interopRequireDefault(_turfCount);
+
+var _turfPoint = require('turf-point');
+
+var _turfPoint2 = _interopRequireDefault(_turfPoint);
+
 var TimeRangeSnapshot = (function () {
   function TimeRangeSnapshot(start, end, colourer) {
     _classCallCheck(this, TimeRangeSnapshot);
@@ -49302,7 +49284,6 @@ var TimeRangeSnapshot = (function () {
       return this._fetchData().then(function (json) {
         _this.data = json;
         _this.count = json.features.length;
-        _this.layer = _this._buildLayer();
         _this.fireTypes = _this._extractFireTypes();
       }).fail(console.error);
     }
@@ -49329,10 +49310,10 @@ var TimeRangeSnapshot = (function () {
       });
     }
   }, {
-    key: '_buildLayer',
+    key: 'pointsLayer',
 
     // Using data, build a Leaflet GeoJSON layer
-    value: function _buildLayer() {
+    value: function pointsLayer() {
       var _this3 = this;
 
       // Build GeoJSON layer
@@ -49349,6 +49330,35 @@ var TimeRangeSnapshot = (function () {
           circle.color = _this3.colourer.getColour(type).toString();
 
           return _leaflet2['default'].circleMarker(latlng, circle);
+        }
+      });
+    }
+  }, {
+    key: 'hexGridLayer',
+
+    // Return a layer of the hex grid with coloured polygons ready for adding
+    value: function hexGridLayer(hexGrid) {
+      // Unfortunately the geojson has features that have MultiPoint geometries
+      // TODO fix the API to return Point geometries
+      // Extract the 1st point from the multipoints for each layer to use in the hexbinning
+      var pointJson = (0, _turfFeaturecollection2['default'])(this.data.features.map(function (mp) {
+        return (0, _turfPoint2['default'])(mp.geometry.coordinates[0]);
+      }) // map into an array of turf points
+      ),
+          countedGrid = (0, _turfCount2['default'])(hexGrid, pointJson, 'ptCount'),
+          max = _lodash2['default'].max(_lodash2['default'].map(countedGrid.features, function (cell) {
+        return cell.properties.ptCount;
+      })),
+          // We need the maximum value in this set of data
+      scale = this.colourer.getSequentialScale(0, max); // Get a scale... min is 0
+      // Build the layer for mappage
+      return _leaflet2['default'].geoJson(countedGrid, {
+        style: function style(cell) {
+          return {
+            stroke: false,
+            fillOpacity: cell.properties.ptCount > 0 ? 0.6 : 0, // Show if there's data
+            fillColor: scale(cell.properties.ptCount) // Work out colour using scale
+          };
         }
       });
     }
@@ -49375,7 +49385,7 @@ var TimeRangeSnapshot = (function () {
 exports['default'] = TimeRangeSnapshot;
 module.exports = exports['default'];
 
-},{"./config":57,"d3":4,"leaflet":5,"lodash":6,"q":8}],52:[function(require,module,exports){
+},{"./config":57,"d3":4,"leaflet":5,"lodash":6,"q":8,"turf-count":10,"turf-featurecollection":12,"turf-point":15}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49416,6 +49426,10 @@ var TimelineViewer = (function () {
 
     this.map = map;
     this.snapshots = snapshots; // This is an RxJS observable
+    this.layerVisibility = {
+      points: false,
+      hexGrid: true
+    };
     this.colourer = colourer;
     // Initialise components
     this.fireTypeComponent = new _componentsFireTypeCountComponent2['default']();
@@ -49493,8 +49507,17 @@ var TimelineViewer = (function () {
   }, {
     key: '_renderMap',
     value: function _renderMap(snapshot) {
+      var layers = [];
+
+      if (this.layerVisibility.points) {
+        layers.push(snapshot.pointsLayer());
+      }
+      if (this.layerVisibility.hexGrid) {
+        layers.push(snapshot.hexGridLayer(this.map.hexGrid));
+      }
+
       this.map.clear();
-      this.map.addSnapshot(snapshot);
+      this.map.render(layers);
     }
   }]);
 
@@ -49748,9 +49771,9 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 exports['default'] = {
-  endpoint: 'http://10.0.0.15:8000/incidents',
-  mapboxAccessToken: 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw',
-  mapboxMapId: 'fires.1b505148'
+  endpoint: 'http://domain-for-bushfires-api/incidents',
+  mapboxAccessToken: 'token',
+  mapboxMapId: 'map.id'
 };
 module.exports = exports['default'];
 

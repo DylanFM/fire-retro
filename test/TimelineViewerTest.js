@@ -45,7 +45,7 @@ describe('TimelineViewer', () => {
     // Babel is making methods on classes not enumerable, which means the Map class isn't able to be stubbed like this
     // Instead make something that mimics a map and then make a stub instance of it instead
     var FakeMap = () => {};
-    FakeMap.prototype = { clear: () => {}, addSnapshot: () => {} };
+    FakeMap.prototype = { clear: () => {}, render: () => {} };
     // Mock the map
     map = sinon.createStubInstance(FakeMap);
     // Load the data... this seems icky
@@ -56,6 +56,9 @@ describe('TimelineViewer', () => {
             snapshots = Rx.Observable.from([tr1, tr2]);
             // Make new viewer with a our map and snapshot observable
             tv = new TimelineViewer(map, snapshots, colourer);
+            // Don't actually show layers...
+            tv.layerVisibility.points  = false;
+            tv.layerVisibility.hexGrid = false;
             done();
           })
           .catch((e) => done(e));
@@ -74,12 +77,11 @@ describe('TimelineViewer', () => {
    // This is a private method, called within the playback code that runs on an interval
    // In order to avoid awkward tests around time, I'm testing this underlying method here
    describe('#_render()', () => {
-     it('clears map and adds snapshots provided', () => {
+     it('clears and renders map', () => {
        tv._render(tr1);
        tv._render(tr2);
        assert(map.clear.calledTwice, 'map cleared twice');
-       assert(map.addSnapshot.calledTwice, 'map snapshot added twice');
-       assert.equal(tr2, map.addSnapshot.getCalls()[1].args[0], 'added the 2nd snapshot layer');
+       assert(map.render.calledTwice, 'map render added twice');
      });
    });
 

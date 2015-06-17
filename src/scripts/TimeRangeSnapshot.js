@@ -3,6 +3,9 @@ import d3 from 'd3';
 import L from 'leaflet';
 import _ from 'lodash';
 import Config from './config';
+import featurecollection from 'turf-featurecollection';
+import count from 'turf-count';
+import point from 'turf-point';
 
 export default class TimeRangeSnapshot {
 
@@ -19,7 +22,6 @@ export default class TimeRangeSnapshot {
       .then((json) => {
         this.data      = json;
         this.count     = json.features.length;
-        this.layer     = this._buildLayer();
         this.fireTypes = this._extractFireTypes();
       })
       .fail(console.error);
@@ -44,7 +46,7 @@ export default class TimeRangeSnapshot {
   }
 
   // Using data, build a Leaflet GeoJSON layer
-  _buildLayer() {
+  pointsLayer() {
     // Build GeoJSON layer
     return L.geoJson(this.data, {
       pointToLayer: (feature, latlng) => {
@@ -59,6 +61,29 @@ export default class TimeRangeSnapshot {
         circle.color = this.colourer.getColour(type).toString();
 
         return L.circleMarker(latlng, circle);
+      }
+    });
+  }
+
+  // Return a layer of the hex grid with coloured polygons ready for adding
+  hexGridLayer(hexGrid) {
+    // Unfortunately the geojson has features that have MultiPoint geometries
+    // TODO fix the API to return Point geometries
+    // Extract the 1st point from the multipoints for each layer to use in the hexbinning
+    var pointJson = featurecollection(
+          this.data.features.map((mp) => point(mp.geometry.coordinates[0])) // map into an array of turf points
+        ),
+        countedGrid = count(hexGrid, pointJson, 'ptCount'),
+        max         = _.max(_.map(countedGrid.features, (cell) => cell.properties.ptCount)), // We need the maximum value in this set of data
+        scale       = this.colourer.getSequentialScale(0, max);                              // Get a scale... min is 0
+    // Build the layer for mappage
+    return L.geoJson(countedGrid, {
+      style: (cell) => {
+        return {
+          stroke:       false,
+          fillOpacity:  cell.properties.ptCount > 0 ? 0.6 : 0, // Show if there's data
+          fillColor:    scale(cell.properties.ptCount)         // Work out colour using scale
+        };
       }
     });
   }

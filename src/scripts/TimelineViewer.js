@@ -7,8 +7,12 @@ import _ from 'lodash';
 export default class TimelineViewer {
 
   constructor(map, snapshots, colourer) {
-    this.map       = map;
-    this.snapshots = snapshots; // This is an RxJS observable
+    this.map             = map;
+    this.snapshots       = snapshots; // This is an RxJS observable
+    this.layerVisibility = {
+      points:   false,
+      hexGrid:  true
+    };
     this.colourer  = colourer;
     // Initialise components
     this.fireTypeComponent = new FireTypeCountComponent();
@@ -69,7 +73,16 @@ export default class TimelineViewer {
   }
 
   _renderMap(snapshot) {
+    var layers = [];
+
+    if (this.layerVisibility.points) {
+      layers.push(snapshot.pointsLayer());
+    }
+    if (this.layerVisibility.hexGrid) {
+      layers.push(snapshot.hexGridLayer(this.map.hexGrid));
+    }
+
     this.map.clear();
-    this.map.addSnapshot(snapshot);
+    this.map.render(layers);
   }
 }

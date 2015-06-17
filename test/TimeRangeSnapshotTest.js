@@ -74,8 +74,6 @@ describe('TimeRangeSnapshot', () => {
     it('loads the data using d3.json', () => {
       assert.equal(geojson, tr.data, 'has set geojson as data');
       assert.equal(tr.count, 2, 'set the count to number of features');
-      assert.isDefined(tr.layer, 'layer has been set');
-      assert.lengthOf(tr.layer.toGeoJSON().features, 2, 'has a geojson layer using the data');
     });
   });
 
