@@ -1,2 +1,4 @@
 node_modules
 .sass-cache
+src/scripts/config.js
+dist/scripts/config.js

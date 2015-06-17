@@ -2,13 +2,14 @@ import Q from 'q';
 import d3 from 'd3';
 import L from 'leaflet';
 import _ from 'lodash';
+import Config from './config';
 
 export default class TimeRangeSnapshot {
 
   constructor(start, end, colourer) {
     this.start    = start;
     this.end      = end;
-    this.endpoint = 'http://10.0.0.15:8000/incidents';
+    this.endpoint = Config.endpoint;
     this.url      = this._buildUrl();
     this.colourer = colourer;
   }
@@ -49,7 +50,7 @@ export default class TimeRangeSnapshot {
       pointToLayer: (feature, latlng) => {
         // Use circle markers instead of normal markers
         var circle = {
-              stroke: false,
+              stroke:       false,
               radius:       3,
               fillOpacity:  0.5
             },

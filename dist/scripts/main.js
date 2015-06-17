@@ -64,7 +64,7 @@ var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement)
   });
 })();
 
-},{"./Colourer":50,"./Map":51,"./TimelineViewer":53,"./getSnapshots":58,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
+},{"./Colourer":50,"./Map":51,"./TimelineViewer":53,"./getSnapshots":59,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -49210,14 +49210,18 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var _config = require('./config');
+
+var _config2 = _interopRequireDefault(_config);
+
 var Map = (function () {
   function Map(id, colourer) {
     _classCallCheck(this, Map);
 
     this.id = id;
     this.colourer = colourer;
-    this.accessToken = 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw';
-    this.mapId = 'fires.1b505148';
+    this.accessToken = _config2['default'].mapboxAccessToken;
+    this.mapId = _config2['default'].mapboxMapId;
     this.addedLayers = _leaflet2['default'].layerGroup();
     this.bounds = [[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]];
     // The leaflet map needs to be setup
@@ -49313,7 +49317,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"leaflet":5,"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-hex":13,"turf-point":15}],52:[function(require,module,exports){
+},{"./config":58,"leaflet":5,"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-hex":13,"turf-point":15}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49342,13 +49346,17 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var _config = require('./config');
+
+var _config2 = _interopRequireDefault(_config);
+
 var TimeRangeSnapshot = (function () {
   function TimeRangeSnapshot(start, end, colourer) {
     _classCallCheck(this, TimeRangeSnapshot);
 
     this.start = start;
     this.end = end;
-    this.endpoint = 'http://10.0.0.15:8000/incidents';
+    this.endpoint = _config2['default'].endpoint;
     this.url = this._buildUrl();
     this.colourer = colourer;
   }
@@ -49434,7 +49442,7 @@ var TimeRangeSnapshot = (function () {
 exports['default'] = TimeRangeSnapshot;
 module.exports = exports['default'];
 
-},{"d3":4,"leaflet":5,"lodash":6,"q":8}],53:[function(require,module,exports){
+},{"./config":58,"d3":4,"leaflet":5,"lodash":6,"q":8}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49809,6 +49817,19 @@ exports['default'] = TimelineComponent;
 module.exports = exports['default'];
 
 },{"./Component":54,"virtual-dom/h":18}],58:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+exports['default'] = {
+  endpoint: 'http://10.0.0.15:8000/incidents',
+  mapboxAccessToken: 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw',
+  mapboxMapId: 'fires.1b505148'
+};
+module.exports = exports['default'];
+
+},{}],59:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

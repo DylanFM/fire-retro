@@ -4,14 +4,15 @@ import count from 'turf-count';
 import point from 'turf-point';
 import featurecollection from 'turf-featurecollection';
 import _ from 'lodash';
+import Config from './config';
 
 export default class Map {
 
   constructor(id, colourer) {
     this.id          = id;
     this.colourer    = colourer;
-    this.accessToken = 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw';
-    this.mapId       = 'fires.1b505148';
+    this.accessToken = Config.mapboxAccessToken;
+    this.mapId       = Config.mapboxMapId;
     this.addedLayers = L.layerGroup();
     this.bounds      = [
       [-37.50505999800001, 140.999474528],
