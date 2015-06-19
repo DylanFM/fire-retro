@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import Component from './Component';
 import h from 'virtual-dom/h';
+import extractFireTypes from '../extractFireTypes';
 
 export default class SummaryComponent extends Component {
 
   _getTree(current) {
-    var types = _.map(_.slice(this._sortByCount(current.fireTypes), 0, 5), (type) => {
+    var types = _.map(_.slice(this._sortByCount(extractFireTypes(current.data)), 0, 5), (type) => {
       return h('tr', [
         h('td', this._prepForDisplay(type[0])),
         h('td', '' + type[1])
@@ -24,7 +25,7 @@ export default class SummaryComponent extends Component {
       h('tfoot',
         h('tr', [
           h('td', 'Total'),
-          h('td', '' + current.count)
+          h('td', '' + current.data.features.length)
         ])
        )
     ]);

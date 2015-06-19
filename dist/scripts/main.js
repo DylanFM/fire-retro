@@ -61,7 +61,7 @@ var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement)
   });
 })();
 
-},{"./Colourer":49,"./Map":50,"./TimelineViewer":52,"./getSnapshots":56,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
+},{"./Colourer":49,"./Map":50,"./TimelineViewer":52,"./getSnapshots":57,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -49238,39 +49238,16 @@ var _d3 = require('d3');
 
 var _d32 = _interopRequireDefault(_d3);
 
-var _leaflet = require('leaflet');
-
-var _leaflet2 = _interopRequireDefault(_leaflet);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _config = require('./config');
 
 var _config2 = _interopRequireDefault(_config);
 
-var _turfFeaturecollection = require('turf-featurecollection');
-
-var _turfFeaturecollection2 = _interopRequireDefault(_turfFeaturecollection);
-
-var _turfCount = require('turf-count');
-
-var _turfCount2 = _interopRequireDefault(_turfCount);
-
-var _turfPoint = require('turf-point');
-
-var _turfPoint2 = _interopRequireDefault(_turfPoint);
-
 var TimeRangeSnapshot = (function () {
-  function TimeRangeSnapshot(start, end, colourer) {
+  function TimeRangeSnapshot(start, end) {
     _classCallCheck(this, TimeRangeSnapshot);
 
     this.start = start;
     this.end = end;
-    this.endpoint = _config2['default'].endpoint;
-    this.url = this._buildUrl();
-    this.colourer = colourer;
   }
 
   _createClass(TimeRangeSnapshot, [{
@@ -49280,8 +49257,6 @@ var TimeRangeSnapshot = (function () {
 
       return this._fetchData().then(function (json) {
         _this.data = json;
-        _this.count = json.features.length;
-        _this.fireTypes = _this._extractFireTypes();
       }).fail(console.error);
     }
   }, {
@@ -49289,7 +49264,7 @@ var TimeRangeSnapshot = (function () {
     value: function _buildUrl() {
       var st = window.encodeURIComponent(this.start.clone().utc().format()),
           en = window.encodeURIComponent(this.end.clone().utc().format());
-      return this.endpoint + '?timeStart=' + st + '&timeEnd=' + en;
+      return _config2['default'].endpoint + '?timeStart=' + st + '&timeEnd=' + en;
     }
   }, {
     key: '_fetchData',
@@ -49297,7 +49272,7 @@ var TimeRangeSnapshot = (function () {
       var _this2 = this;
 
       return _q2['default'].Promise(function (resolve, reject) {
-        _d32['default'].json(_this2.url, function (err, json) {
+        _d32['default'].json(_this2._buildUrl(), function (err, json) {
           if (err || !json.features) {
             reject(err);
           } else {
@@ -49305,79 +49280,6 @@ var TimeRangeSnapshot = (function () {
           }
         });
       });
-    }
-  }, {
-    key: 'pointsLayer',
-
-    // Using data, build a Leaflet GeoJSON layer
-    value: function pointsLayer() {
-      var _this3 = this;
-
-      // Build GeoJSON layer
-      return _leaflet2['default'].geoJson(this.data, {
-        pointToLayer: function pointToLayer(feature, latlng) {
-          // Use circle markers instead of normal markers
-          var circle = {
-            stroke: false,
-            radius: 3,
-            fillOpacity: 0.5
-          },
-              type = feature.properties.fireType;
-
-          circle.color = _this3.colourer.getColour(type).toString();
-
-          return _leaflet2['default'].circleMarker(latlng, circle);
-        }
-      });
-    }
-  }, {
-    key: 'hexGridLayer',
-
-    // Return a layer of the hex grid with coloured polygons ready for adding
-    value: function hexGridLayer(hexGrid) {
-      // Unfortunately the geojson has features that have MultiPoint geometries
-      // TODO fix the API to return Point geometries
-      // Extract the 1st point from the multipoints for each layer to use in the hexbinning
-      var pointJson = (0, _turfFeaturecollection2['default'])(this.data.features.map(function (mp) {
-        return (0, _turfPoint2['default'])(mp.geometry.coordinates[0]);
-      }) // map into an array of turf points
-      ),
-          countedGrid = (0, _turfCount2['default'])(hexGrid, pointJson, 'ptCount'),
-          max = _lodash2['default'].max(_lodash2['default'].map(countedGrid.features, function (cell) {
-        return cell.properties.ptCount;
-      })),
-          // We need the maximum value in this set of data
-      scale = this.colourer.getSequentialScale(0, max); // Get a scale... min is 0
-      // Build the layer for mappage
-      return _leaflet2['default'].geoJson(countedGrid, {
-        style: function style(cell) {
-          var c = scale(cell.properties.ptCount); // Work out colour using scale
-          return {
-            stroke: cell.properties.ptCount > 0, // Show if there's data
-            fill: cell.properties.ptCount > 0,
-            color: c,
-            weight: 1,
-            opacity: 0.3,
-            fillColor: c,
-            fillOpacity: 0.7
-          };
-        }
-      });
-    }
-  }, {
-    key: '_extractFireTypes',
-
-    // Read the data and pull out the fire types with counts
-    value: function _extractFireTypes() {
-      return _lodash2['default'].reduce(this.data.features, function (types, incident) {
-        var key = incident.properties.fireType.toUpperCase();
-        if (!types[key]) {
-          types[key] = 1;
-        } else {
-          types[key]++;
-        }
-        return types;
-      }, {});
     }
   }]);
 
@@ -49387,7 +49289,7 @@ var TimeRangeSnapshot = (function () {
 exports['default'] = TimeRangeSnapshot;
 module.exports = exports['default'];
 
-},{"./config":55,"d3":4,"leaflet":5,"lodash":6,"q":8,"turf-count":10,"turf-featurecollection":12,"turf-point":15}],52:[function(require,module,exports){
+},{"./config":55,"d3":4,"q":8}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49412,6 +49314,14 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var _hexGridLayer = require('./hexGridLayer');
+
+var _hexGridLayer2 = _interopRequireDefault(_hexGridLayer);
+
+var _pointsLayer = require('./pointsLayer');
+
+var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
+
 var TimelineViewer = (function () {
   function TimelineViewer(map, snapshots, colourer) {
     _classCallCheck(this, TimelineViewer);
@@ -49419,7 +49329,7 @@ var TimelineViewer = (function () {
     this.map = map;
     this.snapshots = snapshots; // This is an RxJS observable
     this.layerVisibility = {
-      points: false,
+      points: true,
       hexGrid: true
     };
     this.colourer = colourer;
@@ -49494,10 +49404,10 @@ var TimelineViewer = (function () {
       var layers = [];
 
       if (this.layerVisibility.points) {
-        layers.push(snapshot.pointsLayer());
+        layers.push((0, _pointsLayer2['default'])(this.colourer, snapshot.data));
       }
       if (this.layerVisibility.hexGrid) {
-        layers.push(snapshot.hexGridLayer(this.map.hexGrid));
+        layers.push((0, _hexGridLayer2['default'])(this.colourer, this.map.hexGrid, snapshot.data));
       }
 
       this.map.clear();
@@ -49511,7 +49421,7 @@ var TimelineViewer = (function () {
 exports['default'] = TimelineViewer;
 module.exports = exports['default'];
 
-},{"./components/SummaryComponent":54,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
+},{"./components/SummaryComponent":54,"./hexGridLayer":58,"./pointsLayer":59,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49600,6 +49510,10 @@ var _virtualDomH = require('virtual-dom/h');
 
 var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 
+var _extractFireTypes = require('../extractFireTypes');
+
+var _extractFireTypes2 = _interopRequireDefault(_extractFireTypes);
+
 var SummaryComponent = (function (_Component) {
   function SummaryComponent() {
     _classCallCheck(this, SummaryComponent);
@@ -49616,13 +49530,13 @@ var SummaryComponent = (function (_Component) {
     value: function _getTree(current) {
       var _this = this;
 
-      var types = _lodash2['default'].map(_lodash2['default'].slice(this._sortByCount(current.fireTypes), 0, 5), function (type) {
+      var types = _lodash2['default'].map(_lodash2['default'].slice(this._sortByCount((0, _extractFireTypes2['default'])(current.data)), 0, 5), function (type) {
         return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', _this._prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
       });
 
       var table = (0, _virtualDomH2['default'])('table', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
         attributes: { colspan: '2' }
-      }, 'Top incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + current.count)]))]);
+      }, 'Top incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + current.data.features.length)]))]);
 
       return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', current.start.format('MMMM YYYY')), table]);
     }
@@ -49650,7 +49564,7 @@ var SummaryComponent = (function (_Component) {
 exports['default'] = SummaryComponent;
 module.exports = exports['default'];
 
-},{"./Component":53,"lodash":6,"virtual-dom/h":18}],55:[function(require,module,exports){
+},{"../extractFireTypes":56,"./Component":53,"lodash":6,"virtual-dom/h":18}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49664,6 +49578,36 @@ exports['default'] = {
 module.exports = exports['default'];
 
 },{}],56:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+exports['default'] = extractFireTypes;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+// Read the data and pull out the fire types with counts
+
+function extractFireTypes(geojson) {
+  return _lodash2['default'].reduce(geojson.features, function (types, incident) {
+    var key = incident.properties.fireType.toUpperCase();
+    if (!types[key]) {
+      types[key] = 1;
+    } else {
+      types[key]++;
+    }
+    return types;
+  }, {});
+}
+
+module.exports = exports['default'];
+
+},{"lodash":6}],57:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49698,5 +49642,103 @@ function getSnapshots(year, colourer) {
 
 module.exports = exports['default'];
 
-},{"./TimeRangeSnapshot":51,"moment":7,"rx":9}]},{},[1])
+},{"./TimeRangeSnapshot":51,"moment":7,"rx":9}],58:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+exports['default'] = hexGridLayer;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _turfFeaturecollection = require('turf-featurecollection');
+
+var _turfFeaturecollection2 = _interopRequireDefault(_turfFeaturecollection);
+
+var _turfCount = require('turf-count');
+
+var _turfCount2 = _interopRequireDefault(_turfCount);
+
+var _turfPoint = require('turf-point');
+
+var _turfPoint2 = _interopRequireDefault(_turfPoint);
+
+// Return a layer of the hex grid with coloured polygons ready for adding
+
+function hexGridLayer(colourer, hexGrid, geojson) {
+  // Unfortunately the geojson has features that have MultiPoint geometries
+  // TODO fix the API to return Point geometries
+  // Extract the 1st point from the multipoints for each layer to use in the hexbinning
+  var pointJson = (0, _turfFeaturecollection2['default'])(geojson.features.map(function (mp) {
+    return (0, _turfPoint2['default'])(mp.geometry.coordinates[0]);
+  }) // map into an array of turf points
+  ),
+      countedGrid = (0, _turfCount2['default'])(hexGrid, pointJson, 'ptCount'),
+      max = _lodash2['default'].max(_lodash2['default'].map(countedGrid.features, function (cell) {
+    return cell.properties.ptCount;
+  })),
+      // We need the maximum value in this set of data
+  scale = colourer.getSequentialScale(0, max); // Get a scale... min is 0
+  // Build the layer for mappage
+  return L.geoJson(countedGrid, {
+    style: function style(cell) {
+      var c = scale(cell.properties.ptCount); // Work out colour using scale
+      return {
+        stroke: cell.properties.ptCount > 0, // Show if there's data
+        fill: cell.properties.ptCount > 0,
+        color: c,
+        weight: 1,
+        opacity: 0.3,
+        fillColor: c,
+        fillOpacity: 0.7
+      };
+    }
+  });
+}
+
+module.exports = exports['default'];
+
+},{"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-point":15}],59:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+exports['default'] = pointsLayer;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _leaflet = require('leaflet');
+
+var _leaflet2 = _interopRequireDefault(_leaflet);
+
+// Using data, build a Leaflet GeoJSON layer
+
+function pointsLayer(colourer, geojson) {
+  // Build GeoJSON layer
+  return _leaflet2['default'].geoJson(geojson, {
+    pointToLayer: function pointToLayer(feature, latlng) {
+      // Use circle markers instead of normal markers
+      var circle = {
+        stroke: false,
+        radius: 3,
+        fillOpacity: 0.5
+      },
+          type = feature.properties.fireType;
+
+      circle.color = colourer.getColour(type).toString();
+
+      return _leaflet2['default'].circleMarker(latlng, circle);
+    }
+  });
+}
+
+module.exports = exports['default'];
+
+},{"leaflet":5}]},{},[1])
 //# sourceMappingURL=main.map

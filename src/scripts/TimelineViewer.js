@@ -1,6 +1,8 @@
 import SummaryComponent from './components/SummaryComponent';
 import L from 'leaflet';
 import _ from 'lodash';
+import hexGridLayer from './hexGridLayer';
+import pointsLayer from './pointsLayer';
 
 export default class TimelineViewer {
 
@@ -8,7 +10,7 @@ export default class TimelineViewer {
     this.map             = map;
     this.snapshots       = snapshots; // This is an RxJS observable
     this.layerVisibility = {
-      points:   false,
+      points:   true,
       hexGrid:  true
     };
     this.colourer  = colourer;
@@ -66,10 +68,10 @@ export default class TimelineViewer {
     var layers = [];
 
     if (this.layerVisibility.points) {
-      layers.push(snapshot.pointsLayer());
+      layers.push(pointsLayer(this.colourer, snapshot.data));
     }
     if (this.layerVisibility.hexGrid) {
-      layers.push(snapshot.hexGridLayer(this.map.hexGrid));
+      layers.push(hexGridLayer(this.colourer, this.map.hexGrid, snapshot.data));
     }
 
     this.map.clear();

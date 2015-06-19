@@ -8,6 +8,7 @@ var assert = chai.assert;
 
 import Q from 'q';
 import moment from 'moment';
+import Config from '../src/scripts/Config';
 import TimeRangeSnapshot from '../src/scripts/TimeRangeSnapshot';
 import Colourer from '../src/scripts/Colourer';
 
@@ -64,8 +65,8 @@ describe('TimeRangeSnapshot', () => {
     var stParam = window.encodeURIComponent(st.utc().format()),
         enParam = window.encodeURIComponent(en.utc().format());
     assert.equal(
-      tr.endpoint + '?timeStart=' + stParam + '&timeEnd=' + enParam,
-      tr.url,
+      Config.endpoint + '?timeStart=' + stParam + '&timeEnd=' + enParam,
+      tr._buildUrl(),
       'built url correctly'
     );
   });
@@ -73,13 +74,7 @@ describe('TimeRangeSnapshot', () => {
   describe('#loadData()', () => {
     it('loads the data using d3.json', () => {
       assert.equal(geojson, tr.data, 'has set geojson as data');
-      assert.equal(tr.count, 2, 'set the count to number of features');
-    });
-  });
-
-  describe('#fireTypes', () => {
-    it('parses the data to extract fire types and counts', () => {
-      assert.propertyVal(tr.fireTypes, 'GRASS FIRE', 2, '2 grass fires, case insensitive');
+      assert.equal(tr.data.features.length, 2, 'set the count to number of features');
     });
   });
 });
