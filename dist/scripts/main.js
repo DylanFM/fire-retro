@@ -49497,7 +49497,7 @@ var TimelineViewer = (function () {
     value: function _render(snapshot) {
       this._renderMap(snapshot);
       this.timelineComponent.render(snapshot);
-      this.summary.render(snapshot.fireTypes, snapshot.count);
+      this.summary.render(snapshot);
     }
   }, {
     key: '_renderMap',
@@ -49624,16 +49624,18 @@ var FireTypeCountComponent = (function (_Component) {
 
   _createClass(FireTypeCountComponent, [{
     key: '_getTree',
-    value: function _getTree(fireTypes, totalCount) {
+    value: function _getTree(current) {
       var _this = this;
 
-      var types = _lodash2['default'].map(_lodash2['default'].slice(this._sortByCount(fireTypes), 0, 5), function (type) {
+      var types = _lodash2['default'].map(_lodash2['default'].slice(this._sortByCount(current.fireTypes), 0, 5), function (type) {
         return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', _this._prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
       });
 
-      return (0, _virtualDomH2['default'])('table.fireTypeCount', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
+      var table = (0, _virtualDomH2['default'])('table', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
         attributes: { colspan: '2' }
-      }, 'Top incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + totalCount)]))]);
+      }, 'Top incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + current.count)]))]);
+
+      return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', current.start.format('MMMM YYYY')), table]);
     }
   }, {
     key: '_sortByCount',

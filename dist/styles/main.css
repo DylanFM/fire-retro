@@ -41,22 +41,26 @@ h1 {
       text-decoration: underline;
       background: rgba(0, 0, 0, 0.3); }
 
-.fireTypeCount {
+.summary {
   text-align: right;
-  font-size: 0.8rem;
   position: absolute;
   bottom: 5rem;
   right: 1.5rem;
   text-transform: uppercase; }
-  .fireTypeCount th {
-    border-bottom: 1px solid #ffffee;
+  .summary h2 {
+    margin: 0 0 .2rem; }
+  .summary table {
+    font-size: 0.8rem; }
+  .summary th {
+    border-bottom: 1px solid #ddd;
     padding-bottom: .5em; }
-  .fireTypeCount tbody tr:first-child td {
+  .summary tbody tr:first-child td {
     padding-top: .5em; }
-  .fireTypeCount th, .fireTypeCount td {
+  .summary th, .summary td {
+    text-align: right;
     padding: .2rem 0; }
-  .fireTypeCount td:last-child {
+  .summary td:last-child {
     width: 3rem; }
-  .fireTypeCount tfoot td {
-    border-top: 1px solid #ffffee;
+  .summary tfoot td {
+    border-top: 1px solid #ddd;
     padding-top: .5em; }

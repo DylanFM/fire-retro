@@ -4,15 +4,15 @@ import h from 'virtual-dom/h';
 
 export default class FireTypeCountComponent extends Component {
 
-  _getTree(fireTypes, totalCount) {
-    var types = _.map(_.slice(this._sortByCount(fireTypes), 0, 5), (type) => {
+  _getTree(current) {
+    var types = _.map(_.slice(this._sortByCount(current.fireTypes), 0, 5), (type) => {
       return h('tr', [
         h('td', this._prepForDisplay(type[0])),
         h('td', '' + type[1])
       ]);
     });
 
-    return h('table.fireTypeCount', [
+    var table = h('table', [
       h('thead',
         h('tr',
           h('th', {
@@ -24,10 +24,12 @@ export default class FireTypeCountComponent extends Component {
       h('tfoot',
         h('tr', [
           h('td', 'Total'),
-          h('td', '' + totalCount)
+          h('td', '' + current.count)
         ])
        )
     ]);
+
+    return h('div.summary', [h('h2', current.start.format('MMMM YYYY')), table]);
   }
 
   // Sort the fireTypes by number of incidents descending

@@ -65,7 +65,7 @@ export default class TimelineViewer {
   _render(snapshot) {
     this._renderMap(snapshot);
     this.timelineComponent.render(snapshot);
-    this.summary.render(snapshot.fireTypes, snapshot.count);
+    this.summary.render(snapshot);
   }
 
   _renderMap(snapshot) {
