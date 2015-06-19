@@ -1,4 +1,4 @@
-import FireTypeCountComponent from './components/FireTypeCountComponent';
+import SummaryComponent from './components/SummaryComponent';
 import L from 'leaflet';
 import _ from 'lodash';
 
@@ -12,7 +12,7 @@ export default class TimelineViewer {
       hexGrid:  true
     };
     this.colourer  = colourer;
-    this.summary = new FireTypeCountComponent();
+    this.summary = new SummaryComponent();
   }
 
   play(speed) {

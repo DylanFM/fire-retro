@@ -2,7 +2,7 @@ import _ from 'lodash';
 import Component from './Component';
 import h from 'virtual-dom/h';
 
-export default class FireTypeCountComponent extends Component {
+export default class SummaryComponent extends Component {
 
   _getTree(current) {
     var types = _.map(_.slice(this._sortByCount(current.fireTypes), 0, 5), (type) => {

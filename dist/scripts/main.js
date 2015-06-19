@@ -49400,9 +49400,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _componentsFireTypeCountComponent = require('./components/FireTypeCountComponent');
+var _componentsSummaryComponent = require('./components/SummaryComponent');
 
-var _componentsFireTypeCountComponent2 = _interopRequireDefault(_componentsFireTypeCountComponent);
+var _componentsSummaryComponent2 = _interopRequireDefault(_componentsSummaryComponent);
 
 var _leaflet = require('leaflet');
 
@@ -49423,7 +49423,7 @@ var TimelineViewer = (function () {
       hexGrid: true
     };
     this.colourer = colourer;
-    this.summary = new _componentsFireTypeCountComponent2['default']();
+    this.summary = new _componentsSummaryComponent2['default']();
   }
 
   _createClass(TimelineViewer, [{
@@ -49511,7 +49511,7 @@ var TimelineViewer = (function () {
 exports['default'] = TimelineViewer;
 module.exports = exports['default'];
 
-},{"./components/FireTypeCountComponent":54,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
+},{"./components/SummaryComponent":54,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49600,18 +49600,18 @@ var _virtualDomH = require('virtual-dom/h');
 
 var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 
-var FireTypeCountComponent = (function (_Component) {
-  function FireTypeCountComponent() {
-    _classCallCheck(this, FireTypeCountComponent);
+var SummaryComponent = (function (_Component) {
+  function SummaryComponent() {
+    _classCallCheck(this, SummaryComponent);
 
     if (_Component != null) {
       _Component.apply(this, arguments);
     }
   }
 
-  _inherits(FireTypeCountComponent, _Component);
+  _inherits(SummaryComponent, _Component);
 
-  _createClass(FireTypeCountComponent, [{
+  _createClass(SummaryComponent, [{
     key: '_getTree',
     value: function _getTree(current) {
       var _this = this;
@@ -49644,10 +49644,10 @@ var FireTypeCountComponent = (function (_Component) {
     }
   }]);
 
-  return FireTypeCountComponent;
+  return SummaryComponent;
 })(_Component3['default']);
 
-exports['default'] = FireTypeCountComponent;
+exports['default'] = SummaryComponent;
 module.exports = exports['default'];
 
 },{"./Component":53,"lodash":6,"virtual-dom/h":18}],55:[function(require,module,exports){
