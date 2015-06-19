@@ -7,13 +7,12 @@ export default function pointsLayer(colourer, geojson) {
     pointToLayer: (feature, latlng) => {
       // Use circle markers instead of normal markers
       var circle = {
-            stroke:       false,
-            radius:       3,
-            fillOpacity:  0.5
-          },
-          type = feature.properties.fireType;
-
-      circle.color = colourer.getColour(type).toString();
+        stroke:       false,
+        radius:       3,
+        fillOpacity:  0.5,
+        clickable:    false
+      };
+      circle.color = colourer.getColour(feature.properties.fireType).toString();
 
       return L.circleMarker(latlng, circle);
     }

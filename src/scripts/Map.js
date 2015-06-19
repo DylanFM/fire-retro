@@ -5,10 +5,10 @@ export default class Map {
 
   constructor(id) {
     this.id          = id;
-    this.layers      = L.layerGroup();
     // The leaflet map needs to be setup
     this._initMap();
     // Add group to map
+    this.layers = L.layerGroup();
     this.layers.addTo(this.map);
   }
 

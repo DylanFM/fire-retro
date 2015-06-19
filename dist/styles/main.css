@@ -17,8 +17,13 @@ h1 {
   text-transform: uppercase;
   padding: 1rem; }
 
+.colour {
+  display: inline-block;
+  border-radius: 50%;
+  width: .5rem;
+  height: .5rem; }
+
 .summary {
-  text-align: right;
   position: absolute;
   bottom: 1.5rem;
   right: 1.5rem;
@@ -26,17 +31,22 @@ h1 {
   .summary h2 {
     margin: 0 0 .2rem; }
   .summary table {
-    font-size: 0.8rem; }
+    font-size: 0.8rem;
+    width: 100%; }
   .summary th {
-    border-bottom: 1px solid #ddd;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
     padding-bottom: .5em; }
   .summary tbody tr:first-child td {
     padding-top: .5em; }
   .summary th, .summary td {
-    text-align: right;
     padding: .2rem 0; }
-  .summary td:last-child {
+  .summary tbody td:first-child {
+    width: 1rem; }
+  .summary tbody td:last-child {
     width: 3rem; }
+  .summary td:last-child {
+    text-align: right; }
   .summary tfoot td {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #ccc;
     padding-top: .5em; }

@@ -46,9 +46,11 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
 
   (0, _fetchData2['default'])((0, _buildUrl2['default'])(start, end)).then(function (data) {
     // Render summary component
-    summary.render(start, end, data);
+    summary.render(start, end, data, colourer);
     // Render map layers
-    map.render([(0, _pointsLayer2['default'])(colourer, data), (0, _hexGridLayer2['default'])(colourer, data)]);
+    map.render([(0, _pointsLayer2['default'])(colourer, data)
+    //hexGridLayer(colourer, data)
+    ]);
   });
 })();
 
@@ -38392,10 +38394,10 @@ var Map = (function () {
     _classCallCheck(this, Map);
 
     this.id = id;
-    this.layers = _leaflet2['default'].layerGroup();
     // The leaflet map needs to be setup
     this._initMap();
     // Add group to map
+    this.layers = _leaflet2['default'].layerGroup();
     this.layers.addTo(this.map);
   }
 
@@ -38585,18 +38587,20 @@ var SummaryComponent = (function (_Component) {
 
   _createClass(SummaryComponent, [{
     key: '_getTree',
-    value: function _getTree(start, end, data) {
+    value: function _getTree(start, end, data, colourer) {
       var _this = this;
 
       var types = _lodash2['default'].map(_lodash2['default'].slice(this._sortByCount((0, _extractFireTypes2['default'])(data)), 0, 5), function (type) {
-        return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', _this._prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
+        return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', (0, _virtualDomH2['default'])('span.colour', {
+          style: { background: colourer.getColour(type[0]) }
+        }, '')), (0, _virtualDomH2['default'])('td', _this._prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
       });
 
       var table = (0, _virtualDomH2['default'])('table', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
-        attributes: { colspan: '2' }
-      }, 'Top incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + data.features.length)]))]);
+        attributes: { colspan: '3' }
+      }, 'Top 5 incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', ''), (0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + data.features.length)]))]);
 
-      return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', start.format('MMMM YYYY')), table]);
+      return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', start.format('MMM YY') + ' to ' + end.format('MMM YY')), table]);
     }
   }, {
     key: '_sortByCount',
@@ -38802,11 +38806,10 @@ function pointsLayer(colourer, geojson) {
       var circle = {
         stroke: false,
         radius: 3,
-        fillOpacity: 0.5
-      },
-          type = feature.properties.fireType;
-
-      circle.color = colourer.getColour(type).toString();
+        fillOpacity: 0.5,
+        clickable: false
+      };
+      circle.color = colourer.getColour(feature.properties.fireType).toString();
 
       return _leaflet2['default'].circleMarker(latlng, circle);
     }

@@ -18,11 +18,11 @@ import pointsLayer from './pointsLayer';
 
   fetchData(buildUrl(start, end)).then((data) => {
     // Render summary component
-    summary.render(start, end, data);
+    summary.render(start, end, data, colourer);
     // Render map layers
     map.render([
-      pointsLayer(colourer, data),
-      hexGridLayer(colourer, data)
+      pointsLayer(colourer, data)
+      //hexGridLayer(colourer, data)
     ]);
   });
 
