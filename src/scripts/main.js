@@ -1,37 +1,29 @@
 import Colourer from './Colourer';
 import Map from './Map';
-import getSnapshots from './getSnapshots';
-import TimelineViewer from './TimelineViewer';
-import d3 from 'd3';
-import Rx from 'rx';
-import h from 'virtual-dom/h';
-import createElement from 'virtual-dom/create-element';
+import moment from 'moment';
+import fetchData from './fetchData';
+import buildUrl from './buildUrl';
+import SummaryComponent from './components/SummaryComponent';
+import hexGridLayer from './hexGridLayer';
+import pointsLayer from './pointsLayer';
 
 (() => {
   'use strict';
 
-  var colourer = new Colourer(),               // To handle colours for this run
-      months   = getSnapshots(2014, colourer), // Get months for 2014
-      map, viewer;
+  var colourer = new Colourer(),
+      map = new Map('map'),
+      summary = new SummaryComponent(),
+      start = moment().set({ year: 2015, month: 0 }).startOf('month'),
+      end = moment().set({ year: 2015, month: 6 }).endOf('month');
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Load all data
-    months
-      .map((month) => {
-        month.loadData();
-        return month;
-      })
-      .toArray()
-      .subscribeOnNext((monthsArr) => {
-        // Initialise the viewer and begin
-        viewer = new TimelineViewer(
-          new Map('map'),                         // Construct new map. Pass in the ID of the DOM element
-          new Rx.Observable.fromArray(monthsArr), // Convert back into a new observable with data loading
-          colourer
-        );
-        // Progress every 2 seconds
-        viewer.play(2000);
-      });
+  fetchData(buildUrl(start, end)).then((data) => {
+    // Render summary component
+    summary.render(start, end, data);
+    // Render map layers
+    map.render([
+      pointsLayer(colourer, data),
+      hexGridLayer(colourer, data)
+    ]);
   });
 
 }());

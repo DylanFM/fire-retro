@@ -1,5 +1,9 @@
 export default {
   endpoint: 'http://domain-for-bushfires-api/incidents',
   mapboxAccessToken: 'token',
-  mapboxMapId: 'map.id'
+  mapboxMapId: 'map.id',
+  mapBounds: [
+    [-37.50505999800001, 140.999474528],
+    [-28.157019914000017, 153.65]
+  ]
 };

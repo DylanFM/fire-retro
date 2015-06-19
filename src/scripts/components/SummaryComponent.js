@@ -5,8 +5,8 @@ import extractFireTypes from '../extractFireTypes';
 
 export default class SummaryComponent extends Component {
 
-  _getTree(current) {
-    var types = _.map(_.slice(this._sortByCount(extractFireTypes(current.data)), 0, 5), (type) => {
+  _getTree(start, end, data) {
+    var types = _.map(_.slice(this._sortByCount(extractFireTypes(data)), 0, 5), (type) => {
       return h('tr', [
         h('td', this._prepForDisplay(type[0])),
         h('td', '' + type[1])
@@ -25,12 +25,12 @@ export default class SummaryComponent extends Component {
       h('tfoot',
         h('tr', [
           h('td', 'Total'),
-          h('td', '' + current.data.features.length)
+          h('td', '' + data.features.length)
         ])
        )
     ]);
 
-    return h('div.summary', [h('h2', current.start.format('MMMM YYYY')), table]);
+    return h('div.summary', [h('h2', start.format('MMMM YYYY')), table]);
   }
 
   // Sort the fireTypes by number of incidents descending
