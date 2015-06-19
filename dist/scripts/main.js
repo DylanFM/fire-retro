@@ -61,7 +61,7 @@ var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement)
   });
 })();
 
-},{"./Colourer":49,"./Map":50,"./TimelineViewer":52,"./getSnapshots":57,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
+},{"./Colourer":49,"./Map":50,"./TimelineViewer":52,"./getSnapshots":56,"d3":4,"rx":9,"virtual-dom/create-element":16,"virtual-dom/h":18}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -49217,7 +49217,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":56,"leaflet":5,"lodash":6,"turf-hex":13}],51:[function(require,module,exports){
+},{"./config":55,"leaflet":5,"lodash":6,"turf-hex":13}],51:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49387,7 +49387,7 @@ var TimeRangeSnapshot = (function () {
 exports['default'] = TimeRangeSnapshot;
 module.exports = exports['default'];
 
-},{"./config":56,"d3":4,"leaflet":5,"lodash":6,"q":8,"turf-count":10,"turf-featurecollection":12,"turf-point":15}],52:[function(require,module,exports){
+},{"./config":55,"d3":4,"leaflet":5,"lodash":6,"q":8,"turf-count":10,"turf-featurecollection":12,"turf-point":15}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49404,10 +49404,6 @@ var _componentsFireTypeCountComponent = require('./components/FireTypeCountCompo
 
 var _componentsFireTypeCountComponent2 = _interopRequireDefault(_componentsFireTypeCountComponent);
 
-var _componentsTimelineComponent = require('./components/TimelineComponent');
-
-var _componentsTimelineComponent2 = _interopRequireDefault(_componentsTimelineComponent);
-
 var _leaflet = require('leaflet');
 
 var _leaflet2 = _interopRequireDefault(_leaflet);
@@ -49418,8 +49414,6 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var TimelineViewer = (function () {
   function TimelineViewer(map, snapshots, colourer) {
-    var _this = this;
-
     _classCallCheck(this, TimelineViewer);
 
     this.map = map;
@@ -49429,11 +49423,7 @@ var TimelineViewer = (function () {
       hexGrid: true
     };
     this.colourer = colourer;
-    // Initialise components
     this.summary = new _componentsFireTypeCountComponent2['default']();
-    this.snapshots.toArray().subscribeOnNext(function (snapshotsArray) {
-      _this.timelineComponent = new _componentsTimelineComponent2['default'](snapshotsArray);
-    });
   }
 
   _createClass(TimelineViewer, [{
@@ -49446,17 +49436,17 @@ var TimelineViewer = (function () {
   }, {
     key: '_playIfDataLoaded',
     value: function _playIfDataLoaded() {
-      var _this2 = this;
+      var _this = this;
 
       // Is the data loaded?
       this.snapshots.every(function (s) {
         return s.data;
       }).subscribeOnNext(function (isLoaded) {
         if (isLoaded) {
-          _this2._beginPlaying();
+          _this._beginPlaying();
         } else {
           _lodash2['default'].delay(function () {
-            return _this2._playIfDataLoaded();
+            return _this._playIfDataLoaded();
           }, 500);
         }
       });
@@ -49464,7 +49454,7 @@ var TimelineViewer = (function () {
   }, {
     key: '_beginPlaying',
     value: function _beginPlaying() {
-      var _this3 = this;
+      var _this2 = this;
 
       var stream = this.snapshots.controlled(),
           // Make a controllable stream
@@ -49479,14 +49469,14 @@ var TimelineViewer = (function () {
           } else {
             // No more - schedule to play again
             _lodash2['default'].delay(function () {
-              return _this3._beginPlaying();
-            }, _this3.speed);
+              return _this2._beginPlaying();
+            }, _this2.speed);
           }
-        }, _this3.speed);
+        }, _this2.speed);
       };
       // Render for each item
       stream.subscribeOnNext(function (next) {
-        return _this3._render(next);
+        return _this2._render(next);
       });
       // Begin...
       stream.request(1); // No delay on 1st
@@ -49496,7 +49486,6 @@ var TimelineViewer = (function () {
     key: '_render',
     value: function _render(snapshot) {
       this._renderMap(snapshot);
-      this.timelineComponent.render(snapshot);
       this.summary.render(snapshot);
     }
   }, {
@@ -49522,7 +49511,7 @@ var TimelineViewer = (function () {
 exports['default'] = TimelineViewer;
 module.exports = exports['default'];
 
-},{"./components/FireTypeCountComponent":54,"./components/TimelineComponent":55,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
+},{"./components/FireTypeCountComponent":54,"leaflet":5,"lodash":6}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49667,61 +49656,6 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
-
-var _Component2 = require('./Component');
-
-var _Component3 = _interopRequireDefault(_Component2);
-
-var _virtualDomH = require('virtual-dom/h');
-
-var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
-
-var TimelineComponent = (function (_Component) {
-  function TimelineComponent(months) {
-    _classCallCheck(this, TimelineComponent);
-
-    _get(Object.getPrototypeOf(TimelineComponent.prototype), 'constructor', this).call(this);
-    this.months = months;
-  }
-
-  _inherits(TimelineComponent, _Component);
-
-  _createClass(TimelineComponent, [{
-    key: '_getTree',
-    value: function _getTree(current) {
-      var items = this.months.map(function (month) {
-        return (0, _virtualDomH2['default'])('li', {
-          className: current && month.url === current.url ? 'current' : ''
-        }, [month.start.format('MMM')]);
-      });
-      // Prepend the year
-      items.unshift((0, _virtualDomH2['default'])('li.year', this.months[0].start.format('YYYY')));
-      return (0, _virtualDomH2['default'])('ol.timeline', items);
-    }
-  }]);
-
-  return TimelineComponent;
-})(_Component3['default']);
-
-exports['default'] = TimelineComponent;
-module.exports = exports['default'];
-
-},{"./Component":53,"virtual-dom/h":18}],56:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
 exports['default'] = {
   endpoint: 'http://10.0.0.15:8000/incidents',
   mapboxAccessToken: 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw',
@@ -49729,7 +49663,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}],57:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

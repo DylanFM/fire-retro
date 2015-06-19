@@ -20,36 +20,10 @@ h1 {
   padding: 1rem;
 }
 
-.timeline {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  display: flex;
-
-  li {
-    flex: 1;
-    text-transform: uppercase;
-    letter-spacing: 0.1rem;
-    text-align: center;
-    display: inline-block;
-    padding: 1rem 0;
-
-    &.year {
-      background: rgba(0,0,0,0.8);
-    }
-    &.current {
-      text-decoration: underline;
-      background: rgba(0,0,0,0.3);
-    }
-  }
-}
-
 .summary {
   text-align: right;
   position: absolute;
-  bottom: 5rem;
+  bottom: 1.5rem;
   right: 1.5rem;
   text-transform: uppercase;
 

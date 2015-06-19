@@ -1,5 +1,4 @@
 import FireTypeCountComponent from './components/FireTypeCountComponent';
-import TimelineComponent from './components/TimelineComponent';
 import L from 'leaflet';
 import _ from 'lodash';
 
@@ -13,11 +12,7 @@ export default class TimelineViewer {
       hexGrid:  true
     };
     this.colourer  = colourer;
-    // Initialise components
     this.summary = new FireTypeCountComponent();
-    this.snapshots.toArray().subscribeOnNext((snapshotsArray) => {
-      this.timelineComponent = new TimelineComponent(snapshotsArray);
-    });
   }
 
   play(speed) {
@@ -64,7 +59,6 @@ export default class TimelineViewer {
 
   _render(snapshot) {
     this._renderMap(snapshot);
-    this.timelineComponent.render(snapshot);
     this.summary.render(snapshot);
   }
 
