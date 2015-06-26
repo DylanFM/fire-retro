@@ -31,6 +31,9 @@ export default class Map {
   }
 
   render(layers) {
+    // Clear first
+    this.clear();
+    // Then add layers
     for (var layer of layers) {
       this.layers.addLayer(layer);
     }
