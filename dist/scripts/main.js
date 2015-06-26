@@ -3,6 +3,22 @@
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _virtualDomDiff = require('virtual-dom/diff');
+
+var _virtualDomDiff2 = _interopRequireDefault(_virtualDomDiff);
+
+var _virtualDomPatch = require('virtual-dom/patch');
+
+var _virtualDomPatch2 = _interopRequireDefault(_virtualDomPatch);
+
+var _virtualDomCreateElement = require('virtual-dom/create-element');
+
+var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement);
+
+var _mainLoop = require('main-loop');
+
+var _mainLoop2 = _interopRequireDefault(_mainLoop);
+
 var _rx = require('rx');
 
 var _rx2 = _interopRequireDefault(_rx);
@@ -23,10 +39,6 @@ var _fetch = require('./fetch');
 
 var _fetch2 = _interopRequireDefault(_fetch);
 
-var _componentsSummaryComponent = require('./components/SummaryComponent');
-
-var _componentsSummaryComponent2 = _interopRequireDefault(_componentsSummaryComponent);
-
 var _hexGridLayer = require('./hexGridLayer');
 
 var _hexGridLayer2 = _interopRequireDefault(_hexGridLayer);
@@ -35,34 +47,61 @@ var _pointsLayer = require('./pointsLayer');
 
 var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
 
+var _componentsSummary = require('./components/summary');
+
+var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
+
 (function () {
   'use strict';
 
   var dataStream = new _rx2['default'].Subject(),
       colourer = new _Colourer2['default'](),
       map = new _Map2['default']('map'),
-      summary = new _componentsSummaryComponent2['default']();
+      appState,
+      loop;
 
-  // Render on new chunks of data
-  dataStream.subscribe(render);
+  // There is one state object that the app is rendered from
+  appState = {
+    start: (0, _moment2['default'])(),
+    end: (0, _moment2['default'])(),
+    features: []
+  };
+
+  // Setup the mainloop with the state and render function
+  loop = (0, _mainLoop2['default'])(appState, render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
+  // Add to DOM
+  document.body.appendChild(loop.target);
+
+  // When there's new data...
+  dataStream.subscribe(function (data) {
+    // Update state
+    appState.features = data.features;
+    // Update rendering
+    loop.update(appState);
+    // Render map too
+    updateMap(appState);
+  });
+
+  // Render app with state
+  function render(state) {
+    // Currently just the state component
+    return (0, _componentsSummary2['default'])(state, colourer);
+  }
+
+  // Update map with new data
+  function updateMap(state) {
+    map.render([(0, _pointsLayer2['default'])(colourer, state), (0, _hexGridLayer2['default'])(colourer, state)]);
+  }
 
   // Just one date range... this for now
-  var start = (0, _moment2['default'])().set({ year: 2015, month: 0 }).startOf('month'),
-      end = (0, _moment2['default'])().set({ year: 2015, month: 6 }).endOf('month');
+  appState.start = (0, _moment2['default'])().set({ year: 2015, month: 0 }).startOf('month');
+  appState.end = (0, _moment2['default'])().set({ year: 2015, month: 6 }).endOf('month');
 
   // Fetch this chunk of data
-  (0, _fetch2['default'])(start, end, dataStream);
-
-  // Render new data
-  function render(data) {
-    // Render summary component
-    summary.render(data.start, data.end, data, colourer);
-    // Render map layers
-    map.render([(0, _pointsLayer2['default'])(colourer, data), (0, _hexGridLayer2['default'])(colourer, data)]);
-  }
+  (0, _fetch2['default'])(appState.start, appState.end, dataStream);
 })();
 
-},{"./Colourer":49,"./Map":50,"./components/SummaryComponent":52,"./fetch":55,"./hexGridLayer":56,"./pointsLayer":57,"moment":7,"rx":9}],2:[function(require,module,exports){
+},{"./Colourer":56,"./Map":57,"./components/summary":58,"./fetch":61,"./hexGridLayer":62,"./pointsLayer":63,"main-loop":7,"moment":14,"rx":16,"virtual-dom/create-element":23,"virtual-dom/diff":24,"virtual-dom/patch":33}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -31083,6 +31122,371 @@ L.Map.include({
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{}],7:[function(require,module,exports){
+var raf = require("raf")
+var TypedError = require("error/typed")
+
+var InvalidUpdateInRender = TypedError({
+    type: "main-loop.invalid.update.in-render",
+    message: "main-loop: Unexpected update occurred in loop.\n" +
+        "We are currently rendering a view, " +
+            "you can't change state right now.\n" +
+        "The diff is: {stringDiff}.\n" +
+        "SUGGESTED FIX: find the state mutation in your view " +
+            "or rendering function and remove it.\n" +
+        "The view should not have any side effects.\n",
+    diff: null,
+    stringDiff: null
+})
+
+module.exports = main
+
+function main(initialState, view, opts) {
+    opts = opts || {}
+
+    var currentState = initialState
+    var create = opts.create
+    var diff = opts.diff
+    var patch = opts.patch
+    var redrawScheduled = false
+
+    var tree = opts.initialTree || view(currentState)
+    var target = opts.target || create(tree, opts)
+    var inRenderingTransaction = false
+
+    currentState = null
+
+    return {
+        target: target,
+        update: update
+    }
+
+    function update(state) {
+        if (inRenderingTransaction) {
+            throw InvalidUpdateInRender({
+                diff: state._diff,
+                stringDiff: JSON.stringify(state._diff)
+            })
+        }
+
+        if (currentState === null && !redrawScheduled) {
+            redrawScheduled = true
+            raf(redraw)
+        }
+
+        currentState = state
+    }
+
+    function redraw() {
+        redrawScheduled = false;
+        if (currentState === null) {
+            return
+        }
+
+        inRenderingTransaction = true
+        var newTree = view(currentState)
+
+        if (opts.createOnly) {
+            inRenderingTransaction = false
+            create(newTree, opts)
+        } else {
+            var patches = diff(tree, newTree, opts)
+            inRenderingTransaction = false
+            target = patch(target, patches, opts)
+        }
+
+        tree = newTree
+        currentState = null
+    }
+}
+
+},{"error/typed":11,"raf":12}],8:[function(require,module,exports){
+module.exports = function(obj) {
+    if (typeof obj === 'string') return camelCase(obj);
+    return walk(obj);
+};
+
+function walk (obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (isDate(obj) || isRegex(obj)) return obj;
+    if (isArray(obj)) return map(obj, walk);
+    return reduce(objectKeys(obj), function (acc, key) {
+        var camel = camelCase(key);
+        acc[camel] = walk(obj[key]);
+        return acc;
+    }, {});
+}
+
+function camelCase(str) {
+    return str.replace(/[_.-](\w|$)/g, function (_,x) {
+        return x.toUpperCase();
+    });
+}
+
+var isArray = Array.isArray || function (obj) {
+    return Object.prototype.toString.call(obj) === '[object Array]';
+};
+
+var isDate = function (obj) {
+    return Object.prototype.toString.call(obj) === '[object Date]';
+};
+
+var isRegex = function (obj) {
+    return Object.prototype.toString.call(obj) === '[object RegExp]';
+};
+
+var has = Object.prototype.hasOwnProperty;
+var objectKeys = Object.keys || function (obj) {
+    var keys = [];
+    for (var key in obj) {
+        if (has.call(obj, key)) keys.push(key);
+    }
+    return keys;
+};
+
+function map (xs, f) {
+    if (xs.map) return xs.map(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        res.push(f(xs[i], i));
+    }
+    return res;
+}
+
+function reduce (xs, f, acc) {
+    if (xs.reduce) return xs.reduce(f, acc);
+    for (var i = 0; i < xs.length; i++) {
+        acc = f(acc, xs[i], i);
+    }
+    return acc;
+}
+
+},{}],9:[function(require,module,exports){
+var nargs = /\{([0-9a-zA-Z]+)\}/g
+var slice = Array.prototype.slice
+
+module.exports = template
+
+function template(string) {
+    var args
+
+    if (arguments.length === 2 && typeof arguments[1] === "object") {
+        args = arguments[1]
+    } else {
+        args = slice.call(arguments, 1)
+    }
+
+    if (!args || !args.hasOwnProperty) {
+        args = {}
+    }
+
+    return string.replace(nargs, function replaceArg(match, i, index) {
+        var result
+
+        if (string[index - 1] === "{" &&
+            string[index + match.length] === "}") {
+            return i
+        } else {
+            result = args.hasOwnProperty(i) ? args[i] : null
+            if (result === null || result === undefined) {
+                return ""
+            }
+
+            return result
+        }
+    })
+}
+
+},{}],10:[function(require,module,exports){
+module.exports = extend
+
+function extend(target) {
+    for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i]
+
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key]
+            }
+        }
+    }
+
+    return target
+}
+
+},{}],11:[function(require,module,exports){
+var camelize = require("camelize")
+var template = require("string-template")
+var extend = require("xtend/mutable")
+
+module.exports = TypedError
+
+function TypedError(args) {
+    if (!args) {
+        throw new Error("args is required");
+    }
+    if (!args.type) {
+        throw new Error("args.type is required");
+    }
+    if (!args.message) {
+        throw new Error("args.message is required");
+    }
+
+    var message = args.message
+
+    if (args.type && !args.name) {
+        var errorName = camelize(args.type) + "Error"
+        args.name = errorName[0].toUpperCase() + errorName.substr(1)
+    }
+
+    extend(createError, args);
+    createError._name = args.name;
+
+    return createError;
+
+    function createError(opts) {
+        var result = new Error()
+
+        Object.defineProperty(result, "type", {
+            value: result.type,
+            enumerable: true,
+            writable: true,
+            configurable: true
+        })
+
+        var options = extend({}, args, opts)
+
+        extend(result, options)
+        result.message = template(message, options)
+
+        return result
+    }
+}
+
+
+},{"camelize":8,"string-template":9,"xtend/mutable":10}],12:[function(require,module,exports){
+var now = require('performance-now')
+  , global = typeof window === 'undefined' ? {} : window
+  , vendors = ['moz', 'webkit']
+  , suffix = 'AnimationFrame'
+  , raf = global['request' + suffix]
+  , caf = global['cancel' + suffix] || global['cancelRequest' + suffix]
+  , isNative = true
+
+for(var i = 0; i < vendors.length && !raf; i++) {
+  raf = global[vendors[i] + 'Request' + suffix]
+  caf = global[vendors[i] + 'Cancel' + suffix]
+      || global[vendors[i] + 'CancelRequest' + suffix]
+}
+
+// Some versions of FF have rAF but not cAF
+if(!raf || !caf) {
+  isNative = false
+
+  var last = 0
+    , id = 0
+    , queue = []
+    , frameDuration = 1000 / 60
+
+  raf = function(callback) {
+    if(queue.length === 0) {
+      var _now = now()
+        , next = Math.max(0, frameDuration - (_now - last))
+      last = next + _now
+      setTimeout(function() {
+        var cp = queue.slice(0)
+        // Clear queue here to prevent
+        // callbacks from appending listeners
+        // to the current frame's queue
+        queue.length = 0
+        for(var i = 0; i < cp.length; i++) {
+          if(!cp[i].cancelled) {
+            try{
+              cp[i].callback(last)
+            } catch(e) {
+              setTimeout(function() { throw e }, 0)
+            }
+          }
+        }
+      }, Math.round(next))
+    }
+    queue.push({
+      handle: ++id,
+      callback: callback,
+      cancelled: false
+    })
+    return id
+  }
+
+  caf = function(handle) {
+    for(var i = 0; i < queue.length; i++) {
+      if(queue[i].handle === handle) {
+        queue[i].cancelled = true
+      }
+    }
+  }
+}
+
+module.exports = function(fn) {
+  // Wrap in a new function to prevent
+  // `cancel` potentially being assigned
+  // to the native rAF function
+  if(!isNative) {
+    return raf.call(global, fn)
+  }
+  return raf.call(global, function() {
+    try{
+      fn.apply(this, arguments)
+    } catch(e) {
+      setTimeout(function() { throw e }, 0)
+    }
+  })
+}
+module.exports.cancel = function() {
+  caf.apply(global, arguments)
+}
+
+},{"performance-now":13}],13:[function(require,module,exports){
+(function (process){
+// Generated by CoffeeScript 1.6.3
+(function() {
+  var getNanoSeconds, hrtime, loadTime;
+
+  if ((typeof performance !== "undefined" && performance !== null) && performance.now) {
+    module.exports = function() {
+      return performance.now();
+    };
+  } else if ((typeof process !== "undefined" && process !== null) && process.hrtime) {
+    module.exports = function() {
+      return (getNanoSeconds() - loadTime) / 1e6;
+    };
+    hrtime = process.hrtime;
+    getNanoSeconds = function() {
+      var hr;
+      hr = hrtime();
+      return hr[0] * 1e9 + hr[1];
+    };
+    loadTime = getNanoSeconds();
+  } else if (Date.now) {
+    module.exports = function() {
+      return Date.now() - loadTime;
+    };
+    loadTime = Date.now();
+  } else {
+    module.exports = function() {
+      return new Date().getTime() - loadTime;
+    };
+    loadTime = new Date().getTime();
+  }
+
+}).call(this);
+
+/*
+
+*/
+
+}).call(this,require('_process'))
+
+},{"_process":3}],14:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.3
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -34194,7 +34598,7 @@ L.Map.include({
     return _moment;
 
 }));
-},{}],8:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function (process){
 // vim:ts=4:sts=4:sw=4:
 /*!
@@ -36247,7 +36651,7 @@ return Q;
 
 }).call(this,require('_process'))
 
-},{"_process":3}],9:[function(require,module,exports){
+},{"_process":3}],16:[function(require,module,exports){
 (function (process,global){
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
@@ -46975,7 +47379,7 @@ return Q;
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"_process":3}],10:[function(require,module,exports){
+},{"_process":3}],17:[function(require,module,exports){
 var inside = require('turf-inside');
 
 /**
@@ -47073,7 +47477,7 @@ module.exports = function(polyFC, ptFC, outField, done){
   return polyFC;
 };
 
-},{"turf-inside":11}],11:[function(require,module,exports){
+},{"turf-inside":18}],18:[function(require,module,exports){
 // http://en.wikipedia.org/wiki/Even%E2%80%93odd_rule
 // modified from: https://github.com/substack/point-in-polygon/blob/master/index.js
 // which was modified from http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
@@ -47179,7 +47583,7 @@ function inRing (pt, ring) {
 }
 
 
-},{}],12:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * Takes one or more {@link Feature|Features} and creates a {@link FeatureCollection}
  *
@@ -47205,7 +47609,7 @@ module.exports = function(features){
   };
 };
 
-},{}],13:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var polygon = require('turf-polygon');
 
 /**
@@ -47318,7 +47722,7 @@ function hexgrid(bbox, radius) {
   return fc;
 }
 
-},{"turf-polygon":14}],14:[function(require,module,exports){
+},{"turf-polygon":21}],21:[function(require,module,exports){
 /**
  * Takes an array of LinearRings and optionally an {@link Object} with properties and returns a GeoJSON {@link Polygon} feature.
  *
@@ -47373,7 +47777,7 @@ module.exports = function(coordinates, properties){
   return polygon;
 };
 
-},{}],15:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /**
  * Takes coordinates and properties (optional) and returns a new {@link Point} feature.
  *
@@ -47405,22 +47809,22 @@ module.exports = function(coordinates, properties) {
   };
 };
 
-},{}],16:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var createElement = require("./vdom/create-element.js")
 
 module.exports = createElement
 
-},{"./vdom/create-element.js":28}],17:[function(require,module,exports){
+},{"./vdom/create-element.js":35}],24:[function(require,module,exports){
 var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":48}],18:[function(require,module,exports){
+},{"./vtree/diff.js":55}],25:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
 
-},{"./virtual-hyperscript/index.js":35}],19:[function(require,module,exports){
+},{"./virtual-hyperscript/index.js":42}],26:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
@@ -47528,7 +47932,7 @@ module.exports = (function split(undef) {
   return self;
 })();
 
-},{}],20:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 var OneVersionConstraint = require('individual/one-version');
@@ -47550,7 +47954,7 @@ function EvStore(elem) {
     return hash;
 }
 
-},{"individual/one-version":22}],21:[function(require,module,exports){
+},{"individual/one-version":29}],28:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -47574,7 +47978,7 @@ function Individual(key, value) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],22:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 var Individual = require('./index.js');
@@ -47598,7 +48002,7 @@ function OneVersion(moduleName, version, defaultValue) {
     return Individual(key, defaultValue);
 }
 
-},{"./index.js":21}],23:[function(require,module,exports){
+},{"./index.js":28}],30:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -47618,14 +48022,14 @@ if (typeof document !== 'undefined') {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"min-document":2}],24:[function(require,module,exports){
+},{"min-document":2}],31:[function(require,module,exports){
 "use strict";
 
 module.exports = function isObject(x) {
 	return typeof x === "object" && x !== null;
 };
 
-},{}],25:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -47635,12 +48039,12 @@ function isArray(obj) {
     return toString.call(obj) === "[object Array]"
 }
 
-},{}],26:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var patch = require("./vdom/patch.js")
 
 module.exports = patch
 
-},{"./vdom/patch.js":31}],27:[function(require,module,exports){
+},{"./vdom/patch.js":38}],34:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook.js")
 
@@ -47739,7 +48143,7 @@ function getPrototype(value) {
     }
 }
 
-},{"../vnode/is-vhook.js":39,"is-object":24}],28:[function(require,module,exports){
+},{"../vnode/is-vhook.js":46,"is-object":31}],35:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -47787,7 +48191,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"../vnode/handle-thunk.js":37,"../vnode/is-vnode.js":40,"../vnode/is-vtext.js":41,"../vnode/is-widget.js":42,"./apply-properties":27,"global/document":23}],29:[function(require,module,exports){
+},{"../vnode/handle-thunk.js":44,"../vnode/is-vnode.js":47,"../vnode/is-vtext.js":48,"../vnode/is-widget.js":49,"./apply-properties":34,"global/document":30}],36:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -47874,7 +48278,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],30:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("../vnode/is-widget.js")
@@ -48028,7 +48432,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"../vnode/is-widget.js":42,"../vnode/vpatch.js":45,"./apply-properties":27,"./create-element":28,"./update-widget":32}],31:[function(require,module,exports){
+},{"../vnode/is-widget.js":49,"../vnode/vpatch.js":52,"./apply-properties":34,"./create-element":35,"./update-widget":39}],38:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -48106,7 +48510,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":29,"./patch-op":30,"global/document":23,"x-is-array":25}],32:[function(require,module,exports){
+},{"./dom-index":36,"./patch-op":37,"global/document":30,"x-is-array":32}],39:[function(require,module,exports){
 var isWidget = require("../vnode/is-widget.js")
 
 module.exports = updateWidget
@@ -48123,7 +48527,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"../vnode/is-widget.js":42}],33:[function(require,module,exports){
+},{"../vnode/is-widget.js":49}],40:[function(require,module,exports){
 'use strict';
 
 var EvStore = require('ev-store');
@@ -48152,7 +48556,7 @@ EvHook.prototype.unhook = function(node, propertyName) {
     es[propName] = undefined;
 };
 
-},{"ev-store":20}],34:[function(require,module,exports){
+},{"ev-store":27}],41:[function(require,module,exports){
 'use strict';
 
 module.exports = SoftSetHook;
@@ -48171,7 +48575,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],35:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 
 var isArray = require('x-is-array');
@@ -48308,7 +48712,7 @@ function errorString(obj) {
     }
 }
 
-},{"../vnode/is-thunk":38,"../vnode/is-vhook":39,"../vnode/is-vnode":40,"../vnode/is-vtext":41,"../vnode/is-widget":42,"../vnode/vnode.js":44,"../vnode/vtext.js":46,"./hooks/ev-hook.js":33,"./hooks/soft-set-hook.js":34,"./parse-tag.js":36,"x-is-array":25}],36:[function(require,module,exports){
+},{"../vnode/is-thunk":45,"../vnode/is-vhook":46,"../vnode/is-vnode":47,"../vnode/is-vtext":48,"../vnode/is-widget":49,"../vnode/vnode.js":51,"../vnode/vtext.js":53,"./hooks/ev-hook.js":40,"./hooks/soft-set-hook.js":41,"./parse-tag.js":43,"x-is-array":32}],43:[function(require,module,exports){
 'use strict';
 
 var split = require('browser-split');
@@ -48364,7 +48768,7 @@ function parseTag(tag, props) {
     return props.namespace ? tagName : tagName.toUpperCase();
 }
 
-},{"browser-split":19}],37:[function(require,module,exports){
+},{"browser-split":26}],44:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -48406,14 +48810,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":38,"./is-vnode":40,"./is-vtext":41,"./is-widget":42}],38:[function(require,module,exports){
+},{"./is-thunk":45,"./is-vnode":47,"./is-vtext":48,"./is-widget":49}],45:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],39:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -48422,7 +48826,7 @@ function isHook(hook) {
        typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
 }
 
-},{}],40:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -48431,7 +48835,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":43}],41:[function(require,module,exports){
+},{"./version":50}],48:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -48440,17 +48844,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":43}],42:[function(require,module,exports){
+},{"./version":50}],49:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],43:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 module.exports = "2"
 
-},{}],44:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -48524,7 +48928,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-thunk":38,"./is-vhook":39,"./is-vnode":40,"./is-widget":42,"./version":43}],45:[function(require,module,exports){
+},{"./is-thunk":45,"./is-vhook":46,"./is-vnode":47,"./is-widget":49,"./version":50}],52:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -48548,7 +48952,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":43}],46:[function(require,module,exports){
+},{"./version":50}],53:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -48560,7 +48964,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":43}],47:[function(require,module,exports){
+},{"./version":50}],54:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook")
 
@@ -48620,7 +49024,7 @@ function getPrototype(value) {
   }
 }
 
-},{"../vnode/is-vhook":39,"is-object":24}],48:[function(require,module,exports){
+},{"../vnode/is-vhook":46,"is-object":31}],55:[function(require,module,exports){
 var isArray = require("x-is-array")
 
 var VPatch = require("../vnode/vpatch")
@@ -49049,7 +49453,7 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":37,"../vnode/is-thunk":38,"../vnode/is-vnode":40,"../vnode/is-vtext":41,"../vnode/is-widget":42,"../vnode/vpatch":45,"./diff-props":47,"x-is-array":25}],49:[function(require,module,exports){
+},{"../vnode/handle-thunk":44,"../vnode/is-thunk":45,"../vnode/is-vnode":47,"../vnode/is-vtext":48,"../vnode/is-widget":49,"../vnode/vpatch":52,"./diff-props":54,"x-is-array":32}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49104,7 +49508,7 @@ var Colourer = (function () {
 exports['default'] = Colourer;
 module.exports = exports['default'];
 
-},{"d3":4}],50:[function(require,module,exports){
+},{"d3":4}],57:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49193,90 +49597,18 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":53,"leaflet":5}],51:[function(require,module,exports){
+},{"./config":59,"leaflet":5}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _virtualDomDiff = require('virtual-dom/diff');
-
-var _virtualDomDiff2 = _interopRequireDefault(_virtualDomDiff);
-
-var _virtualDomPatch = require('virtual-dom/patch');
-
-var _virtualDomPatch2 = _interopRequireDefault(_virtualDomPatch);
-
-var _virtualDomCreateElement = require('virtual-dom/create-element');
-
-var _virtualDomCreateElement2 = _interopRequireDefault(_virtualDomCreateElement);
-
-var Component = (function () {
-  function Component() {
-    _classCallCheck(this, Component);
-  }
-
-  _createClass(Component, [{
-    key: 'render',
-    value: function render() {
-      this._render(this._getTree.apply(this, arguments));
-    }
-  }, {
-    key: '_render',
-    value: function _render(tree) {
-      var patches;
-      // Is this the 1st render?
-      if (!this.root) {
-        // Yes: make a new root node
-        this.root = (0, _virtualDomCreateElement2['default'])(tree);
-        // And add it to the document
-        document.body.appendChild(this.root);
-      } else {
-        // No: we're updating the dom
-        patches = (0, _virtualDomDiff2['default'])(this.tree, tree);
-        // Update the root node
-        this.root = (0, _virtualDomPatch2['default'])(this.root, patches);
-      }
-      // Track the current tree for future diffing
-      this.tree = tree;
-    }
-  }]);
-
-  return Component;
-})();
-
-exports['default'] = Component;
-module.exports = exports['default'];
-
-},{"virtual-dom/create-element":16,"virtual-dom/diff":17,"virtual-dom/patch":26}],52:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
-
-var _Component2 = require('./Component');
-
-var _Component3 = _interopRequireDefault(_Component2);
 
 var _virtualDomH = require('virtual-dom/h');
 
@@ -49286,59 +49618,41 @@ var _extractFireTypes = require('../extractFireTypes');
 
 var _extractFireTypes2 = _interopRequireDefault(_extractFireTypes);
 
-var SummaryComponent = (function (_Component) {
-  function SummaryComponent() {
-    _classCallCheck(this, SummaryComponent);
+// Sort the fireTypes by number of incidents descending
+function sortByCount(fireTypes) {
+  return _lodash2['default'].sortBy(_lodash2['default'].pairs(fireTypes), function (type) {
+    return type[1];
+  }).reverse();
+}
 
-    if (_Component != null) {
-      _Component.apply(this, arguments);
-    }
-  }
+// Avoid super long names
+function prepForDisplay(type) {
+  return _lodash2['default'].trim(type.replace(/\(.*\)/, ''));
+}
 
-  _inherits(SummaryComponent, _Component);
+// Render a fire type row
+function renderType(type, colourer) {
+  return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', (0, _virtualDomH2['default'])('span.colour', {
+    style: { background: colourer.getColour(type[0]) }
+  }, '')), (0, _virtualDomH2['default'])('td', prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
+}
 
-  _createClass(SummaryComponent, [{
-    key: '_getTree',
-    value: function _getTree(start, end, data, colourer) {
-      var _this = this;
+exports['default'] = function (state, colourer) {
+  var fireTypes = sortByCount((0, _extractFireTypes2['default'])(state)),
+      types = _lodash2['default'].map(_lodash2['default'].slice(fireTypes, 0, 5), function (type) {
+    return renderType(type, colourer);
+  });
 
-      var types = _lodash2['default'].map(_lodash2['default'].slice(this._sortByCount((0, _extractFireTypes2['default'])(data)), 0, 5), function (type) {
-        return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', (0, _virtualDomH2['default'])('span.colour', {
-          style: { background: colourer.getColour(type[0]) }
-        }, '')), (0, _virtualDomH2['default'])('td', _this._prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
-      });
+  var table = (0, _virtualDomH2['default'])('table', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
+    attributes: { colspan: '3' }
+  }, 'Top 5 incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', ''), (0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + state.features.length)]))]);
 
-      var table = (0, _virtualDomH2['default'])('table', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
-        attributes: { colspan: '3' }
-      }, 'Top 5 incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', ''), (0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + data.features.length)]))]);
+  return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', state.start.format('MMM YY') + ' to ' + state.end.format('MMM YY')), table]);
+};
 
-      return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', start.format('MMM YY') + ' to ' + end.format('MMM YY')), table]);
-    }
-  }, {
-    key: '_sortByCount',
-
-    // Sort the fireTypes by number of incidents descending
-    value: function _sortByCount(fireTypes) {
-      return _lodash2['default'].sortBy(_lodash2['default'].pairs(fireTypes), function (type) {
-        return type[1];
-      }).reverse();
-    }
-  }, {
-    key: '_prepForDisplay',
-
-    // Avoid super long names
-    value: function _prepForDisplay(type) {
-      return _lodash2['default'].trim(type.replace(/\(.*\)/, ''));
-    }
-  }]);
-
-  return SummaryComponent;
-})(_Component3['default']);
-
-exports['default'] = SummaryComponent;
 module.exports = exports['default'];
 
-},{"../extractFireTypes":54,"./Component":51,"lodash":6,"virtual-dom/h":18}],53:[function(require,module,exports){
+},{"../extractFireTypes":60,"lodash":6,"virtual-dom/h":25}],59:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49352,7 +49666,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}],54:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49382,7 +49696,7 @@ function extractFireTypes(geojson) {
 
 module.exports = exports['default'];
 
-},{"lodash":6}],55:[function(require,module,exports){
+},{"lodash":6}],61:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49436,7 +49750,7 @@ function fetch(start, end, dataStream) {
 
 module.exports = exports['default'];
 
-},{"./config":53,"d3":4,"q":8}],56:[function(require,module,exports){
+},{"./config":59,"d3":4,"q":15}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49514,7 +49828,7 @@ exports['default'] = (function () {
 
 module.exports = exports['default'];
 
-},{"./config":53,"lodash":6,"turf-count":10,"turf-featurecollection":12,"turf-hex":13,"turf-point":15}],57:[function(require,module,exports){
+},{"./config":59,"lodash":6,"turf-count":17,"turf-featurecollection":19,"turf-hex":20,"turf-point":22}],63:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
