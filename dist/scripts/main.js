@@ -49637,17 +49637,26 @@ function renderType(type, colourer) {
   }, '')), (0, _virtualDomH2['default'])('td', prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
 }
 
-exports['default'] = function (state, colourer) {
-  var fireTypes = sortByCount((0, _extractFireTypes2['default'])(state)),
-      types = _lodash2['default'].map(_lodash2['default'].slice(fireTypes, 0, 5), function (type) {
-    return renderType(type, colourer);
-  });
+// Render the table
+function renderTable(features, colourer) {
+  var types;
 
-  var table = (0, _virtualDomH2['default'])('table', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
+  if (!features.length) {
+    return;
+  }
+
+  // Process the geojson features and take the first 5
+  types = _lodash2['default'].slice(sortByCount((0, _extractFireTypes2['default'])(features)), 0, 5);
+
+  return (0, _virtualDomH2['default'])('table', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
     attributes: { colspan: '3' }
-  }, 'Top 5 incident types'))), (0, _virtualDomH2['default'])('tbody', types), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', ''), (0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + state.features.length)]))]);
+  }, 'Top 5 incident types'))), (0, _virtualDomH2['default'])('tbody', _lodash2['default'].map(types, function (type) {
+    return renderType(type, colourer);
+  })), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', ''), (0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + features.length)]))]);
+}
 
-  return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', state.start.format('MMM YY') + ' to ' + state.end.format('MMM YY')), table]);
+exports['default'] = function (state, colourer) {
+  return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', state.start.format('MMM YY') + ' to ' + state.end.format('MMM YY')), renderTable(state.features, colourer)]);
 };
 
 module.exports = exports['default'];
@@ -49682,8 +49691,8 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 // Read the data and pull out the fire types with counts
 
-function extractFireTypes(geojson) {
-  return _lodash2['default'].reduce(geojson.features, function (types, incident) {
+function extractFireTypes(features) {
+  return _lodash2['default'].reduce(features, function (types, incident) {
     var key = incident.properties.fireType.toUpperCase();
     if (!types[key]) {
       types[key] = 1;

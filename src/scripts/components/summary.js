@@ -27,11 +27,18 @@ function renderType(type, colourer) {
   ]);
 }
 
-export default function(state, colourer) {
-  var fireTypes = sortByCount(extractFireTypes(state)),
-      types     = _.map(_.slice(fireTypes, 0, 5), (type) => renderType(type, colourer));
+// Render the table
+function renderTable(features, colourer) {
+  var types;
 
-  var table = h('table', [
+  if (!features.length) {
+    return;
+  }
+
+  // Process the geojson features and take the first 5
+  types = _.slice(sortByCount(extractFireTypes(features)), 0, 5);
+
+  return h('table', [
     h('thead',
       h('tr',
         h('th', {
@@ -39,21 +46,23 @@ export default function(state, colourer) {
         }, 'Top 5 incident types')
       )
     ),
-    h('tbody', types),
+    h('tbody', _.map(types, (type) => renderType(type, colourer))),
     h('tfoot',
       h('tr', [
         h('td', ''),
         h('td', 'Total'),
-        h('td', '' + state.features.length)
+        h('td', '' + features.length)
       ])
      )
   ]);
+}
 
+export default function(state, colourer) {
   return h(
     'div.summary',
     [
       h('h2', state.start.format('MMM YY') + ' to ' + state.end.format('MMM YY')),
-      table
+      renderTable(state.features, colourer)
     ]
   );
 }

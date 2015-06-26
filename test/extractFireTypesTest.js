@@ -31,6 +31,6 @@ describe('extractFireTypes', () => {
   };
 
   it('parses the data to extract fire types and counts', () => {
-    assert.propertyVal(extractFireTypes(geojson), 'GRASS FIRE', 2, '2 grass fires, case insensitive');
+    assert.propertyVal(extractFireTypes(geojson.features), 'GRASS FIRE', 2, '2 grass fires, case insensitive');
   });
 });
