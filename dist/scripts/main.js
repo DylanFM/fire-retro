@@ -62,9 +62,7 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 
   // There is one state object that the app is rendered from
   appState = {
-    start: (0, _moment2['default'])(),
-    end: (0, _moment2['default'])(),
-    features: []
+    current: {} // Begins empty
   };
 
   // Setup the mainloop with the state and render function
@@ -75,7 +73,7 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   // When there's new data...
   dataStream.subscribe(function (data) {
     // Update state
-    appState.features = data.features;
+    appState.current = data;
     // Update rendering
     loop.update(appState);
     // Render map too
@@ -85,20 +83,24 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   // Render app with state
   function render(state) {
     // Currently just the state component
-    return (0, _componentsSummary2['default'])(state, colourer);
+    return (0, _componentsSummary2['default'])(state.current, colourer);
   }
 
   // Update map with new data
   function updateMap(state) {
-    map.render([(0, _pointsLayer2['default'])(colourer, state), (0, _hexGridLayer2['default'])(colourer, state)]);
+    map.render([(0, _pointsLayer2['default'])(colourer, state.current), (0, _hexGridLayer2['default'])(colourer, state.current)]);
   }
 
   // Just one date range... this for now
-  appState.start = (0, _moment2['default'])().set({ year: 2015, month: 0 }).startOf('month');
-  appState.end = (0, _moment2['default'])().set({ year: 2015, month: 6 }).endOf('month');
+  var start = (0, _moment2['default'])().set({ year: 2015, month: 0 }).startOf('month'),
+      end = (0, _moment2['default'])().set({ year: 2015, month: 6 }).endOf('month');
 
   // Fetch this chunk of data
-  (0, _fetch2['default'])(appState.start, appState.end, dataStream);
+  (0, _fetch2['default'])(start, end).then(function (data) {
+    data.start = start;
+    data.end = end;
+    dataStream.onNext(data);
+  });
 })();
 
 },{"./Colourer":56,"./Map":57,"./components/summary":58,"./fetch":61,"./hexGridLayer":62,"./pointsLayer":63,"main-loop":7,"moment":14,"rx":16,"virtual-dom/create-element":23,"virtual-dom/diff":24,"virtual-dom/patch":33}],2:[function(require,module,exports){
@@ -49630,6 +49632,15 @@ function prepForDisplay(type) {
   return _lodash2['default'].trim(type.replace(/\(.*\)/, ''));
 }
 
+// Render the title with date range
+function renderTitle(start, end) {
+  if (!start || !end) {
+    return;
+  }
+
+  return (0, _virtualDomH2['default'])('h2', start.format('MMM YY') + ' to ' + end.format('MMM YY'));
+}
+
 // Render a fire type row
 function renderType(type, colourer) {
   return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', (0, _virtualDomH2['default'])('span.colour', {
@@ -49641,7 +49652,7 @@ function renderType(type, colourer) {
 function renderTable(features, colourer) {
   var types;
 
-  if (!features.length) {
+  if (!features || !features.length) {
     return;
   }
 
@@ -49655,8 +49666,8 @@ function renderTable(features, colourer) {
   })), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', ''), (0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + features.length)]))]);
 }
 
-exports['default'] = function (state, colourer) {
-  return (0, _virtualDomH2['default'])('div.summary', [(0, _virtualDomH2['default'])('h2', state.start.format('MMM YY') + ' to ' + state.end.format('MMM YY')), renderTable(state.features, colourer)]);
+exports['default'] = function (current, colourer) {
+  return (0, _virtualDomH2['default'])('div.summary', [renderTitle(current.state, current.end), renderTable(current.features, colourer)]);
 };
 
 module.exports = exports['default'];
@@ -49711,7 +49722,6 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
-exports['default'] = fetch;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -49747,15 +49757,11 @@ function fetchData(url) {
   });
 }
 
-// Make an API request for data within a time period and publish the response on the stream
+// Make an API request for data within a time period, returning a promise
 
-function fetch(start, end, dataStream) {
-  fetchData(buildUrl(start, end)).then(function (data) {
-    data.start = start;
-    data.end = end;
-    dataStream.onNext(data);
-  });
-}
+exports['default'] = function (start, end) {
+  return fetchData(buildUrl(start, end));
+};
 
 module.exports = exports['default'];
 

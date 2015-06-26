@@ -14,6 +14,15 @@ function prepForDisplay(type) {
   return _.trim(type.replace(/\(.*\)/, ''));
 }
 
+// Render the title with date range
+function renderTitle(start, end) {
+  if (!start || !end) {
+    return;
+  }
+
+  return h('h2', start.format('MMM YY') + ' to ' + end.format('MMM YY'));
+}
+
 // Render a fire type row
 function renderType(type, colourer) {
   return h('tr', [
@@ -31,7 +40,7 @@ function renderType(type, colourer) {
 function renderTable(features, colourer) {
   var types;
 
-  if (!features.length) {
+  if (!features || !features.length) {
     return;
   }
 
@@ -57,12 +66,12 @@ function renderTable(features, colourer) {
   ]);
 }
 
-export default function(state, colourer) {
+export default function(current, colourer) {
   return h(
     'div.summary',
     [
-      h('h2', state.start.format('MMM YY') + ' to ' + state.end.format('MMM YY')),
-      renderTable(state.features, colourer)
+      renderTitle(current.state, current.end),
+      renderTable(current.features, colourer)
     ]
   );
 }

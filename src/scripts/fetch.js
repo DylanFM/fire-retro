@@ -22,11 +22,7 @@ function fetchData(url) {
   });
 }
 
-// Make an API request for data within a time period and publish the response on the stream
-export default function fetch(start, end, dataStream) {
-  fetchData(buildUrl(start, end)).then((data) => {
-    data.start = start;
-    data.end = end;
-    dataStream.onNext(data);
-  });
+// Make an API request for data within a time period, returning a promise
+export default function (start, end) {
+  return fetchData(buildUrl(start, end));
 }

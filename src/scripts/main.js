@@ -24,9 +24,7 @@ import summary from './components/summary';
 
   // There is one state object that the app is rendered from
   appState = {
-    start:     moment(),
-    end:       moment(),
-    features:  []
+    current: {} // Begins empty
   };
 
   // Setup the mainloop with the state and render function
@@ -37,7 +35,7 @@ import summary from './components/summary';
   // When there's new data...
   dataStream.subscribe((data) => {
     // Update state
-    appState.features = data.features;
+    appState.current = data;
     // Update rendering
     loop.update(appState);
     // Render map too
@@ -47,22 +45,26 @@ import summary from './components/summary';
   // Render app with state
   function render(state) {
     // Currently just the state component
-    return summary(state, colourer);
+    return summary(state.current, colourer);
   }
 
   // Update map with new data
   function updateMap(state) {
     map.render([
-      pointsLayer(colourer, state),
-      hexGridLayer(colourer, state)
+      pointsLayer(colourer, state.current),
+      hexGridLayer(colourer, state.current)
     ]);
   }
 
   // Just one date range... this for now
-  appState.start = moment().set({ year: 2015, month: 0 }).startOf('month');
-  appState.end   = moment().set({ year: 2015, month: 6 }).endOf('month');
+  var start = moment().set({ year: 2015, month: 0 }).startOf('month'),
+      end   = moment().set({ year: 2015, month: 6 }).endOf('month');
 
   // Fetch this chunk of data
-  fetch(appState.start, appState.end, dataStream);
+  fetch(start, end).then((data) => {
+    data.start = start;
+    data.end = end;
+    dataStream.onNext(data);
+  });
 
 }());
