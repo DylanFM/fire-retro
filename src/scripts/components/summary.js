@@ -66,12 +66,12 @@ function renderTable(features, colourer) {
   ]);
 }
 
-export default function(current, colourer) {
+export default function(state, colourer) {
   return h(
     'div.summary',
     [
-      renderTitle(current.state, current.end),
-      renderTable(current.features, colourer)
+      renderTitle(state.start, state.end),
+      renderTable(state.features, colourer)
     ]
   );
 }

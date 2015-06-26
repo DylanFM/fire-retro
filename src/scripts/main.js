@@ -23,7 +23,7 @@ import summary from './components/summary';
       loop;
 
   // Setup the mainloop with an initial blank state and render function
-  loop = mainLoop({ current: {} }, render, { create: create, diff: diff, patch: patch });
+  loop = mainLoop({}, render, { create: create, diff: diff, patch: patch });
   // Add to DOM
   document.body.appendChild(loop.target);
 

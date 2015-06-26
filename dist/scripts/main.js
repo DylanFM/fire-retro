@@ -60,7 +60,7 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
       loop;
 
   // Setup the mainloop with an initial blank state and render function
-  loop = (0, _mainLoop2['default'])({ current: {} }, render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
+  loop = (0, _mainLoop2['default'])({}, render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
   // Add to DOM
   document.body.appendChild(loop.target);
 
@@ -49658,8 +49658,8 @@ function renderTable(features, colourer) {
   })), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', ''), (0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + features.length)]))]);
 }
 
-exports['default'] = function (current, colourer) {
-  return (0, _virtualDomH2['default'])('div.summary', [renderTitle(current.state, current.end), renderTable(current.features, colourer)]);
+exports['default'] = function (state, colourer) {
+  return (0, _virtualDomH2['default'])('div.summary', [renderTitle(state.start, state.end), renderTable(state.features, colourer)]);
 };
 
 module.exports = exports['default'];
