@@ -20,39 +20,32 @@ import summary from './components/summary';
   var dataStream = new Rx.Subject(),
       colourer   = new Colourer(),
       map        = new Map('map'),
-      appState, loop;
+      loop;
 
-  // There is one state object that the app is rendered from
-  appState = {
-    current: {} // Begins empty
-  };
-
-  // Setup the mainloop with the state and render function
-  loop = mainLoop(appState, render, { create: create, diff: diff, patch: patch });
+  // Setup the mainloop with an initial blank state and render function
+  loop = mainLoop({ current: {} }, render, { create: create, diff: diff, patch: patch });
   // Add to DOM
   document.body.appendChild(loop.target);
 
   // When there's new data...
-  dataStream.subscribe((data) => {
-    // Update state
-    appState.current = data;
+  dataStream.subscribe((state) => {
     // Update rendering
-    loop.update(appState);
+    loop.update(state);
     // Render map too
-    updateMap(appState);
+    updateMap(state);
   });
 
   // Render app with state
   function render(state) {
-    // Currently just the state component
-    return summary(state.current, colourer);
+    // Currently just the summary component
+    return summary(state, colourer);
   }
 
   // Update map with new data
   function updateMap(state) {
     map.render([
-      pointsLayer(colourer, state.current),
-      hexGridLayer(colourer, state.current)
+      pointsLayer(colourer, state),
+      hexGridLayer(colourer, state)
     ]);
   }
 

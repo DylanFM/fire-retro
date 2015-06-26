@@ -57,38 +57,30 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   var dataStream = new _rx2['default'].Subject(),
       colourer = new _Colourer2['default'](),
       map = new _Map2['default']('map'),
-      appState,
       loop;
 
-  // There is one state object that the app is rendered from
-  appState = {
-    current: {} // Begins empty
-  };
-
-  // Setup the mainloop with the state and render function
-  loop = (0, _mainLoop2['default'])(appState, render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
+  // Setup the mainloop with an initial blank state and render function
+  loop = (0, _mainLoop2['default'])({ current: {} }, render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
   // Add to DOM
   document.body.appendChild(loop.target);
 
   // When there's new data...
-  dataStream.subscribe(function (data) {
-    // Update state
-    appState.current = data;
+  dataStream.subscribe(function (state) {
     // Update rendering
-    loop.update(appState);
+    loop.update(state);
     // Render map too
-    updateMap(appState);
+    updateMap(state);
   });
 
   // Render app with state
   function render(state) {
-    // Currently just the state component
-    return (0, _componentsSummary2['default'])(state.current, colourer);
+    // Currently just the summary component
+    return (0, _componentsSummary2['default'])(state, colourer);
   }
 
   // Update map with new data
   function updateMap(state) {
-    map.render([(0, _pointsLayer2['default'])(colourer, state.current), (0, _hexGridLayer2['default'])(colourer, state.current)]);
+    map.render([(0, _pointsLayer2['default'])(colourer, state), (0, _hexGridLayer2['default'])(colourer, state)]);
   }
 
   // Just one date range... this for now
