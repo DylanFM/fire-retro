@@ -1,7 +1,8 @@
 import L from 'leaflet';
+import colourer from './colourer';
 
 // Using data, build a Leaflet GeoJSON layer
-export default function pointsLayer(colourer, geojson) {
+export default function pointsLayer(geojson) {
   // Build GeoJSON layer
   return L.geoJson(geojson, {
     pointToLayer: (feature, latlng) => {
@@ -12,7 +13,7 @@ export default function pointsLayer(colourer, geojson) {
         fillOpacity:  0.5,
         clickable:    false
       };
-      circle.color = colourer.getColour(feature.properties.fireType).toString();
+      circle.color = colourer(feature.properties.fireType).toString();
 
       return L.circleMarker(latlng, circle);
     }

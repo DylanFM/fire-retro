@@ -5,7 +5,6 @@ import mainLoop from 'main-loop';
 import _ from 'lodash';
 
 import moment from 'moment';
-import Colourer from './Colourer';
 import Map from './Map';
 import fetch from './fetch';
 import Q from 'q';
@@ -18,8 +17,7 @@ import summary from './components/summary';
 (() => {
   'use strict';
 
-  var colourer = new Colourer(),
-      map      = new Map('map'),
+  var map = new Map('map'),
       loop;
 
   // Setup the mainloop with an initial blank state and render function
@@ -30,14 +28,14 @@ import summary from './components/summary';
   // Render app with state
   function render(state) {
     // Currently just the summary component
-    return summary(state, colourer);
+    return summary(state);
   }
 
   // Update map with new data
   function updateMap(state) {
     map.render([
-      pointsLayer(colourer, state),
-      hexGridLayer(colourer, state)
+      pointsLayer(state),
+      hexGridLayer(state)
     ]);
   }
 

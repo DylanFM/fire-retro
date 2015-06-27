@@ -6,17 +6,12 @@ import sinon from 'sinon';
 sinon.assert.expose(chai.assert, { prefix: '' });
 var assert = chai.assert;
 
-import Colourer from '../src/scripts/Colourer';
+import colourer from '../src/scripts/colourer';
 
-describe('Colourer', () => {
-  var colourer;
-
-  beforeEach(() => {
-    colourer = new Colourer;
-  });
+describe('colourer', () => {
 
   it('returns a colour for a fire type', () => {
-    var colour = colourer.getColour('Bush fire');
+    var colour = colourer('Bush fire');
 
     assert(colour.r);
     assert(colour.g);
@@ -24,20 +19,20 @@ describe('Colourer', () => {
   });
 
   it('returns the same colour for the same type', () => {
-    var colour = colourer.getColour('Bush fire');
+    var colour = colourer('Bush fire');
 
     assert.equal(
-      colourer.getColour('Bush fire').toString(),
+      colourer('Bush fire').toString(),
       colour.toString(),
       'uses the same colour for the same type'
     );
     assert.equal(
-      colourer.getColour('BUSH FIRE').toString(),
+      colourer('BUSH FIRE').toString(),
       colour.toString(),
       'case insensitive'
     );
     assert.notEqual(
-      colourer.getColour('Different').toString(),
+      colourer('Different').toString(),
       colour.toString(),
       'different type has different colour'
     );

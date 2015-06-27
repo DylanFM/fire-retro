@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import h from 'virtual-dom/h';
 import extractFireTypes from '../extractFireTypes';
+import colourer from '../colourer';
 
 // Sort the fireTypes by number of incidents descending
 function sortByCount(fireTypes) {
@@ -24,11 +25,11 @@ function renderTitle(start, end) {
 }
 
 // Render a fire type row
-function renderType(type, colourer) {
+function renderType(type) {
   return h('tr', [
     h('td',
       h('span.colour', {
-        style: { background: colourer.getColour(type[0]) }
+        style: { background: colourer(type[0]) }
       }, '')
     ),
     h('td', prepForDisplay(type[0])),
@@ -37,7 +38,7 @@ function renderType(type, colourer) {
 }
 
 // Render the table
-function renderTable(features, colourer) {
+function renderTable(features) {
   var types;
 
   if (!features || !features.length) {
@@ -55,7 +56,7 @@ function renderTable(features, colourer) {
         }, 'Top 5 incident types')
       )
     ),
-    h('tbody', _.map(types, (type) => renderType(type, colourer))),
+    h('tbody', _.map(types, (type) => renderType(type))),
     h('tfoot',
       h('tr', [
         h('td', ''),
@@ -66,12 +67,12 @@ function renderTable(features, colourer) {
   ]);
 }
 
-export default function(state, colourer) {
+export default function(state) {
   return h(
     'div.summary',
     [
       renderTitle(state.start, state.end),
-      renderTable(state.features, colourer)
+      renderTable(state.features)
     ]
   );
 }

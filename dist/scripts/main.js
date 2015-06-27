@@ -27,10 +27,6 @@ var _moment = require('moment');
 
 var _moment2 = _interopRequireDefault(_moment);
 
-var _Colourer = require('./Colourer');
-
-var _Colourer2 = _interopRequireDefault(_Colourer);
-
 var _Map = require('./Map');
 
 var _Map2 = _interopRequireDefault(_Map);
@@ -58,8 +54,7 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 (function () {
   'use strict';
 
-  var colourer = new _Colourer2['default'](),
-      map = new _Map2['default']('map'),
+  var map = new _Map2['default']('map'),
       loop;
 
   // Setup the mainloop with an initial blank state and render function
@@ -70,12 +65,12 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   // Render app with state
   function render(state) {
     // Currently just the summary component
-    return (0, _componentsSummary2['default'])(state, colourer);
+    return (0, _componentsSummary2['default'])(state);
   }
 
   // Update map with new data
   function updateMap(state) {
-    map.render([(0, _pointsLayer2['default'])(colourer, state), (0, _hexGridLayer2['default'])(colourer, state)]);
+    map.render([(0, _pointsLayer2['default'])(state), (0, _hexGridLayer2['default'])(state)]);
   }
 
   var start = (0, _moment2['default'])().set({ year: 2014, month: 0 }).startOf('month'),
@@ -122,7 +117,7 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   }
 })();
 
-},{"./Colourer":57,"./Map":58,"./components/summary":59,"./fetch":62,"./hexGridLayer":63,"./pointsLayer":64,"lodash":8,"main-loop":9,"moment":16,"q":17,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],2:[function(require,module,exports){
+},{"./Map":57,"./components/summary":59,"./fetch":62,"./hexGridLayer":63,"./pointsLayer":64,"lodash":8,"main-loop":9,"moment":16,"q":17,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -31897,59 +31892,6 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _d3Color = require('d3-color');
-
-var _d3Scale = require('d3-scale');
-
-var Colourer = (function () {
-  function Colourer() {
-    _classCallCheck(this, Colourer);
-
-    this.cache = {};
-  }
-
-  _createClass(Colourer, [{
-    key: 'getColour',
-    value: function getColour(type) {
-      var colour;
-      type = type.toUpperCase();
-      if (this.cache[type]) {
-        colour = this.cache[type];
-      } else {
-        colour = this._getD3Colour();
-        this.cache[type] = colour;
-      }
-      return colour;
-    }
-  }, {
-    key: '_getD3Colour',
-    value: function _getD3Colour() {
-      return new _d3Color.rgb(Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255));
-    }
-  }, {
-    key: 'getSequentialScale',
-    value: function getSequentialScale(min, max) {
-      return (0, _d3Scale.quantize)().domain([min, max]).range(['rgb(254,240,217)', 'rgb(253,212,158)', 'rgb(253,187,132)', 'rgb(252,141,89)', 'rgb(239,101,72)', 'rgb(215,48,31)', 'rgb(153,0,0)']); // Colorbrewer
-    }
-  }]);
-
-  return Colourer;
-})();
-
-exports['default'] = Colourer;
-module.exports = exports['default'];
-
-},{"d3-color":4,"d3-scale":5}],58:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -32033,7 +31975,50 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":60,"leaflet":7}],59:[function(require,module,exports){
+},{"./config":60,"leaflet":7}],58:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+exports.getSequentialScale = getSequentialScale;
+
+var _d3Color = require('d3-color');
+
+var _d3Scale = require('d3-scale');
+
+// Returns a new random d3 colour
+function randomColour() {
+  return new _d3Color.rgb(Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255));
+}
+
+// Return a colour for a key
+// Cache the colour so it's the same for all calls for key
+
+exports['default'] = (function () {
+  // This is the colour cache...
+  var cache = {};
+
+  return function (key) {
+    var colour;
+    key = key.toUpperCase();
+    if (cache[key]) {
+      colour = cache[key];
+    } else {
+      colour = randomColour();
+      cache[key] = colour;
+    }
+    return colour;
+  };
+})();
+
+// Returns a sequential d3 quantize scale with a domain from min to max
+
+function getSequentialScale(min, max) {
+  return (0, _d3Scale.quantize)().domain([min, max]).range(['rgb(254,240,217)', 'rgb(253,212,158)', 'rgb(253,187,132)', 'rgb(252,141,89)', 'rgb(239,101,72)', 'rgb(215,48,31)', 'rgb(153,0,0)']); // Colorbrewer
+}
+
+},{"d3-color":4,"d3-scale":5}],59:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32053,6 +32038,10 @@ var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 var _extractFireTypes = require('../extractFireTypes');
 
 var _extractFireTypes2 = _interopRequireDefault(_extractFireTypes);
+
+var _colourer = require('../colourer');
+
+var _colourer2 = _interopRequireDefault(_colourer);
 
 // Sort the fireTypes by number of incidents descending
 function sortByCount(fireTypes) {
@@ -32076,14 +32065,14 @@ function renderTitle(start, end) {
 }
 
 // Render a fire type row
-function renderType(type, colourer) {
+function renderType(type) {
   return (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', (0, _virtualDomH2['default'])('span.colour', {
-    style: { background: colourer.getColour(type[0]) }
+    style: { background: (0, _colourer2['default'])(type[0]) }
   }, '')), (0, _virtualDomH2['default'])('td', prepForDisplay(type[0])), (0, _virtualDomH2['default'])('td', '' + type[1])]);
 }
 
 // Render the table
-function renderTable(features, colourer) {
+function renderTable(features) {
   var types;
 
   if (!features || !features.length) {
@@ -32096,17 +32085,17 @@ function renderTable(features, colourer) {
   return (0, _virtualDomH2['default'])('table', [(0, _virtualDomH2['default'])('thead', (0, _virtualDomH2['default'])('tr', (0, _virtualDomH2['default'])('th', {
     attributes: { colspan: '3' }
   }, 'Top 5 incident types'))), (0, _virtualDomH2['default'])('tbody', _lodash2['default'].map(types, function (type) {
-    return renderType(type, colourer);
+    return renderType(type);
   })), (0, _virtualDomH2['default'])('tfoot', (0, _virtualDomH2['default'])('tr', [(0, _virtualDomH2['default'])('td', ''), (0, _virtualDomH2['default'])('td', 'Total'), (0, _virtualDomH2['default'])('td', '' + features.length)]))]);
 }
 
-exports['default'] = function (state, colourer) {
-  return (0, _virtualDomH2['default'])('div.summary', [renderTitle(state.start, state.end), renderTable(state.features, colourer)]);
+exports['default'] = function (state) {
+  return (0, _virtualDomH2['default'])('div.summary', [renderTitle(state.start, state.end), renderTable(state.features)]);
 };
 
 module.exports = exports['default'];
 
-},{"../extractFireTypes":61,"lodash":8,"virtual-dom/h":26}],60:[function(require,module,exports){
+},{"../colourer":58,"../extractFireTypes":61,"lodash":8,"virtual-dom/h":26}],60:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32230,6 +32219,8 @@ var _config = require('./config');
 
 var _config2 = _interopRequireDefault(_config);
 
+var _colourer = require('./colourer');
+
 // Return a layer of the hex grid with coloured polygons ready for adding
 
 exports['default'] = (function () {
@@ -32241,7 +32232,7 @@ exports['default'] = (function () {
       hexGrid = (0, _turfHex2['default'])(hexBounds, 0.15, 'kilometers');
 
   // The enclosing function is immediately invoked to memoize the hexgrid
-  return function (colourer, geojson) {
+  return function (geojson) {
     // Unfortunately the geojson has features that have MultiPoint geometries
     // TODO fix the API to return Point geometries
     // Extract the 1st point from the multipoints for each layer to use in the hexbinning
@@ -32254,7 +32245,7 @@ exports['default'] = (function () {
       return cell.properties.ptCount;
     })),
         // We need the maximum value in this set of data
-    scale = colourer.getSequentialScale(0, max); // Get a scale... min is 0
+    scale = (0, _colourer.getSequentialScale)(0, max); // Get a scale... min is 0
     // Build the layer for mappage
     return L.geoJson(countedGrid, {
       style: function style(cell) {
@@ -32275,7 +32266,7 @@ exports['default'] = (function () {
 
 module.exports = exports['default'];
 
-},{"./config":60,"lodash":8,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],64:[function(require,module,exports){
+},{"./colourer":58,"./config":60,"lodash":8,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],64:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32289,9 +32280,13 @@ var _leaflet = require('leaflet');
 
 var _leaflet2 = _interopRequireDefault(_leaflet);
 
+var _colourer = require('./colourer');
+
+var _colourer2 = _interopRequireDefault(_colourer);
+
 // Using data, build a Leaflet GeoJSON layer
 
-function pointsLayer(colourer, geojson) {
+function pointsLayer(geojson) {
   // Build GeoJSON layer
   return _leaflet2['default'].geoJson(geojson, {
     pointToLayer: function pointToLayer(feature, latlng) {
@@ -32302,7 +32297,7 @@ function pointsLayer(colourer, geojson) {
         fillOpacity: 0.5,
         clickable: false
       };
-      circle.color = colourer.getColour(feature.properties.fireType).toString();
+      circle.color = (0, _colourer2['default'])(feature.properties.fireType).toString();
 
       return _leaflet2['default'].circleMarker(latlng, circle);
     }
@@ -32311,5 +32306,5 @@ function pointsLayer(colourer, geojson) {
 
 module.exports = exports['default'];
 
-},{"leaflet":7}]},{},[1])
+},{"./colourer":58,"leaflet":7}]},{},[1])
 //# sourceMappingURL=main.map
