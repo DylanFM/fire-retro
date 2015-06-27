@@ -35,7 +35,8 @@ export default (function () {
           weight:       1,
           opacity:      0.3,
           fillColor:    c,
-          fillOpacity:  0.7
+          fillOpacity:  0.7,
+          clickable:    false
         };
       }
     });
