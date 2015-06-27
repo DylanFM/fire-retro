@@ -32,10 +32,27 @@ import summary from './components/summary';
 
   // Update map with new data
   function updateMap(state) {
-    map.render([
-      pointsLayer(state),
-      hexGridLayer(state)
-    ]);
+    var layers = [];
+    if (state.layers.points) {
+      layers.push(pointsLayer(state));
+    }
+    if (state.layers.hex) {
+      layers.push(hexGridLayer(state));
+    }
+    // Render the layers
+    map.render(layers);
+  }
+
+  // Return state config controlling visibility of map layers
+  function getLayerVisibility() {
+    return {
+      layers: { points: false, hex: true }
+    };
+  }
+
+  // Taking the data and merging it with other details, get the state for the app
+  function newState(data) {
+    return _.assign({}, data, getLayerVisibility());
   }
 
   var start    = moment().set({ year: 2014, month: 0 }).startOf('month'),
@@ -47,7 +64,8 @@ import summary from './components/summary';
     // We have a collection of data
     // We'll iterate through it 1 by 1, on a delay, rendering
     var next = () => {
-      var state = data.shift();
+      // Take the first chunk from data, merge with other details
+      var state = newState(data.shift());
       // Update rendering
       loop.update(state);
       // Render map too

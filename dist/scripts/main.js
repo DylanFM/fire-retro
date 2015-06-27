@@ -66,7 +66,27 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 
   // Update map with new data
   function updateMap(state) {
-    map.render([(0, _pointsLayer2['default'])(state), (0, _hexGridLayer2['default'])(state)]);
+    var layers = [];
+    if (state.layers.points) {
+      layers.push((0, _pointsLayer2['default'])(state));
+    }
+    if (state.layers.hex) {
+      layers.push((0, _hexGridLayer2['default'])(state));
+    }
+    // Render the layers
+    map.render(layers);
+  }
+
+  // Return state config controlling visibility of map layers
+  function getLayerVisibility() {
+    return {
+      layers: { points: false, hex: true }
+    };
+  }
+
+  // Taking the data and merging it with other details, get the state for the app
+  function newState(data) {
+    return _lodash2['default'].assign({}, data, getLayerVisibility());
   }
 
   var start = (0, _moment2['default'])().set({ year: 2014, month: 0 }).startOf('month'),
@@ -78,7 +98,8 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
     // We have a collection of data
     // We'll iterate through it 1 by 1, on a delay, rendering
     var next = function next() {
-      var state = data.shift();
+      // Take the first chunk from data, merge with other details
+      var state = newState(data.shift());
       // Update rendering
       loop.update(state);
       // Render map too
