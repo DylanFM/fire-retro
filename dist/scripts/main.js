@@ -31,13 +31,9 @@ var _Map = require('./Map');
 
 var _Map2 = _interopRequireDefault(_Map);
 
-var _fetch = require('./fetch');
+var _snapshotsBetween = require('./snapshotsBetween');
 
-var _fetch2 = _interopRequireDefault(_fetch);
-
-var _q = require('q');
-
-var _q2 = _interopRequireDefault(_q);
+var _snapshotsBetween2 = _interopRequireDefault(_snapshotsBetween);
 
 var _hexGridLayer = require('./hexGridLayer');
 
@@ -75,13 +71,7 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 
   var start = (0, _moment2['default'])().set({ year: 2014, month: 0 }).startOf('month'),
       end = (0, _moment2['default'])().set({ year: 2014, month: 11 }).endOf('month'),
-
-  // Generate a series of date ranges between the start of 2014 and now
-  // Convert each range into a promise representing an XHR request for the data
-  // Use this collection of promises as an argument to Q.all to represent overall success
-  requests = _q2['default'].all(getTimePeriods(start, end).map(function (range) {
-    return (0, _fetch2['default'])(range.start, range.end);
-  }));
+      requests = (0, _snapshotsBetween2['default'])(start, end);
 
   // When all XHR requests are complete
   requests.done(function (data) {
@@ -101,23 +91,9 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
     // First render
     next();
   });
-
-  // Return a series of time periods between the 2 dates, incrementing by month
-  function getTimePeriods(start, end) {
-    var periods = [];
-    while (start.isBefore(end)) {
-      periods.push({
-        start: start.startOf('month'),
-        end: start.clone().endOf('month')
-      });
-      // Add a month
-      start = start.clone().add(1, 'M');
-    }
-    return periods;
-  }
 })();
 
-},{"./Map":57,"./components/summary":59,"./fetch":62,"./hexGridLayer":63,"./pointsLayer":64,"lodash":8,"main-loop":9,"moment":16,"q":17,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],2:[function(require,module,exports){
+},{"./Map":57,"./components/summary":59,"./hexGridLayer":62,"./pointsLayer":63,"./snapshotsBetween":64,"lodash":8,"main-loop":9,"moment":16,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -32148,53 +32124,6 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _q = require('q');
-
-var _q2 = _interopRequireDefault(_q);
-
-var _d3Xhr = require('d3-xhr');
-
-var _config = require('./config');
-
-var _config2 = _interopRequireDefault(_config);
-
-// Given a start and end date, return an API URL fetching data for the range
-function buildUrl(start, end) {
-  var st = window.encodeURIComponent(start.clone().utc().format()),
-      en = window.encodeURIComponent(end.clone().utc().format());
-  return _config2['default'].endpoint + '?timeStart=' + st + '&timeEnd=' + en;
-}
-
-// Return a promise resolved with the URL's response
-function fetchData(url) {
-  return _q2['default'].Promise(function (resolve, reject) {
-    (0, _d3Xhr.json)(url, function (err, json) {
-      if (err || !json.features) {
-        reject(err);
-      } else {
-        resolve(json);
-      }
-    });
-  });
-}
-
-// Make an API request for data within a time period, returning a promise
-
-exports['default'] = function (start, end) {
-  return fetchData(buildUrl(start, end));
-};
-
-module.exports = exports['default'];
-
-},{"./config":60,"d3-xhr":6,"q":17}],63:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -32266,7 +32195,7 @@ exports['default'] = (function () {
 
 module.exports = exports['default'];
 
-},{"./colourer":58,"./config":60,"lodash":8,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],64:[function(require,module,exports){
+},{"./colourer":58,"./config":60,"lodash":8,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],63:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32306,5 +32235,87 @@ function pointsLayer(geojson) {
 
 module.exports = exports['default'];
 
-},{"./colourer":58,"leaflet":7}]},{},[1])
+},{"./colourer":58,"leaflet":7}],64:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _config = require('./config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _q = require('q');
+
+var _q2 = _interopRequireDefault(_q);
+
+var _d3Xhr = require('d3-xhr');
+
+var _timePeriods = require('./timePeriods');
+
+var _timePeriods2 = _interopRequireDefault(_timePeriods);
+
+// Given a start and end date, return an API URL fetching data for the range
+function buildUrl(start, end) {
+  var st = window.encodeURIComponent(start.clone().utc().format()),
+      en = window.encodeURIComponent(end.clone().utc().format());
+  return _config2['default'].endpoint + '?timeStart=' + st + '&timeEnd=' + en;
+}
+
+// Make an API request for data within a time period, returning a promise
+function fetchSnapshot(start, end) {
+  return _q2['default'].Promise(function (resolve, reject) {
+    (0, _d3Xhr.json)(buildUrl(start, end), function (err, json) {
+      if (err || !json.features) {
+        reject(err);
+      } else {
+        // Set the start and end on the response
+        json.start = start;
+        json.end = end;
+        resolve(json);
+      }
+    });
+  });
+}
+
+// Generate a series of date ranges between the start and end dates
+// Convert each range into a promise representing an XHR request for the data
+// Use this collection of promises as an argument to Q.all to represent overall success
+// Return the Q.all promise
+
+exports['default'] = function (start, end) {
+  return _q2['default'].all((0, _timePeriods2['default'])(start, end).map(function (range) {
+    return fetchSnapshot(range.start, range.end);
+  }));
+};
+
+module.exports = exports['default'];
+
+},{"./config":60,"./timePeriods":65,"d3-xhr":6,"q":17}],65:[function(require,module,exports){
+// Return a series of time periods between the 2 dates, incrementing by month
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+exports['default'] = function (start, end) {
+  var periods = [];
+  while (start.isBefore(end)) {
+    periods.push({
+      start: start.startOf('month'),
+      end: start.clone().endOf('month')
+    });
+    // Add a month
+    start = start.clone().add(1, 'M');
+  }
+  return periods;
+};
+
+module.exports = exports['default'];
+
+},{}]},{},[1])
 //# sourceMappingURL=main.map

@@ -6,8 +6,7 @@ import _ from 'lodash';
 
 import moment from 'moment';
 import Map from './Map';
-import fetch from './fetch';
-import Q from 'q';
+import snapshotsBetween from './snapshotsBetween';
 
 import hexGridLayer from './hexGridLayer';
 import pointsLayer from './pointsLayer';
@@ -39,12 +38,9 @@ import summary from './components/summary';
     ]);
   }
 
-  var start  = moment().set({ year: 2014, month: 0 }).startOf('month'),
-      end    = moment().set({ year: 2014, month: 11 }).endOf('month'),
-      // Generate a series of date ranges between the start of 2014 and now
-      // Convert each range into a promise representing an XHR request for the data
-      // Use this collection of promises as an argument to Q.all to represent overall success
-      requests = Q.all(getTimePeriods(start, end).map((range) => fetch(range.start, range.end)));
+  var start    = moment().set({ year: 2014, month: 0 }).startOf('month'),
+      end      = moment().set({ year: 2014, month: 11 }).endOf('month'),
+      requests = snapshotsBetween(start, end);
 
   // When all XHR requests are complete
   requests.done((data) => {
@@ -64,19 +60,5 @@ import summary from './components/summary';
     // First render
     next();
   });
-
-  // Return a series of time periods between the 2 dates, incrementing by month
-  function getTimePeriods(start, end) {
-    var periods = [];
-    while(start.isBefore(end)) {
-      periods.push({
-        start:  start.startOf('month'),
-        end:    start.clone().endOf('month')
-      });
-      // Add a month
-      start = start.clone().add(1, 'M');
-    }
-    return periods;
-  }
 
 }());
