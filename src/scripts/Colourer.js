@@ -1,4 +1,5 @@
-import d3 from 'd3';
+import {rgb} from 'd3-color';
+import {quantize} from 'd3-scale';
 
 export default class Colourer {
 
@@ -19,7 +20,7 @@ export default class Colourer {
   }
 
   _getD3Colour() {
-    return new d3.rgb(
+    return new rgb(
       Math.floor(Math.random() * 255),
       Math.floor(Math.random() * 255),
       Math.floor(Math.random() * 255)
@@ -27,7 +28,7 @@ export default class Colourer {
   }
 
   getSequentialScale(min, max) {
-    return d3.scale.quantize()
+    return quantize()
       .domain([min, max])
       .range(['rgb(254,240,217)','rgb(253,212,158)','rgb(253,187,132)','rgb(252,141,89)','rgb(239,101,72)','rgb(215,48,31)','rgb(153,0,0)']); // Colorbrewer
   }

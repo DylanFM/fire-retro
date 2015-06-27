@@ -1,5 +1,5 @@
 import Q from 'q';
-import d3 from 'd3';
+import {json} from 'd3-xhr';
 import Config from './config';
 
 // Given a start and end date, return an API URL fetching data for the range
@@ -12,7 +12,7 @@ function buildUrl(start, end) {
 // Return a promise resolved with the URL's response
 function fetchData(url) {
   return Q.Promise((resolve, reject) => {
-    d3.json(url, (err, json) => {
+    json(url, (err, json) => {
       if (err || !json.features) {
         reject(err);
       } else {
