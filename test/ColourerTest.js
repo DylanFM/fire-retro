@@ -18,7 +18,9 @@ describe('Colourer', () => {
   it('returns a colour for a fire type', () => {
     var colour = colourer.getColour('Bush fire');
 
-    assert.instanceOf(colour, d3.color, 'colour is a d3.color');
+    assert(colour.r);
+    assert(colour.g);
+    assert(colour.b);
   });
 
   it('returns the same colour for the same type', () => {
