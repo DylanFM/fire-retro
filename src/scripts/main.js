@@ -11,6 +11,8 @@ import snapshotsBetween from './snapshotsBetween';
 import hexGridLayer from './hexGridLayer';
 import pointsLayer from './pointsLayer';
 
+import h from 'virtual-dom/h';
+import controls from './components/controls';
 import summary from './components/summary';
 
 (() => {
@@ -20,14 +22,16 @@ import summary from './components/summary';
       loop;
 
   // Setup the mainloop with an initial blank state and render function
-  loop = mainLoop({}, render, { create: create, diff: diff, patch: patch });
+  loop = mainLoop(newState({}), render, { create: create, diff: diff, patch: patch });
   // Add to DOM
   document.body.appendChild(loop.target);
 
   // Render app with state
   function render(state) {
-    // Currently just the summary component
-    return summary(state);
+    return h('section', [
+      summary(state),
+      controls(state)
+    ]);
   }
 
   // Update map with new data

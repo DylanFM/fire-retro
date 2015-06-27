@@ -68,12 +68,9 @@ function renderTable(features) {
   ]);
 }
 
-export default function(state) {
-  return h(
-    'div.summary',
-    [
-      renderTitle(state.start, state.end),
-      renderTable(state.features)
-    ]
-  );
-}
+export default (state) => {
+  return h('div.summary', [
+    renderTitle(state.start, state.end),
+    renderTable(state.features)
+  ]);
+};

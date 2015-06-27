@@ -43,6 +43,14 @@ var _pointsLayer = require('./pointsLayer');
 
 var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
 
+var _virtualDomH = require('virtual-dom/h');
+
+var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
+
+var _componentsControls = require('./components/controls');
+
+var _componentsControls2 = _interopRequireDefault(_componentsControls);
+
 var _componentsSummary = require('./components/summary');
 
 var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
@@ -54,14 +62,13 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
       loop;
 
   // Setup the mainloop with an initial blank state and render function
-  loop = (0, _mainLoop2['default'])({}, render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
+  loop = (0, _mainLoop2['default'])(newState({}), render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
   // Add to DOM
   document.body.appendChild(loop.target);
 
   // Render app with state
   function render(state) {
-    // Currently just the summary component
-    return (0, _componentsSummary2['default'])(state);
+    return (0, _virtualDomH2['default'])('section', [(0, _componentsSummary2['default'])(state), (0, _componentsControls2['default'])(state)]);
   }
 
   // Update map with new data
@@ -114,7 +121,7 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   });
 })();
 
-},{"./Map":57,"./components/summary":59,"./hexGridLayer":62,"./pointsLayer":63,"./snapshotsBetween":64,"lodash":8,"main-loop":9,"moment":16,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],2:[function(require,module,exports){
+},{"./Map":57,"./components/controls":59,"./components/summary":60,"./hexGridLayer":63,"./pointsLayer":64,"./snapshotsBetween":65,"lodash":8,"main-loop":9,"moment":16,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/h":26,"virtual-dom/patch":34}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
 // shim for using process in browser
@@ -31972,7 +31979,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":60,"leaflet":7}],58:[function(require,module,exports){
+},{"./config":61,"leaflet":7}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32016,6 +32023,39 @@ function getSequentialScale(min, max) {
 }
 
 },{"d3-color":4,"d3-scale":5}],59:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _virtualDomH = require('virtual-dom/h');
+
+var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
+
+function radio(label, id, checked) {
+  return (0, _virtualDomH2['default'])('label', [(0, _virtualDomH2['default'])('input', {
+    id: id,
+    type: 'radio',
+    name: 'layer',
+    checked: checked ? 'checked' : '',
+    value: id
+  }), label]);
+}
+
+function radios(layers) {
+  return [radio('Hex', 'hex', layers.hex), radio('Points', 'points', layers.points)];
+}
+
+exports['default'] = function (state) {
+  return (0, _virtualDomH2['default'])('div.controls#controls', radios(state.layers));
+};
+
+module.exports = exports['default'];
+
+},{"virtual-dom/h":26}],60:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32093,7 +32133,7 @@ exports['default'] = function (state) {
 
 module.exports = exports['default'];
 
-},{"../colourer":58,"../extractFireTypes":61,"lodash":8,"virtual-dom/h":26}],60:[function(require,module,exports){
+},{"../colourer":58,"../extractFireTypes":62,"lodash":8,"virtual-dom/h":26}],61:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32107,7 +32147,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32137,7 +32177,7 @@ function extractFireTypes(features) {
 
 module.exports = exports['default'];
 
-},{"lodash":8}],62:[function(require,module,exports){
+},{"lodash":8}],63:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32218,7 +32258,7 @@ exports['default'] = (function () {
 
 module.exports = exports['default'];
 
-},{"./colourer":58,"./config":60,"lodash":8,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],63:[function(require,module,exports){
+},{"./colourer":58,"./config":61,"lodash":8,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],64:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32258,7 +32298,7 @@ function pointsLayer(geojson) {
 
 module.exports = exports['default'];
 
-},{"./colourer":58,"leaflet":7}],64:[function(require,module,exports){
+},{"./colourer":58,"leaflet":7}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32317,7 +32357,7 @@ exports['default'] = function (start, end) {
 
 module.exports = exports['default'];
 
-},{"./config":60,"./timePeriods":65,"d3-xhr":6,"q":17}],65:[function(require,module,exports){
+},{"./config":61,"./timePeriods":66,"d3-xhr":6,"q":17}],66:[function(require,module,exports){
 // Return a series of time periods between the 2 dates, incrementing by month
 'use strict';
 
