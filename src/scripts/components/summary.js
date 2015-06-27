@@ -21,7 +21,8 @@ function renderTitle(start, end) {
     return;
   }
 
-  return h('h2', start.format('MMM YY') + ' to ' + end.format('MMM YY'));
+  // Assumption: start and end are in the same month.
+  return h('h2', start.format('MMMM YYYY'));
 }
 
 // Render a fire type row

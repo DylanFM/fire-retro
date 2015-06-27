@@ -32037,7 +32037,8 @@ function renderTitle(start, end) {
     return;
   }
 
-  return (0, _virtualDomH2['default'])('h2', start.format('MMM YY') + ' to ' + end.format('MMM YY'));
+  // Assumption: start and end are in the same month.
+  return (0, _virtualDomH2['default'])('h2', start.format('MMMM YYYY'));
 }
 
 // Render a fire type row
