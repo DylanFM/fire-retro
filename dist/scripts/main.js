@@ -86,9 +86,15 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 
   // Return state config controlling visibility of map layers
   function getLayerVisibility() {
-    return {
-      layers: { points: false, hex: true }
-    };
+    var layers = {},
+        hex = document.getElementById('hex'),
+        points = document.getElementById('points');
+    if (hex && points) {
+      // If we have the controls, use their state as the config
+      layers.hex = hex.checked;
+      layers.points = points.checked;
+    }
+    return { layers: layers };
   }
 
   // Taking the data and merging it with other details, get the state for the app
@@ -32140,7 +32146,7 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 exports['default'] = {
-  endpoint: 'http://10.0.0.15:8000/incidents',
+  endpoint: 'http://192.168.0.8:8000/incidents',
   mapboxAccessToken: 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw',
   mapboxMapId: 'fires.1b505148',
   mapBounds: [[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]]

@@ -49,9 +49,15 @@ import summary from './components/summary';
 
   // Return state config controlling visibility of map layers
   function getLayerVisibility() {
-    return {
-      layers: { points: false, hex: true }
-    };
+    var layers = {},
+        hex    = document.getElementById('hex'),
+        points = document.getElementById('points');
+    if (hex && points) {
+      // If we have the controls, use their state as the config
+      layers.hex    = hex.checked;
+      layers.points = points.checked;
+    }
+    return { layers: layers };
   }
 
   // Taking the data and merging it with other details, get the state for the app
