@@ -59,12 +59,55 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   'use strict';
 
   var map = new _Map2['default']('map'),
+      current = 0,
+      // Current key that we're up to
+  apiData,
       loop;
 
   // Setup the mainloop with an initial blank state and render function
   loop = (0, _mainLoop2['default'])(newState({}), render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
   // Add to DOM
   document.body.appendChild(loop.target);
+  var start = (0, _moment2['default'])().set({ year: 2014, month: 0 }).startOf('month'),
+      end = (0, _moment2['default'])().set({ year: 2014, month: 11 }).endOf('month'),
+      requests = (0, _snapshotsBetween2['default'])(start, end);
+
+  // When all XHR requests are complete
+  requests.done(function (data) {
+    apiData = data; // We have a collection of data
+    play(); // Begin playing
+  });
+
+  // When controls change
+  document.body.addEventListener('change', function (e) {
+    _lodash2['default'].delay(renderCurrent, 50);
+  });
+
+  function play() {
+    // We'll iterate through it 1 by 1, on a delay, rendering
+    var next = function next() {
+      renderCurrent();
+      // If there are more, proceed
+      if (current + 1 < apiData.length) {
+        current++; // Move to next state
+        _lodash2['default'].delay(next, 3000); // Delay for 3sec
+      }
+    };
+    // First render
+    next();
+  }
+
+  // Render the current data item
+  function renderCurrent() {
+    var state = newState(apiData[current]); // Get the data and merge with other details
+    loop.update(state); // Update rendering
+    updateMap(state); // Render map too
+  }
+
+  // Taking the data and merging it with other details, get the state for the app
+  function newState(data) {
+    return _lodash2['default'].assign({}, data, getLayerVisibility());
+  }
 
   // Render app with state
   function render(state) {
@@ -94,37 +137,12 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
       layers.hex = hex.checked;
       layers.points = points.checked;
     }
+    // If neither hex nor points is checked, provide a default
+    if (!layers.hex && !layers.points) {
+      layers.hex = true; // Default is hex
+    }
     return { layers: layers };
   }
-
-  // Taking the data and merging it with other details, get the state for the app
-  function newState(data) {
-    return _lodash2['default'].assign({}, data, getLayerVisibility());
-  }
-
-  var start = (0, _moment2['default'])().set({ year: 2014, month: 0 }).startOf('month'),
-      end = (0, _moment2['default'])().set({ year: 2014, month: 11 }).endOf('month'),
-      requests = (0, _snapshotsBetween2['default'])(start, end);
-
-  // When all XHR requests are complete
-  requests.done(function (data) {
-    // We have a collection of data
-    // We'll iterate through it 1 by 1, on a delay, rendering
-    var next = function next() {
-      // Take the first chunk from data, merge with other details
-      var state = newState(data.shift());
-      // Update rendering
-      loop.update(state);
-      // Render map too
-      updateMap(state);
-      // If there are more, render again
-      if (data.length) {
-        _lodash2['default'].delay(next, 3000);
-      }
-    };
-    // First render
-    next();
-  });
 })();
 
 },{"./Map":57,"./components/controls":59,"./components/summary":60,"./hexGridLayer":63,"./pointsLayer":64,"./snapshotsBetween":65,"lodash":8,"main-loop":9,"moment":16,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/h":26,"virtual-dom/patch":34}],2:[function(require,module,exports){

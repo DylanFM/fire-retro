@@ -18,13 +18,54 @@ import summary from './components/summary';
 (() => {
   'use strict';
 
-  var map = new Map('map'),
-      loop;
+  var map     = new Map('map'),
+      current = 0, // Current key that we're up to
+      apiData, loop;
 
   // Setup the mainloop with an initial blank state and render function
   loop = mainLoop(newState({}), render, { create: create, diff: diff, patch: patch });
   // Add to DOM
   document.body.appendChild(loop.target);
+  var start    = moment().set({ year: 2014, month: 0 }).startOf('month'),
+      end      = moment().set({ year: 2014, month: 11 }).endOf('month'),
+      requests = snapshotsBetween(start, end);
+
+  // When all XHR requests are complete
+  requests.done((data) => {
+    apiData = data; // We have a collection of data
+    play();         // Begin playing
+  });
+
+  // When controls change
+  document.body.addEventListener('change', (e) => {
+    _.delay(renderCurrent, 50);
+  });
+
+  function play() {
+    // We'll iterate through it 1 by 1, on a delay, rendering
+    var next = () => {
+      renderCurrent();
+      // If there are more, proceed
+      if ((current + 1) < apiData.length) {
+        current++;           // Move to next state
+        _.delay(next, 3000); // Delay for 3sec
+      }
+    };
+    // First render
+    next();
+  }
+
+  // Render the current data item
+  function renderCurrent() {
+    var state = newState(apiData[current]); // Get the data and merge with other details
+    loop.update(state);                     // Update rendering
+    updateMap(state);                       // Render map too
+  }
+
+  // Taking the data and merging it with other details, get the state for the app
+  function newState(data) {
+    return _.assign({}, data, getLayerVisibility());
+  }
 
   // Render app with state
   function render(state) {
@@ -57,36 +98,11 @@ import summary from './components/summary';
       layers.hex    = hex.checked;
       layers.points = points.checked;
     }
+    // If neither hex nor points is checked, provide a default
+    if (!layers.hex && !layers.points) {
+      layers.hex = true; // Default is hex
+    }
     return { layers: layers };
   }
-
-  // Taking the data and merging it with other details, get the state for the app
-  function newState(data) {
-    return _.assign({}, data, getLayerVisibility());
-  }
-
-  var start    = moment().set({ year: 2014, month: 0 }).startOf('month'),
-      end      = moment().set({ year: 2014, month: 11 }).endOf('month'),
-      requests = snapshotsBetween(start, end);
-
-  // When all XHR requests are complete
-  requests.done((data) => {
-    // We have a collection of data
-    // We'll iterate through it 1 by 1, on a delay, rendering
-    var next = () => {
-      // Take the first chunk from data, merge with other details
-      var state = newState(data.shift());
-      // Update rendering
-      loop.update(state);
-      // Render map too
-      updateMap(state);
-      // If there are more, render again
-      if (data.length) {
-        _.delay(next, 3000);
-      }
-    };
-    // First render
-    next();
-  });
 
 }());
