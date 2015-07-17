@@ -4,7 +4,6 @@ import create from 'virtual-dom/create-element';
 import mainLoop from 'main-loop';
 import _ from 'lodash';
 
-import moment from 'moment';
 import Map from './Map';
 import snapshotsBetween from './snapshotsBetween';
 
@@ -26,8 +25,8 @@ import summary from './components/summary';
   loop = mainLoop(newState({}), render, { create: create, diff: diff, patch: patch });
   // Add to DOM
   document.body.appendChild(loop.target);
-  var start    = moment().set({ year: 2014, month: 0 }).startOf('month'),
-      end      = moment().set({ year: 2014, month: 11 }).endOf('month'),
+  var start    = new Date(2014, 0, 1),
+      end      = new Date(2014, 11, 31),
       requests = snapshotsBetween(start, end);
 
   // When all XHR requests are complete

@@ -2,6 +2,7 @@ import _ from 'lodash';
 import h from 'virtual-dom/h';
 import extractFireTypes from '../extractFireTypes';
 import colourer from '../colourer';
+import {format} from 'd3-time-format';
 
 // Sort the fireTypes by number of incidents descending
 function sortByCount(fireTypes) {
@@ -15,6 +16,8 @@ function prepForDisplay(type) {
   return _.trim(type.replace(/\(.*\)/, ''));
 }
 
+var f = format('%B %Y');
+
 // Render the title with date range
 function renderTitle(start, end) {
   if (!start || !end) {
@@ -22,7 +25,7 @@ function renderTitle(start, end) {
   }
 
   // Assumption: start and end are in the same month.
-  return h('h2', start.format('MMMM YYYY'));
+  return h('h2', f(start));
 }
 
 // Render a fire type row
