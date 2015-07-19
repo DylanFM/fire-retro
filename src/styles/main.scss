@@ -29,8 +29,39 @@ h1 {
 
 .controls {
   position: absolute;
-  bottom: 1.5rem;
-  left: 1.5rem;
+  top: 1.5rem;
+  right: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    float: right;
+    clear: right;
+    margin-bottom: .5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  label, input {
+    cursor: pointer;
+  }
+  label {
+    border-radius: .5rem;
+    transition: border-color .5s;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: .4rem .7rem;
+    display: inline-block;
+    font-size: 0.8rem;
+
+    &.checked, &:hover {
+      border-color: rgba(255,255,255,0.4);
+    }
+  }
+  input {
+    margin-left: .5rem;
+  }
 }
 
 .summary {

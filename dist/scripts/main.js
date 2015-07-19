@@ -30868,21 +30868,19 @@ var _virtualDomH = require('virtual-dom/h');
 var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 
 function radio(label, id, checked) {
-  return (0, _virtualDomH2['default'])('label', [(0, _virtualDomH2['default'])('input', {
+  return (0, _virtualDomH2['default'])('label', {
+    className: checked ? 'checked' : ''
+  }, [label, (0, _virtualDomH2['default'])('input', {
     id: id,
     type: 'radio',
     name: 'layer',
     checked: checked ? 'checked' : '',
     value: id
-  }), label]);
-}
-
-function radios(layers) {
-  return [radio('Hex', 'hex', layers.hex), radio('Points', 'points', layers.points)];
+  })]);
 }
 
 exports['default'] = function (state) {
-  return (0, _virtualDomH2['default'])('div.controls#controls', radios(state.layers));
+  return (0, _virtualDomH2['default'])('ul.controls#controls', [(0, _virtualDomH2['default'])('li', radio('Hex', 'hex', state.layers.hex)), (0, _virtualDomH2['default'])('li', radio('Points', 'points', state.layers.points))]);
 };
 
 module.exports = exports['default'];

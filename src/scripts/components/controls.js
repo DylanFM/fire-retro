@@ -1,25 +1,24 @@
 import h from 'virtual-dom/h';
 
 function radio(label, id, checked) {
-  return h('label', [
-    h('input', {
-      id: id,
-      type: 'radio',
-      name: 'layer',
-      checked: (checked ? 'checked' : ''),
-      value: id
-    }),
-    label
-  ]);
-}
-
-function radios(layers) {
-  return [
-    radio('Hex', 'hex', layers.hex),
-    radio('Points', 'points', layers.points)
-  ];
+  return h('label', {
+      className: (checked ? 'checked' : '')
+    }, [
+      label,
+      h('input', {
+        id: id,
+        type: 'radio',
+        name: 'layer',
+        checked: (checked ? 'checked' : ''),
+        value: id
+      })
+    ]
+  );
 }
 
 export default (state) => {
-  return h('div.controls#controls', radios(state.layers));
+  return h('ul.controls#controls', [
+    h('li', radio('Hex', 'hex', state.layers.hex)),
+    h('li', radio('Points', 'points', state.layers.points))
+  ]);
 };
