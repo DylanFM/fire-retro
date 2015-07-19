@@ -17,27 +17,37 @@ import summary from './components/summary';
 (() => {
   'use strict';
 
-  var map     = new Map('map'),
-      current = 0, // Current key that we're up to
-      apiData, loop;
+  var map      = new Map('map'),
+      start    = new Date(2014, 0, 1),
+      end      = new Date(2014, 11, 31),
+      requests = snapshotsBetween(start, end),
+      state, loop;
+
+  // Our state :o
+  state = {
+    current:  0,      // Key of our focus. Start at the beginning
+    data:     [],     // To be filled in after data loads
+    layers:   {
+      points:  false,
+      hex:     true   // Default to hexgrid
+    }
+  };
 
   // Setup the mainloop with an initial blank state and render function
-  loop = mainLoop(newState({}), render, { create: create, diff: diff, patch: patch });
+  loop = mainLoop(state, render, { create: create, diff: diff, patch: patch });
   // Add to DOM
   document.body.appendChild(loop.target);
-  var start    = new Date(2014, 0, 1),
-      end      = new Date(2014, 11, 31),
-      requests = snapshotsBetween(start, end);
 
   // When all XHR requests are complete
   requests.done((data) => {
-    apiData = data; // We have a collection of data
-    play();         // Begin playing
+    state.data = data; // We have a collection of data
+    play();            // Begin playing
   });
 
   // When controls change
   document.body.addEventListener('change', (e) => {
-    _.delay(renderCurrent, 50);
+    state.layers = getLayerVisibility(); // Update state
+    _.delay(renderCurrent, 50);          // Render
   });
 
   function play() {
@@ -45,8 +55,8 @@ import summary from './components/summary';
     var next = () => {
       renderCurrent();
       // If there are more, proceed
-      if ((current + 1) < apiData.length) {
-        current++;           // Move to next state
+      if ((state.current + 1) < state.data.length) {
+        state.current++;     // Move to next state
         _.delay(next, 3000); // Delay for 3sec
       }
     };
@@ -56,14 +66,8 @@ import summary from './components/summary';
 
   // Render the current data item
   function renderCurrent() {
-    var state = newState(apiData[current]); // Get the data and merge with other details
-    loop.update(state);                     // Update rendering
-    updateMap(state);                       // Render map too
-  }
-
-  // Taking the data and merging it with other details, get the state for the app
-  function newState(data) {
-    return _.assign({}, data, getLayerVisibility());
+    loop.update(state); // Update rendering
+    updateMap(state);   // Render map too
   }
 
   // Render app with state
@@ -76,12 +80,13 @@ import summary from './components/summary';
 
   // Update map with new data
   function updateMap(state) {
-    var layers = [];
+    var layers = [],
+        data   = state.data[state.current];
     if (state.layers.points) {
-      layers.push(pointsLayer(state));
+      layers.push(pointsLayer(data));
     }
     if (state.layers.hex) {
-      layers.push(hexGridLayer(state));
+      layers.push(hexGridLayer(data));
     }
     // Render the layers
     map.render(layers);
@@ -97,11 +102,7 @@ import summary from './components/summary';
       layers.hex    = hex.checked;
       layers.points = points.checked;
     }
-    // If neither hex nor points is checked, provide a default
-    if (!layers.hex && !layers.points) {
-      layers.hex = true; // Default is hex
-    }
-    return { layers: layers };
+    return layers;
   }
 
 }());

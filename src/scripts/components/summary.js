@@ -72,8 +72,12 @@ function renderTable(features) {
 }
 
 export default (state) => {
+  var data = state.data[state.current];
+  if (!data) {
+    return;
+  }
   return h('div.summary', [
-    renderTitle(state.start, state.end),
-    renderTable(state.features)
+    renderTitle(data.start, data.end),
+    renderTable(data.features)
   ]);
 };

@@ -30962,7 +30962,11 @@ function renderTable(features) {
 }
 
 exports['default'] = function (state) {
-  return (0, _virtualDomH2['default'])('div.summary', [renderTitle(state.start, state.end), renderTable(state.features)]);
+  var data = state.data[state.current];
+  if (!data) {
+    return;
+  }
+  return (0, _virtualDomH2['default'])('div.summary', [renderTitle(data.start, data.end), renderTable(data.features)]);
 };
 
 module.exports = exports['default'];
@@ -31149,28 +31153,37 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   'use strict';
 
   var map = new _Map2['default']('map'),
-      current = 0,
-      // Current key that we're up to
-  apiData,
+      start = new Date(2014, 0, 1),
+      end = new Date(2014, 11, 31),
+      requests = (0, _snapshotsBetween2['default'])(start, end),
+      state,
       loop;
 
+  // Our state :o
+  state = {
+    current: 0, // Key of our focus. Start at the beginning
+    data: [], // To be filled in after data loads
+    layers: {
+      points: false,
+      hex: true // Default to hexgrid
+    }
+  };
+
   // Setup the mainloop with an initial blank state and render function
-  loop = (0, _mainLoop2['default'])(newState({}), render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
+  loop = (0, _mainLoop2['default'])(state, render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
   // Add to DOM
   document.body.appendChild(loop.target);
-  var start = new Date(2014, 0, 1),
-      end = new Date(2014, 11, 31),
-      requests = (0, _snapshotsBetween2['default'])(start, end);
 
   // When all XHR requests are complete
   requests.done(function (data) {
-    apiData = data; // We have a collection of data
+    state.data = data; // We have a collection of data
     play(); // Begin playing
   });
 
   // When controls change
   document.body.addEventListener('change', function (e) {
-    _lodash2['default'].delay(renderCurrent, 50);
+    state.layers = getLayerVisibility(); // Update state
+    _lodash2['default'].delay(renderCurrent, 50); // Render
   });
 
   function play() {
@@ -31178,8 +31191,8 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
     var next = function next() {
       renderCurrent();
       // If there are more, proceed
-      if (current + 1 < apiData.length) {
-        current++; // Move to next state
+      if (state.current + 1 < state.data.length) {
+        state.current++; // Move to next state
         _lodash2['default'].delay(next, 3000); // Delay for 3sec
       }
     };
@@ -31189,14 +31202,8 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 
   // Render the current data item
   function renderCurrent() {
-    var state = newState(apiData[current]); // Get the data and merge with other details
     loop.update(state); // Update rendering
     updateMap(state); // Render map too
-  }
-
-  // Taking the data and merging it with other details, get the state for the app
-  function newState(data) {
-    return _lodash2['default'].assign({}, data, getLayerVisibility());
   }
 
   // Render app with state
@@ -31206,12 +31213,13 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 
   // Update map with new data
   function updateMap(state) {
-    var layers = [];
+    var layers = [],
+        data = state.data[state.current];
     if (state.layers.points) {
-      layers.push((0, _pointsLayer2['default'])(state));
+      layers.push((0, _pointsLayer2['default'])(data));
     }
     if (state.layers.hex) {
-      layers.push((0, _hexGridLayer2['default'])(state));
+      layers.push((0, _hexGridLayer2['default'])(data));
     }
     // Render the layers
     map.render(layers);
@@ -31227,11 +31235,7 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
       layers.hex = hex.checked;
       layers.points = points.checked;
     }
-    // If neither hex nor points is checked, provide a default
-    if (!layers.hex && !layers.points) {
-      layers.hex = true; // Default is hex
-    }
-    return { layers: layers };
+    return layers;
   }
 })();
 
