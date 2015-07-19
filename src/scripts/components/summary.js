@@ -28,14 +28,16 @@ function renderTitle(start, end) {
   return h('h2', f(start));
 }
 
+function colour(type) {
+  return h('span.colour', {
+    style: { background: colourer(type) }
+  }, '');
+}
+
 // Render a fire type row
 function renderType(type) {
   return h('tr', [
-    h('td',
-      h('span.colour', {
-        style: { background: colourer(type[0]) }
-      }, '')
-    ),
+    h('td', colour(type[0])),
     h('td', prepForDisplay(type[0])),
     h('td', '' + type[1])
   ]);

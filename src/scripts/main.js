@@ -13,6 +13,7 @@ import pointsLayer from './pointsLayer';
 import h from 'virtual-dom/h';
 import controls from './components/controls';
 import summary from './components/summary';
+import timeline from './components/timeline';
 
 (() => {
   'use strict';
@@ -71,9 +72,12 @@ import summary from './components/summary';
 
   // Render app with state
   function render(state) {
-    return h('section', [
+    return h('section', {
+      className: state.layers.hex ? 'layer-hex' : 'layer-points'
+    }, [
       summary(state),
-      controls(state)
+      controls(state),
+      timeline(state)
     ]);
   }
 

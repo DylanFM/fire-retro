@@ -24,6 +24,8 @@ function fetchSnapshot(start, end) {
         // Set the start and end on the response
         json.start = start;
         json.end = end;
+        // Also, let's take the count
+        json.count = json.features.length;
         resolve(json);
       }
     });
