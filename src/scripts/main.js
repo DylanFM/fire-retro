@@ -6,14 +6,9 @@ import _ from 'lodash';
 
 import Map from './Map';
 import snapshotsBetween from './snapshotsBetween';
-
+import render from './render';
 import hexGridLayer from './hexGridLayer';
 import pointsLayer from './pointsLayer';
-
-import h from 'virtual-dom/h';
-import controls from './components/controls';
-import summary from './components/summary';
-import timeline from './components/timeline';
 
 (() => {
   'use strict';
@@ -23,6 +18,7 @@ import timeline from './components/timeline';
 
   // Our state :o
   state = {
+    loading:   true,
     start:     new Date(2014, 0, 1),   // Begin at the start of 2014
     end:       new Date(2014, 11, 31), // Finish at the end of 2014
     current:   0,                      // Key of our focus. Start at the beginning
@@ -40,8 +36,9 @@ import timeline from './components/timeline';
 
   // Fetch the data
   snapshotsBetween(state.start, state.end).done((data) => {
-    state.data = data; // We have a collection of data
-    play();            // Begin playing
+    state.loading = false; // No longer loading
+    state.data    = data;  // We have a collection of data
+    play();                // Begin playing
   });
 
   // When controls change
@@ -60,25 +57,13 @@ import timeline from './components/timeline';
         _.delay(next, 3000); // Delay for 3sec
       }
     };
-    // First render
-    next();
+    next(); // First
   }
 
   // Render the current data item
   function renderCurrent() {
     loop.update(state); // Update rendering
     updateMap(state);   // Render map too
-  }
-
-  // Render app with state
-  function render(state) {
-    return h('section', {
-      className: state.layers.hex ? 'layer-hex' : 'layer-points'
-    }, [
-      summary(state),
-      controls(state),
-      timeline(state)
-    ]);
   }
 
   // Update map with new data

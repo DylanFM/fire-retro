@@ -31183,6 +31183,10 @@ var _snapshotsBetween = require('./snapshotsBetween');
 
 var _snapshotsBetween2 = _interopRequireDefault(_snapshotsBetween);
 
+var _render = require('./render');
+
+var _render2 = _interopRequireDefault(_render);
+
 var _hexGridLayer = require('./hexGridLayer');
 
 var _hexGridLayer2 = _interopRequireDefault(_hexGridLayer);
@@ -31190,22 +31194,6 @@ var _hexGridLayer2 = _interopRequireDefault(_hexGridLayer);
 var _pointsLayer = require('./pointsLayer');
 
 var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
-
-var _virtualDomH = require('virtual-dom/h');
-
-var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
-
-var _componentsControls = require('./components/controls');
-
-var _componentsControls2 = _interopRequireDefault(_componentsControls);
-
-var _componentsSummary = require('./components/summary');
-
-var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
-
-var _componentsTimeline = require('./components/timeline');
-
-var _componentsTimeline2 = _interopRequireDefault(_componentsTimeline);
 
 (function () {
   'use strict';
@@ -31216,6 +31204,7 @@ var _componentsTimeline2 = _interopRequireDefault(_componentsTimeline);
 
   // Our state :o
   state = {
+    loading: true,
     start: new Date(2014, 0, 1), // Begin at the start of 2014
     end: new Date(2014, 11, 31), // Finish at the end of 2014
     current: 0, // Key of our focus. Start at the beginning
@@ -31227,12 +31216,13 @@ var _componentsTimeline2 = _interopRequireDefault(_componentsTimeline);
   };
 
   // Setup the mainloop with an initial blank state and render function
-  loop = (0, _mainLoop2['default'])(state, render, { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
+  loop = (0, _mainLoop2['default'])(state, _render2['default'], { create: _virtualDomCreateElement2['default'], diff: _virtualDomDiff2['default'], patch: _virtualDomPatch2['default'] });
   // Add to DOM
   document.body.appendChild(loop.target);
 
   // Fetch the data
   (0, _snapshotsBetween2['default'])(state.start, state.end).done(function (data) {
+    state.loading = false; // No longer loading
     state.data = data; // We have a collection of data
     play(); // Begin playing
   });
@@ -31253,21 +31243,13 @@ var _componentsTimeline2 = _interopRequireDefault(_componentsTimeline);
         _lodash2['default'].delay(next, 3000); // Delay for 3sec
       }
     };
-    // First render
-    next();
+    next(); // First
   }
 
   // Render the current data item
   function renderCurrent() {
     loop.update(state); // Update rendering
     updateMap(state); // Render map too
-  }
-
-  // Render app with state
-  function render(state) {
-    return (0, _virtualDomH2['default'])('section', {
-      className: state.layers.hex ? 'layer-hex' : 'layer-points'
-    }, [(0, _componentsSummary2['default'])(state), (0, _componentsControls2['default'])(state), (0, _componentsTimeline2['default'])(state)]);
   }
 
   // Update map with new data
@@ -31298,7 +31280,7 @@ var _componentsTimeline2 = _interopRequireDefault(_componentsTimeline);
   }
 })();
 
-},{"./Map":57,"./components/controls":59,"./components/summary":60,"./components/timeline":61,"./hexGridLayer":64,"./pointsLayer":66,"./snapshotsBetween":67,"lodash":9,"main-loop":10,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/h":26,"virtual-dom/patch":34}],66:[function(require,module,exports){
+},{"./Map":57,"./hexGridLayer":64,"./pointsLayer":66,"./render":67,"./snapshotsBetween":68,"lodash":9,"main-loop":10,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31339,6 +31321,45 @@ function pointsLayer(geojson) {
 module.exports = exports['default'];
 
 },{"./colourer":58,"leaflet":8}],67:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _virtualDomH = require('virtual-dom/h');
+
+var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
+
+var _componentsControls = require('./components/controls');
+
+var _componentsControls2 = _interopRequireDefault(_componentsControls);
+
+var _componentsSummary = require('./components/summary');
+
+var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
+
+var _componentsTimeline = require('./components/timeline');
+
+var _componentsTimeline2 = _interopRequireDefault(_componentsTimeline);
+
+// Render the app's DOM tree
+
+exports['default'] = function (state) {
+  if (state.loading) {
+    return (0, _virtualDomH2['default'])('b.loading', 'Loading');
+  } else {
+    return (0, _virtualDomH2['default'])('section', {
+      className: state.layers.hex ? 'layer-hex' : 'layer-points'
+    }, [(0, _componentsSummary2['default'])(state), (0, _componentsControls2['default'])(state), (0, _componentsTimeline2['default'])(state)]);
+  }
+};
+
+module.exports = exports['default'];
+
+},{"./components/controls":59,"./components/summary":60,"./components/timeline":61,"virtual-dom/h":26}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
