@@ -49,12 +49,15 @@
     "vinyl-source-stream": "~1.1.0"
   },
   "dependencies": {
-    "d3": "~3.5.5",
+    "d3-color": "^0.2.1",
+    "d3-scale": "0.0.2",
+    "d3-time": "0.0.5",
+    "d3-time-format": "0.0.2",
+    "d3-xhr": "^0.1.1",
     "leaflet": "^0.7.3",
     "lodash": "~3.9.0",
-    "moment": "~2.10.0",
+    "main-loop": "^3.1.0",
     "q": "~1.4.0",
-    "rx": "~2.5.0",
     "turf-count": "~1.0.1",
     "turf-featurecollection": "~1.0.1",
     "turf-hex": "~1.0.2",
