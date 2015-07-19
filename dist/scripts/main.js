@@ -30988,19 +30988,34 @@ var _virtualDomH = require('virtual-dom/h');
 
 var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var _d3TimeFormat = require('d3-time-format');
+
+var _d3Scale = require('d3-scale');
 
 var f = (0, _d3TimeFormat.format)('%b');
 
-function step(data, i, isCurrent) {
+function step(data, i, isCurrent, scale) {
   return (0, _virtualDomH2['default'])('li', {
     className: isCurrent ? 'current' : ''
-  }, [(0, _virtualDomH2['default'])('span.name', f(data.start))]);
+  }, [(0, _virtualDomH2['default'])('span.count', {
+    style: { height: scale(data.count) }
+  }, ''), (0, _virtualDomH2['default'])('span.name', f(data.start))]);
+}
+
+// Return a d3 scale for the given values
+function getScale(counts) {
+  return (0, _d3Scale.linear)().domain([0, _lodash2['default'].max(counts)]).range([0, 106]);
 }
 
 function steps(state) {
+  var scale = getScale(_lodash2['default'].pluck(state.data, 'count'));
+
   return state.data.map(function (data, i) {
-    return step(data, i, state.current == i);
+    return step(data, i, state.current == i, scale);
   });
 }
 
@@ -31010,7 +31025,7 @@ exports['default'] = function (state) {
 
 module.exports = exports['default'];
 
-},{"d3-time-format":5,"virtual-dom/h":26}],62:[function(require,module,exports){
+},{"d3-scale":4,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

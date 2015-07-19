@@ -52,11 +52,31 @@ h1 {
   padding: 0;
   margin: 0;
   font-size: 0.8rem; }
-  .timeline li, .timeline .name {
+  .timeline li {
+    width: 30px;
+    height: 128px;
+    margin-right: .2rem;
+    position: relative; }
+  .timeline li, .timeline .name, .timeline .count {
     display: inline-block; }
+  .timeline .name, .timeline .count {
+    position: absolute; }
   .timeline .name {
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    padding: .2rem .35rem; }
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.3);
+    transition: color 1s; }
+  .timeline .count {
+    bottom: 22px;
+    left: 10%;
+    right: 10%;
+    background-color: rgba(255, 255, 255, 0.3);
+    transition: background-color 1s; }
+  .timeline li.current .name {
+    color: rgba(255, 255, 255, 0.7); }
+  .timeline li.current .count {
+    background: rgba(255, 255, 255, 0.7); }
 
 .summary {
   position: absolute;

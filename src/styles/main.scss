@@ -66,12 +66,39 @@ h1 {
   margin: 0;
   font-size: 0.8rem;
 
-  li, .name {
+  li {
+    width: 30px;
+    height: 128px;
+    margin-right: .2rem;
+    position: relative;
+  }
+  li, .name, .count {
     display: inline-block;
   }
+  .name, .count {
+    position: absolute;
+  }
   .name {
-    border-top: 1px solid rgba(255,255,255,0.2);
-    padding: .2rem .35rem;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    color: rgba(255,255,255,0.3);
+    transition: color 1s;
+  }
+  .count {
+    bottom: 22px;
+    left: 10%;
+    right: 10%;
+    background-color: rgba(255,255,255,0.3);
+    transition: background-color 1s;
+  }
+  li.current {
+    .name {
+      color: rgba(255,255,255,0.7);
+    }
+    .count {
+      background: rgba(255,255,255,0.7);
+    }
   }
 }
 
