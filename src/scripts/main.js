@@ -17,19 +17,18 @@ import summary from './components/summary';
 (() => {
   'use strict';
 
-  var map      = new Map('map'),
-      start    = new Date(2014, 0, 1),
-      end      = new Date(2014, 11, 31),
-      requests = snapshotsBetween(start, end),
+  var map = new Map('map'),
       state, loop;
 
   // Our state :o
   state = {
-    current:  0,      // Key of our focus. Start at the beginning
-    data:     [],     // To be filled in after data loads
-    layers:   {
+    start:     new Date(2014, 0, 1),   // Begin at the start of 2014
+    end:       new Date(2014, 11, 31), // Finish at the end of 2014
+    current:   0,                      // Key of our focus. Start at the beginning
+    data:      [],                     // To be filled in after data loads
+    layers:    {
       points:  false,
-      hex:     true   // Default to hexgrid
+      hex:     true                    // Default to hexgrid
     }
   };
 
@@ -38,8 +37,8 @@ import summary from './components/summary';
   // Add to DOM
   document.body.appendChild(loop.target);
 
-  // When all XHR requests are complete
-  requests.done((data) => {
+  // Fetch the data
+  snapshotsBetween(state.start, state.end).done((data) => {
     state.data = data; // We have a collection of data
     play();            // Begin playing
   });

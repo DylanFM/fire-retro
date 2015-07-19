@@ -31153,14 +31153,13 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   'use strict';
 
   var map = new _Map2['default']('map'),
-      start = new Date(2014, 0, 1),
-      end = new Date(2014, 11, 31),
-      requests = (0, _snapshotsBetween2['default'])(start, end),
       state,
       loop;
 
   // Our state :o
   state = {
+    start: new Date(2014, 0, 1), // Begin at the start of 2014
+    end: new Date(2014, 11, 31), // Finish at the end of 2014
     current: 0, // Key of our focus. Start at the beginning
     data: [], // To be filled in after data loads
     layers: {
@@ -31174,8 +31173,8 @@ var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
   // Add to DOM
   document.body.appendChild(loop.target);
 
-  // When all XHR requests are complete
-  requests.done(function (data) {
+  // Fetch the data
+  (0, _snapshotsBetween2['default'])(state.start, state.end).done(function (data) {
     state.data = data; // We have a collection of data
     play(); // Begin playing
   });
