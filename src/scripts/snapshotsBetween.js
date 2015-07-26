@@ -33,17 +33,9 @@ function fetchSnapshot(start, end) {
 }
 
 // Return a series of months between the 2 dates
-function monthsBetween (start, end) {
+export default (start, end) => {
   var beginnings = utcMonth.range(start, end),
       endings    = _.rest(utcMonth.range(start, new Date(end).setMonth(end.getMonth()+1)));
   // Zip together to have a collection of ranges covering each month
   return _.zip(beginnings, endings).map((bounds) => fetchSnapshot(bounds[0], bounds[1]));
-}
-
-// Generate a series of date ranges between the start and end dates
-// Convert each range into a promise representing an XHR request for the data
-// Use this collection of promises as an argument to Q.all to represent overall success
-// Return the Q.all promise
-export default (start, end) => {
-  return Q.all(monthsBetween(start, end));
 };

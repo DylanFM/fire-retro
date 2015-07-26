@@ -2,6 +2,7 @@ html {
   font-family: "Input Sans Narr", sans-serif;
   background: #333;
   color: #ffffee;
+  background: #333;
 }
 
 .loading {
@@ -11,6 +12,10 @@ html {
   width: 100%;
   font-size: 2em;
   color: #fff;
+
+  progress {
+    width: 40%;
+  }
 }
 
 #map {

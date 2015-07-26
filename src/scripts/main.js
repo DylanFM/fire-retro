@@ -18,14 +18,15 @@ import pointsLayer from './pointsLayer';
 
   // Our state :o
   state = {
-    loading:   true,
-    start:     new Date(2014, 0, 1),   // Begin at the start of 2014
-    end:       new Date(2014, 11, 31), // Finish at the end of 2014
-    current:   0,                      // Key of our focus. Start at the beginning
-    data:      [],                     // To be filled in after data loads
-    layers:    {
-      points:  false,
-      hex:     true                    // Default to hexgrid
+    loading:          true,
+    loadingProgress:  {},
+    start:            new Date(2014, 0, 1),   // Begin at the start of 2014
+    end:              new Date(2014, 11, 31), // Finish at the end of 2014
+    current:          0,                      // Key of our focus. Start at the beginning
+    data:             [],                     // To be filled in after data loads
+    layers:           {
+      points:         false,
+      hex:            true                    // Default to hexgrid
     }
   };
 
@@ -34,12 +35,40 @@ import pointsLayer from './pointsLayer';
   // Add to DOM
   document.body.appendChild(loop.target);
 
-  // Fetch the data
-  snapshotsBetween(state.start, state.end).done((data) => {
-    state.loading = false; // No longer loading
-    state.data    = data;  // We have a collection of data
-    play();                // Begin playing
-  });
+  loadData();
+
+  // Fetch the data from the server, handle loading state and set things up
+  function loadData() {
+    state.data = snapshotsBetween(state.start, state.end);
+    observeLoading();
+  }
+
+  function observeLoading() {
+    if (!state.loading) {
+      return;
+    }
+
+    var total    = state.data.length,
+        progress = _.countBy(
+      _.invoke(state.data, 'isFulfilled')
+    )[true];
+
+    if (total === progress) {
+      delete state.loadingProgress;
+      state.loading = false;
+      state.data    = _.invoke(state.data, 'valueOf');
+      play();
+    } else {
+      state.loading = true;
+      // Provide access to loading state
+      state.loadingProgress = {
+        total:     total,
+        progress:  progress
+      };
+      renderCurrent();
+      _.delay(observeLoading, 200);
+    }
+  }
 
   // When controls change
   document.body.addEventListener('change', (e) => {
