@@ -20,7 +20,7 @@ import pointsLayer from './pointsLayer';
   state = {
     loading:          true,
     loadingProgress:  {},
-    start:            new Date(2015, 0, 1),   // Begin at the start of 2014
+    start:            new Date(2014, 0, 1),   // Begin at the start of 2014
     end:              new Date(2015, 11, 31), // Finish at the end of 2014
     current:          0,                      // Key of our focus. Start at the beginning
     data:             [],                     // To be filled in after data loads

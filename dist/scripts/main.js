@@ -31018,14 +31018,21 @@ var _d3TimeFormat = require('d3-time-format');
 
 var _d3Scale = require('d3-scale');
 
-var f = (0, _d3TimeFormat.format)('%b');
+var m = (0, _d3TimeFormat.format)('%b'),
+    y = (0, _d3TimeFormat.format)('%Y');
 
 function step(data, i, isCurrent, scale) {
+  var nodes = [m(data.start)];
+  // Add year to January
+  if (i % 12 === 0) {
+    nodes[1] = (0, _virtualDomH2['default'])('br');
+    nodes[2] = (0, _virtualDomH2['default'])('b', y(data.start));
+  }
   return (0, _virtualDomH2['default'])('li', {
     className: isCurrent ? 'current' : ''
   }, [(0, _virtualDomH2['default'])('span.count', {
     style: { height: scale(data.count) }
-  }, ''), (0, _virtualDomH2['default'])('span.name', f(data.start))]);
+  }, ''), (0, _virtualDomH2['default'])('span.name', nodes)]);
 }
 
 // Return a d3 scale for the given values
@@ -31154,7 +31161,6 @@ exports['default'] = (function () {
       }
       // There's a chance of bad data, so confirm we have OK point coords
       if (!coords || coords.length != 2) {
-        console.log('Bad feature', f);
         coords = [0, 0]; // In place of bad data
       }
       return (0, _turfPoint2['default'])(coords);
@@ -31243,7 +31249,7 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
   state = {
     loading: true,
     loadingProgress: {},
-    start: new Date(2015, 0, 1), // Begin at the start of 2014
+    start: new Date(2014, 0, 1), // Begin at the start of 2014
     end: new Date(2015, 11, 31), // Finish at the end of 2014
     current: 0, // Key of our focus. Start at the beginning
     data: [], // To be filled in after data loads

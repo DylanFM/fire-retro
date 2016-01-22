@@ -3,16 +3,23 @@ import _ from 'lodash';
 import {format} from 'd3-time-format';
 import {linear} from 'd3-scale';
 
-var f = format('%b');
+var m = format('%b'),
+    y = format('%Y');
 
 function step(data, i, isCurrent, scale) {
+  var nodes = [m(data.start)];
+  // Add year to January
+  if (i%12 === 0) {
+    nodes[1] = h('br');
+    nodes[2] = h('b', y(data.start));
+  }
   return h('li', {
     className: isCurrent ? 'current' : ''
   }, [
     h('span.count', {
       style: { height: scale(data.count) }
     }, ''),
-    h('span.name', f(data.start))
+    h('span.name', nodes)
   ]);
 }
 
