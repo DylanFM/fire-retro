@@ -30811,7 +30811,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":62,"leaflet":8}],58:[function(require,module,exports){
+},{"./config":63,"leaflet":8}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30886,6 +30886,28 @@ exports['default'] = function (state) {
 module.exports = exports['default'];
 
 },{"virtual-dom/h":26}],60:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _virtualDomH = require('virtual-dom/h');
+
+var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
+
+exports['default'] = function (state) {
+  var max = state.loadingProgress.total || 1,
+      value = state.loadingProgress.progress || 0;
+
+  return (0, _virtualDomH2['default'])('div.loading', [(0, _virtualDomH2['default'])('h2', 'Loading'), (0, _virtualDomH2['default'])('progress', { max: max, value: value })]);
+};
+
+module.exports = exports['default'];
+
+},{"virtual-dom/h":26}],61:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30975,7 +30997,7 @@ exports['default'] = function (state) {
 
 module.exports = exports['default'];
 
-},{"../colourer":58,"../extractFireTypes":63,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],61:[function(require,module,exports){
+},{"../colourer":58,"../extractFireTypes":64,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31025,21 +31047,21 @@ exports['default'] = function (state) {
 
 module.exports = exports['default'];
 
-},{"d3-scale":4,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],62:[function(require,module,exports){
+},{"d3-scale":4,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],63:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
 exports['default'] = {
-  endpoint: 'http://10.0.0.41:8000/incidents',
+  endpoint: 'http://localhost:8000/incidents',
   mapboxAccessToken: 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw',
   mapboxMapId: 'fires.1b505148',
   mapBounds: [[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]]
 };
 module.exports = exports['default'];
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31069,7 +31091,7 @@ function extractFireTypes(features) {
 
 module.exports = exports['default'];
 
-},{"lodash":9}],64:[function(require,module,exports){
+},{"lodash":9}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31116,11 +31138,26 @@ exports['default'] = (function () {
 
   // The enclosing function is immediately invoked to memoize the hexgrid
   return function (geojson) {
-    // Unfortunately the geojson has features that have MultiPoint geometries
-    // TODO fix the API to return Point geometries
+    // Unfortunately the geojson has some features that have MultiPoint geometries
+    // TODO fix the API to return only Point geometries
     // Extract the 1st point from the multipoints for each layer to use in the hexbinning
-    var pointJson = (0, _turfFeaturecollection2['default'])(geojson.features.map(function (mp) {
-      return (0, _turfPoint2['default'])(mp.geometry.coordinates[0]);
+    var pointJson = (0, _turfFeaturecollection2['default'])(geojson.features.map(function (f) {
+      var g = f.geometry,
+          coords;
+      switch (g.type) {
+        case 'MultiPoint':
+          coords = g.coordinates[0];
+          break;
+        case 'Point':
+          coords = g.coordinates;
+          break;
+      }
+      // There's a chance of bad data, so confirm we have OK point coords
+      if (!coords || coords.length != 2) {
+        console.log('Bad feature', f);
+        coords = [0, 0]; // In place of bad data
+      }
+      return (0, _turfPoint2['default'])(coords);
     }) // map into an array of turf points
     ),
         countedGrid = (0, _turfCount2['default'])(hexGrid, pointJson, 'ptCount'),
@@ -31150,7 +31187,7 @@ exports['default'] = (function () {
 
 module.exports = exports['default'];
 
-},{"./colourer":58,"./config":62,"lodash":9,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],65:[function(require,module,exports){
+},{"./colourer":58,"./config":63,"lodash":9,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],66:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -31205,8 +31242,9 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
   // Our state :o
   state = {
     loading: true,
-    start: new Date(2014, 0, 1), // Begin at the start of 2014
-    end: new Date(2014, 11, 31), // Finish at the end of 2014
+    loadingProgress: {},
+    start: new Date(2015, 0, 1), // Begin at the start of 2014
+    end: new Date(2015, 11, 31), // Finish at the end of 2014
     current: 0, // Key of our focus. Start at the beginning
     data: [], // To be filled in after data loads
     layers: {
@@ -31220,12 +31258,38 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
   // Add to DOM
   document.body.appendChild(loop.target);
 
-  // Fetch the data
-  (0, _snapshotsBetween2['default'])(state.start, state.end).done(function (data) {
-    state.loading = false; // No longer loading
-    state.data = data; // We have a collection of data
-    play(); // Begin playing
-  });
+  loadData();
+
+  // Fetch the data from the server, handle loading state and set things up
+  function loadData() {
+    state.data = (0, _snapshotsBetween2['default'])(state.start, state.end);
+    observeLoading();
+  }
+
+  function observeLoading() {
+    if (!state.loading) {
+      return;
+    }
+
+    var total = state.data.length,
+        progress = _lodash2['default'].countBy(_lodash2['default'].invoke(state.data, 'isFulfilled'))[true];
+
+    if (total === progress) {
+      delete state.loadingProgress;
+      state.loading = false;
+      state.data = _lodash2['default'].invoke(state.data, 'valueOf');
+      play();
+    } else {
+      state.loading = true;
+      // Provide access to loading state
+      state.loadingProgress = {
+        total: total,
+        progress: progress
+      };
+      renderCurrent();
+      _lodash2['default'].delay(observeLoading, 200);
+    }
+  }
 
   // When controls change
   document.body.addEventListener('change', function (e) {
@@ -31256,6 +31320,9 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
   function updateMap(state) {
     var layers = [],
         data = state.data[state.current];
+    if (!data.features || !data.features.length) {
+      return;
+    }
     if (state.layers.points) {
       layers.push((0, _pointsLayer2['default'])(data));
     }
@@ -31280,7 +31347,7 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
   }
 })();
 
-},{"./Map":57,"./hexGridLayer":64,"./pointsLayer":66,"./render":67,"./snapshotsBetween":68,"lodash":9,"main-loop":10,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],66:[function(require,module,exports){
+},{"./Map":57,"./hexGridLayer":65,"./pointsLayer":67,"./render":68,"./snapshotsBetween":69,"lodash":9,"main-loop":10,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],67:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31320,7 +31387,7 @@ function pointsLayer(geojson) {
 
 module.exports = exports['default'];
 
-},{"./colourer":58,"leaflet":8}],67:[function(require,module,exports){
+},{"./colourer":58,"leaflet":8}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31345,11 +31412,15 @@ var _componentsTimeline = require('./components/timeline');
 
 var _componentsTimeline2 = _interopRequireDefault(_componentsTimeline);
 
+var _componentsLoading = require('./components/loading');
+
+var _componentsLoading2 = _interopRequireDefault(_componentsLoading);
+
 // Render the app's DOM tree
 
 exports['default'] = function (state) {
   if (state.loading) {
-    return (0, _virtualDomH2['default'])('b.loading', 'Loading');
+    return (0, _componentsLoading2['default'])(state);
   } else {
     return (0, _virtualDomH2['default'])('section', {
       className: state.layers.hex ? 'layer-hex' : 'layer-points'
@@ -31359,7 +31430,7 @@ exports['default'] = function (state) {
 
 module.exports = exports['default'];
 
-},{"./components/controls":59,"./components/summary":60,"./components/timeline":61,"virtual-dom/h":26}],68:[function(require,module,exports){
+},{"./components/controls":59,"./components/loading":60,"./components/summary":61,"./components/timeline":62,"virtual-dom/h":26}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31414,25 +31485,17 @@ function fetchSnapshot(start, end) {
 }
 
 // Return a series of months between the 2 dates
-function monthsBetween(start, end) {
+
+exports['default'] = function (start, end) {
   var beginnings = _d3Time.utcMonth.range(start, end),
       endings = _lodash2['default'].rest(_d3Time.utcMonth.range(start, new Date(end).setMonth(end.getMonth() + 1)));
   // Zip together to have a collection of ranges covering each month
   return _lodash2['default'].zip(beginnings, endings).map(function (bounds) {
     return fetchSnapshot(bounds[0], bounds[1]);
   });
-}
-
-// Generate a series of date ranges between the start and end dates
-// Convert each range into a promise representing an XHR request for the data
-// Use this collection of promises as an argument to Q.all to represent overall success
-// Return the Q.all promise
-
-exports['default'] = function (start, end) {
-  return _q2['default'].all(monthsBetween(start, end));
 };
 
 module.exports = exports['default'];
 
-},{"./config":62,"d3-time":6,"d3-time-format":5,"d3-xhr":7,"lodash":9,"q":17}]},{},[65])
+},{"./config":63,"d3-time":6,"d3-time-format":5,"d3-xhr":7,"lodash":9,"q":17}]},{},[66])
 //# sourceMappingURL=main.map

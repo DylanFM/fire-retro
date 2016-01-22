@@ -15,11 +15,27 @@ export default (function () {
 
   // The enclosing function is immediately invoked to memoize the hexgrid
   return function (geojson) {
-    // Unfortunately the geojson has features that have MultiPoint geometries
-    // TODO fix the API to return Point geometries
+    // Unfortunately the geojson has some features that have MultiPoint geometries
+    // TODO fix the API to return only Point geometries
     // Extract the 1st point from the multipoints for each layer to use in the hexbinning
     var pointJson = featurecollection(
-          geojson.features.map((mp) => point(mp.geometry.coordinates[0])) // map into an array of turf points
+          geojson.features.map((f) => {
+            var g = f.geometry,
+                coords;
+            switch (g.type) {
+              case 'MultiPoint':
+                coords = g.coordinates[0];
+                break;
+              case 'Point':
+                coords = g.coordinates;
+                break;
+            }
+            // There's a chance of bad data, so confirm we have OK point coords
+            if (!coords || coords.length != 2) {
+              coords = [0,0]; // In place of bad data
+            }
+            return point(coords);
+          }) // map into an array of turf points
         ),
         countedGrid = count(hexGrid, pointJson, 'ptCount'),
         max         = _.max(_.map(countedGrid.features, (cell) => cell.properties.ptCount)), // We need the maximum value in this set of data
