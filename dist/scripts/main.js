@@ -31310,8 +31310,10 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
       // If there are more, proceed
       if (state.current + 1 < state.data.length) {
         state.current++; // Move to next state
-        _lodash2['default'].delay(next, 3000); // Delay for 3sec
+      } else {
+        state.current = 0; // Loop
       }
+      _lodash2['default'].delay(next, 3000); // Delay for 3sec
     };
     next(); // First
   }

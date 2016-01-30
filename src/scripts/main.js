@@ -82,9 +82,11 @@ import pointsLayer from './pointsLayer';
       renderCurrent();
       // If there are more, proceed
       if ((state.current + 1) < state.data.length) {
-        state.current++;     // Move to next state
-        _.delay(next, 3000); // Delay for 3sec
+        state.current++;   // Move to next state
+      } else {
+        state.current = 0; // Loop
       }
+      _.delay(next, 3000); // Delay for 3sec
     };
     next(); // First
   }
