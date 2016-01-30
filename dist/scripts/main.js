@@ -30867,20 +30867,20 @@ var _virtualDomH = require('virtual-dom/h');
 
 var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 
-function radio(label, id, checked) {
+function radio(group, label, id, checked) {
   return (0, _virtualDomH2['default'])('label', {
     className: checked ? 'checked' : ''
   }, [label, (0, _virtualDomH2['default'])('input', {
     id: id,
     type: 'radio',
-    name: 'layer',
+    name: group,
     checked: checked ? 'checked' : '',
     value: id
   })]);
 }
 
 exports['default'] = function (state) {
-  return (0, _virtualDomH2['default'])('ul.controls#controls', [(0, _virtualDomH2['default'])('li', radio('Hex', 'hex', state.layers.hex)), (0, _virtualDomH2['default'])('li', radio('Points', 'points', state.layers.points))]);
+  return (0, _virtualDomH2['default'])('ul.controls#controls', [(0, _virtualDomH2['default'])('li', radio('visibleLayer', 'Hex', 'hex', state.layers.hex)), (0, _virtualDomH2['default'])('li', radio('visibleLayer', 'Points', 'points', state.layers.points)), (0, _virtualDomH2['default'])('li', radio('play', 'Play', 'play', !state.paused)), (0, _virtualDomH2['default'])('li', radio('play', 'Pause', 'pause', state.paused))]);
 };
 
 module.exports = exports['default'];
@@ -31252,6 +31252,7 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
     start: new Date(2014, 0, 1), // Begin at the start of 2014
     end: new Date(2015, 11, 31), // Finish at the end of 2014
     current: 0, // Key of our focus. Start at the beginning
+    paused: false, // Play by default
     data: [], // To be filled in after data loads
     layers: {
       points: false,
@@ -31299,7 +31300,8 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
 
   // When controls change
   document.body.addEventListener('change', function (e) {
-    state.layers = getLayerVisibility(); // Update state
+    state.layers = getLayerVisibility();
+    state.paused = getPlayPauseState();
     _lodash2['default'].delay(renderCurrent, 50); // Render
   });
 
@@ -31307,13 +31309,18 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
     // We'll iterate through it 1 by 1, on a delay, rendering
     var next = function next() {
       renderCurrent();
-      // If there are more, proceed
-      if (state.current + 1 < state.data.length) {
-        state.current++; // Move to next state
+      if (state.paused) {
+        // Check again in half a second
+        _lodash2['default'].delay(next, 500);
       } else {
-        state.current = 0; // Loop
+        // If there are more, proceed
+        if (state.current + 1 < state.data.length) {
+          state.current++; // Move to next state
+        } else {
+          state.current = 0; // Loop
+        }
+        _lodash2['default'].delay(next, 3000); // Delay for 3sec
       }
-      _lodash2['default'].delay(next, 3000); // Delay for 3sec
     };
     next(); // First
   }
@@ -31352,6 +31359,11 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
       layers.points = points.checked;
     }
     return layers;
+  }
+
+  // Return state of play / pause controls
+  function getPlayPauseState() {
+    return document.getElementById('pause').checked;
   }
 })();
 

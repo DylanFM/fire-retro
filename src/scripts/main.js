@@ -23,6 +23,7 @@ import pointsLayer from './pointsLayer';
     start:            new Date(2014, 0, 1),   // Begin at the start of 2014
     end:              new Date(2015, 11, 31), // Finish at the end of 2014
     current:          0,                      // Key of our focus. Start at the beginning
+    paused:           false,                  // Play by default
     data:             [],                     // To be filled in after data loads
     layers:           {
       points:         false,
@@ -72,21 +73,27 @@ import pointsLayer from './pointsLayer';
 
   // When controls change
   document.body.addEventListener('change', (e) => {
-    state.layers = getLayerVisibility(); // Update state
-    _.delay(renderCurrent, 50);          // Render
+    state.layers = getLayerVisibility();
+    state.paused = getPlayPauseState();
+    _.delay(renderCurrent, 50); // Render
   });
 
   function play() {
     // We'll iterate through it 1 by 1, on a delay, rendering
     var next = () => {
       renderCurrent();
-      // If there are more, proceed
-      if ((state.current + 1) < state.data.length) {
-        state.current++;   // Move to next state
+      if (state.paused) {
+        // Check again in half a second
+        _.delay(next, 500);
       } else {
-        state.current = 0; // Loop
+        // If there are more, proceed
+        if ((state.current + 1) < state.data.length) {
+          state.current++;   // Move to next state
+        } else {
+          state.current = 0; // Loop
+        }
+        _.delay(next, 3000); // Delay for 3sec
       }
-      _.delay(next, 3000); // Delay for 3sec
     };
     next(); // First
   }
@@ -125,6 +132,11 @@ import pointsLayer from './pointsLayer';
       layers.points = points.checked;
     }
     return layers;
+  }
+
+  // Return state of play / pause controls
+  function getPlayPauseState() {
+    return document.getElementById('pause').checked;
   }
 
 }());
