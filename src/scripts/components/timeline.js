@@ -3,7 +3,7 @@ import _ from 'lodash';
 import {format} from 'd3-time-format';
 import {linear} from 'd3-scale';
 
-var m = format('%b'),
+var m = format('%m'),
     y = format('%Y');
 
 function step(data, i, isCurrent, scale) {

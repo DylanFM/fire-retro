@@ -31018,7 +31018,7 @@ var _d3TimeFormat = require('d3-time-format');
 
 var _d3Scale = require('d3-scale');
 
-var m = (0, _d3TimeFormat.format)('%b'),
+var m = (0, _d3TimeFormat.format)('%m'),
     y = (0, _d3TimeFormat.format)('%Y');
 
 function step(data, i, isCurrent, scale) {
