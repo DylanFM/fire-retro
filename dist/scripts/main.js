@@ -31018,21 +31018,14 @@ var _d3TimeFormat = require('d3-time-format');
 
 var _d3Scale = require('d3-scale');
 
-var m = (0, _d3TimeFormat.format)('%m'),
-    y = (0, _d3TimeFormat.format)('%Y');
+var m = (0, _d3TimeFormat.format)('%m');
 
 function step(data, i, isCurrent, scale) {
-  var nodes = [m(data.start)];
-  // Add year to January
-  if (i % 12 === 0) {
-    nodes[1] = (0, _virtualDomH2['default'])('br');
-    nodes[2] = (0, _virtualDomH2['default'])('b', y(data.start));
-  }
   return (0, _virtualDomH2['default'])('li', {
     className: isCurrent ? 'current' : ''
   }, [(0, _virtualDomH2['default'])('span.count', {
     style: { height: scale(data.count) }
-  }, ''), (0, _virtualDomH2['default'])('span.name', nodes)]);
+  }, ''), (0, _virtualDomH2['default'])('span.name', m(data.start))]);
 }
 
 // Return a d3 scale for the given values
