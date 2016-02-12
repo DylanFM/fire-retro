@@ -18,6 +18,7 @@ import pointsLayer from './pointsLayer';
 
   // Our state :o
   state = {
+    moreInfo:         true,
     loading:          true,
     loadingProgress:  {},
     start:            new Date(2014, 0, 1),   // Begin at the start of 2014
@@ -75,7 +76,18 @@ import pointsLayer from './pointsLayer';
   document.body.addEventListener('change', (e) => {
     state.layers = getLayerVisibility();
     state.paused = getPlayPauseState();
-    _.delay(renderCurrent, 50); // Render
+    _.delay(renderCurrent, 5); // Render
+  });
+
+  // More information link
+  document.body.addEventListener('click', (e) => {
+    var n = e.target;
+    if (n.tagName !== 'A' && n.id !== 'moreInfoToggle') {
+      return;
+    }
+    e.preventDefault();
+    state.moreInfo = !state.moreInfo; // Toggle
+    _.delay(renderCurrent, 5); // Render
   });
 
   function play() {

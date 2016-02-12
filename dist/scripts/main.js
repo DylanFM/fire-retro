@@ -30811,7 +30811,7 @@ var Map = (function () {
 exports['default'] = Map;
 module.exports = exports['default'];
 
-},{"./config":63,"leaflet":8}],58:[function(require,module,exports){
+},{"./config":64,"leaflet":8}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30899,6 +30899,37 @@ var _virtualDomH = require('virtual-dom/h');
 var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 
 exports['default'] = function (state) {
+  var nodes = [(0, _virtualDomH2['default'])('h1', 'Incidents • 2014–15')];
+
+  // Add more info to the header
+  if (state.moreInfo === true) {
+    nodes[1] = (0, _virtualDomH2['default'])('p', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vehicula vitae nisl a faucibus. Aenean a eros vel justo venenatis rutrum. Maecenas massa tellus, ultricies quis tristique vel, commodo et risus. Ut bibendum eros dictum.');
+  }
+
+  nodes.push((0, _virtualDomH2['default'])('a#moreInfoToggle.moreInfo', {
+    href: '#',
+    title: state.moreInfo === true ? 'Show less information' : 'Show more information'
+  }, state.moreInfo === true ? '[-] less info' : '[+] more info'));
+
+  return (0, _virtualDomH2['default'])('header', nodes);
+};
+
+module.exports = exports['default'];
+
+},{"virtual-dom/h":26}],61:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _virtualDomH = require('virtual-dom/h');
+
+var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
+
+exports['default'] = function (state) {
   var max = state.loadingProgress.total || 1,
       value = state.loadingProgress.progress || 0;
 
@@ -30907,7 +30938,7 @@ exports['default'] = function (state) {
 
 module.exports = exports['default'];
 
-},{"virtual-dom/h":26}],61:[function(require,module,exports){
+},{"virtual-dom/h":26}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -30997,7 +31028,7 @@ exports['default'] = function (state) {
 
 module.exports = exports['default'];
 
-},{"../colourer":58,"../extractFireTypes":64,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],62:[function(require,module,exports){
+},{"../colourer":58,"../extractFireTypes":65,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],63:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31047,7 +31078,7 @@ exports['default'] = function (state) {
 
 module.exports = exports['default'];
 
-},{"d3-scale":4,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],63:[function(require,module,exports){
+},{"d3-scale":4,"d3-time-format":5,"lodash":9,"virtual-dom/h":26}],64:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31061,7 +31092,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31091,7 +31122,7 @@ function extractFireTypes(features) {
 
 module.exports = exports['default'];
 
-},{"lodash":9}],65:[function(require,module,exports){
+},{"lodash":9}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31186,7 +31217,7 @@ exports['default'] = (function () {
 
 module.exports = exports['default'];
 
-},{"./colourer":58,"./config":63,"lodash":9,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],66:[function(require,module,exports){
+},{"./colourer":58,"./config":64,"lodash":9,"turf-count":18,"turf-featurecollection":20,"turf-hex":21,"turf-point":23}],67:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -31240,6 +31271,7 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
 
   // Our state :o
   state = {
+    moreInfo: true,
     loading: true,
     loadingProgress: {},
     start: new Date(2014, 0, 1), // Begin at the start of 2014
@@ -31295,7 +31327,18 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
   document.body.addEventListener('change', function (e) {
     state.layers = getLayerVisibility();
     state.paused = getPlayPauseState();
-    _lodash2['default'].delay(renderCurrent, 50); // Render
+    _lodash2['default'].delay(renderCurrent, 5); // Render
+  });
+
+  // More information link
+  document.body.addEventListener('click', function (e) {
+    var n = e.target;
+    if (n.tagName !== 'A' && n.id !== 'moreInfoToggle') {
+      return;
+    }
+    e.preventDefault();
+    state.moreInfo = !state.moreInfo; // Toggle
+    _lodash2['default'].delay(renderCurrent, 5); // Render
   });
 
   function play() {
@@ -31360,7 +31403,7 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
   }
 })();
 
-},{"./Map":57,"./hexGridLayer":65,"./pointsLayer":67,"./render":68,"./snapshotsBetween":69,"lodash":9,"main-loop":10,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],67:[function(require,module,exports){
+},{"./Map":57,"./hexGridLayer":66,"./pointsLayer":68,"./render":69,"./snapshotsBetween":70,"lodash":9,"main-loop":10,"virtual-dom/create-element":24,"virtual-dom/diff":25,"virtual-dom/patch":34}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31400,7 +31443,7 @@ function pointsLayer(geojson) {
 
 module.exports = exports['default'];
 
-},{"./colourer":58,"leaflet":8}],68:[function(require,module,exports){
+},{"./colourer":58,"leaflet":8}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31413,21 +31456,25 @@ var _virtualDomH = require('virtual-dom/h');
 
 var _virtualDomH2 = _interopRequireDefault(_virtualDomH);
 
+var _componentsLoading = require('./components/loading');
+
+var _componentsLoading2 = _interopRequireDefault(_componentsLoading);
+
+var _componentsHeader = require('./components/header');
+
+var _componentsHeader2 = _interopRequireDefault(_componentsHeader);
+
 var _componentsControls = require('./components/controls');
 
 var _componentsControls2 = _interopRequireDefault(_componentsControls);
-
-var _componentsSummary = require('./components/summary');
-
-var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 
 var _componentsTimeline = require('./components/timeline');
 
 var _componentsTimeline2 = _interopRequireDefault(_componentsTimeline);
 
-var _componentsLoading = require('./components/loading');
+var _componentsSummary = require('./components/summary');
 
-var _componentsLoading2 = _interopRequireDefault(_componentsLoading);
+var _componentsSummary2 = _interopRequireDefault(_componentsSummary);
 
 // Render the app's DOM tree
 
@@ -31437,13 +31484,13 @@ exports['default'] = function (state) {
   } else {
     return (0, _virtualDomH2['default'])('section', {
       className: state.layers.hex ? 'layer-hex' : 'layer-points'
-    }, [(0, _componentsSummary2['default'])(state), (0, _componentsControls2['default'])(state), (0, _componentsTimeline2['default'])(state)]);
+    }, [(0, _componentsHeader2['default'])(state), (0, _componentsControls2['default'])(state), (0, _componentsTimeline2['default'])(state), (0, _componentsSummary2['default'])(state)]);
   }
 };
 
 module.exports = exports['default'];
 
-},{"./components/controls":59,"./components/loading":60,"./components/summary":61,"./components/timeline":62,"virtual-dom/h":26}],69:[function(require,module,exports){
+},{"./components/controls":59,"./components/header":60,"./components/loading":61,"./components/summary":62,"./components/timeline":63,"virtual-dom/h":26}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31510,5 +31557,5 @@ exports['default'] = function (start, end) {
 
 module.exports = exports['default'];
 
-},{"./config":63,"d3-time":6,"d3-time-format":5,"d3-xhr":7,"lodash":9,"q":17}]},{},[66])
+},{"./config":64,"d3-time":6,"d3-time-format":5,"d3-xhr":7,"lodash":9,"q":17}]},{},[67])
 //# sourceMappingURL=main.map

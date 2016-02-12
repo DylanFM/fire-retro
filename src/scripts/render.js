@@ -1,8 +1,9 @@
 import h from 'virtual-dom/h';
-import controls from './components/controls';
-import summary from './components/summary';
-import timeline from './components/timeline';
 import loading from './components/loading';
+import header from './components/header';
+import controls from './components/controls';
+import timeline from './components/timeline';
+import summary from './components/summary';
 
 // Render the app's DOM tree
 
@@ -13,9 +14,10 @@ export default (state) => {
     return h('section', {
       className: state.layers.hex ? 'layer-hex' : 'layer-points'
     }, [
-      summary(state),
+      header(state),
       controls(state),
-      timeline(state)
+      timeline(state),
+      summary(state)
     ]);
   }
 };
