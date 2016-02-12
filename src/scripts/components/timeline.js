@@ -10,7 +10,7 @@ function step(data, i, isCurrent, scale) {
     className: isCurrent ? 'current' : ''
   }, [
     h('span.count', {
-      style: { height: scale(data.count) }
+      style: { height: '' + scale(data.count) + '%' }
     }, ''),
     h('span.name', m(data.start))
   ]);
@@ -18,7 +18,7 @@ function step(data, i, isCurrent, scale) {
 
 // Return a d3 scale for the given values
 function getScale(counts) {
-  return linear().domain([0, _.max(counts)]).range([0,106]);
+  return linear().domain([0, _.max(counts)]).range([0,100]);
 }
 
 function steps(state) {

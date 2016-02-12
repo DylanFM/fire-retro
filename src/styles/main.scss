@@ -71,36 +71,44 @@ h1 {
   }
 }
 
-.timeline {
+.timeline, .summary {
   position: absolute;
-  bottom: 1.5rem;
+  width: auto;
   left: 1.5rem;
+  right: 1.5rem;
+}
+.timeline {
+  bottom: 1.5rem;
   list-style: none;
   padding: 0;
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-content: center;
+  align-items: flex-start;
 
   li {
-    width: 20px;
-    height: 128px;
-    margin-right: .2rem;
     position: relative;
+    flex: 1;
+    height: 3rem;
   }
-  li, .name, .count {
-    display: inline-block;
+  .name {
+    display: none; // Don't show by default
   }
   .name, .count {
     position: absolute;
+    bottom: 0;
   }
   .name {
-    bottom: 0;
     width: 100%;
     text-align: center;
     color: rgba(255,255,255,0.3);
     transition: color 1s;
   }
   .count {
-    bottom: 22px;
     left: 10%;
     right: 10%;
     background-color: rgba(255,255,255,0.3);
@@ -117,9 +125,7 @@ h1 {
 }
 
 .summary {
-  position: absolute;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: 5rem;
   text-transform: uppercase;
 
   h2 {
@@ -155,6 +161,48 @@ h1 {
   tfoot td {
     border-top: 1px solid rgba(255,255,255,0.2);
     padding-top: .2rem;
+  }
+}
+
+@media screen and (min-width: 28rem) {
+  .summary {
+    bottom: 5.5rem;
+  }
+  .timeline {
+    .name {
+      display: inline-block;
+    }
+    .count {
+      bottom: 1rem;
+    }
+  }
+}
+
+@media screen and (min-width: 38rem) {
+  .timeline {
+    width: 65%;
+    right: auto;
+
+    li {
+      height: 8rem; // Match height of summary roughly
+    }
+  }
+  .summary {
+    bottom: 1.5rem;
+    width: 25%;
+    min-width: 10rem;
+    max-width: 15rem;
+    left: auto;
+  }
+}
+
+@media screen and (min-width: 40rem) {
+  .timeline {
+    font-size: 0.8rem;
+
+    .count {
+      bottom: 1.2rem;
+    }
   }
 }
 

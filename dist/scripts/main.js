@@ -31024,13 +31024,13 @@ function step(data, i, isCurrent, scale) {
   return (0, _virtualDomH2['default'])('li', {
     className: isCurrent ? 'current' : ''
   }, [(0, _virtualDomH2['default'])('span.count', {
-    style: { height: scale(data.count) }
+    style: { height: '' + scale(data.count) + '%' }
   }, ''), (0, _virtualDomH2['default'])('span.name', m(data.start))]);
 }
 
 // Return a d3 scale for the given values
 function getScale(counts) {
-  return (0, _d3Scale.linear)().domain([0, _lodash2['default'].max(counts)]).range([0, 106]);
+  return (0, _d3Scale.linear)().domain([0, _lodash2['default'].max(counts)]).range([0, 100]);
 }
 
 function steps(state) {
