@@ -26,8 +26,8 @@ import pointsLayer from './pointsLayer';
     paused:           false,                  // Play by default
     data:             [],                     // To be filled in after data loads
     layers:           {
-      points:         false,
-      hex:            true                    // Default to hexgrid
+      points:         true,
+      hex:            false
     }
   };
 

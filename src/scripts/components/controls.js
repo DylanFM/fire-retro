@@ -17,10 +17,14 @@ function radio(group, label, id, checked) {
 }
 
 export default (state) => {
-  return h('ul.controls#controls', [
-    h('li', radio('visibleLayer', 'Hex', 'hex', state.layers.hex)),
-    h('li', radio('visibleLayer', 'Points', 'points', state.layers.points)),
-    h('li', radio('play', 'Play', 'play', !state.paused)),
-    h('li', radio('play', 'Pause', 'pause', state.paused))
+  return h('.controls#controls', [
+    h('ul.controlLayers', [
+      h('li', radio('visibleLayer', 'Points', 'points', state.layers.points)),
+      h('li', radio('visibleLayer', 'Hex', 'hex', state.layers.hex)),
+    ]),
+    h('ul.controlPaused', [
+      h('li', radio('play', 'Play', 'play', !state.paused)),
+      h('li', radio('play', 'Pause', 'pause', state.paused))
+    ]),
   ]);
 };

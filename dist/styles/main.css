@@ -30,30 +30,34 @@ h1 {
 
 .controls {
   position: absolute;
+  width: 25rem;
   top: 1.5rem;
-  right: 1.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0; }
-  .controls li {
-    float: right;
-    clear: right;
+  right: 1.5rem; }
+  .controls ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: right;
     margin-bottom: .5rem; }
+  .controls li {
+    display: inline-block;
+    margin-left: 0.5rem; }
     .controls li:last-child {
       margin-bottom: 0; }
-  .controls label, .controls input {
-    cursor: pointer; }
+  .controls input {
+    display: none; }
   .controls label {
+    cursor: pointer;
     border-radius: .5rem;
     transition: border-color .5s;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
     padding: .4rem .7rem;
     display: inline-block;
     font-size: 0.8rem; }
     .controls label.checked, .controls label:hover {
-      border-color: rgba(255, 255, 255, 0.4); }
-  .controls input {
-    margin-left: .5rem; }
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #fff; }
 
 .timeline, .summary {
   position: absolute;

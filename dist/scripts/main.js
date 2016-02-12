@@ -30880,7 +30880,7 @@ function radio(group, label, id, checked) {
 }
 
 exports['default'] = function (state) {
-  return (0, _virtualDomH2['default'])('ul.controls#controls', [(0, _virtualDomH2['default'])('li', radio('visibleLayer', 'Hex', 'hex', state.layers.hex)), (0, _virtualDomH2['default'])('li', radio('visibleLayer', 'Points', 'points', state.layers.points)), (0, _virtualDomH2['default'])('li', radio('play', 'Play', 'play', !state.paused)), (0, _virtualDomH2['default'])('li', radio('play', 'Pause', 'pause', state.paused))]);
+  return (0, _virtualDomH2['default'])('.controls#controls', [(0, _virtualDomH2['default'])('ul.controlLayers', [(0, _virtualDomH2['default'])('li', radio('visibleLayer', 'Points', 'points', state.layers.points)), (0, _virtualDomH2['default'])('li', radio('visibleLayer', 'Hex', 'hex', state.layers.hex))]), (0, _virtualDomH2['default'])('ul.controlPaused', [(0, _virtualDomH2['default'])('li', radio('play', 'Play', 'play', !state.paused)), (0, _virtualDomH2['default'])('li', radio('play', 'Pause', 'pause', state.paused))])]);
 };
 
 module.exports = exports['default'];
@@ -31248,8 +31248,8 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
     paused: false, // Play by default
     data: [], // To be filled in after data loads
     layers: {
-      points: false,
-      hex: true // Default to hexgrid
+      points: true,
+      hex: false
     }
   };
 
