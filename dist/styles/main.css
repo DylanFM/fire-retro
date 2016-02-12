@@ -5,7 +5,8 @@ html {
   background: #333; }
 
 a {
-  text-decoration: none; }
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7); }
   a:link, a:visited {
     color: #ffffee; }
   a:active, a:hover, a:focus {
@@ -31,21 +32,29 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  height: 2.5rem;
   padding: 1.5rem;
   padding-bottom: 0;
   background: rgba(0, 0, 0, 0.5); }
-  header p {
-    margin: 0 0 1rem; }
   header p, header .moreInfo {
     font-size: 0.8rem; }
 
 h1 {
-  text-align: center;
   font-size: 1.5rem;
   margin: 0 0 1rem; }
 
+nav {
+  margin-bottom: 1rem;
+  font-size: .8rem; }
+  nav a {
+    margin-right: 1rem; }
+
+.moreInfo {
+  border: none;
+  display: block;
+  margin-bottom: 1.5rem; }
+
 .controls {
+  display: none;
   position: absolute;
   top: 5rem;
   right: 1.5rem;
@@ -70,7 +79,9 @@ h1 {
     cursor: pointer;
     border-radius: .5rem;
     transition: border-color .5s;
+    transition: background .5s;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.1);
     color: rgba(255, 255, 255, 0.7);
     padding: .5rem .8rem;
     display: inline-block;
@@ -78,6 +89,10 @@ h1 {
     .controls label.checked, .controls label:hover {
       border-color: rgba(255, 255, 255, 0.5);
       color: #fff; }
+    .controls label.checked {
+      background: rgba(0, 0, 0, 0.3); }
+    .controls label:hover {
+      background: rgba(0, 0, 0, 0.5); }
 
 .timeline, .summary {
   position: absolute;
@@ -163,11 +178,9 @@ h1 {
     padding-top: .2rem; }
 
 @media screen and (min-width: 30rem) {
-  header {
-    height: 3rem; }
-
   .controls {
-    top: 5.5rem; }
+    display: block;
+    top: 7rem; }
 
   h1 {
     font-size: 2rem; }
@@ -191,9 +204,6 @@ h1 {
     header p {
       font-size: 1rem; }
 
-  h1 {
-    text-align: left; }
-
   .controls {
     top: 1.5rem;
     left: auto;
@@ -207,6 +217,7 @@ h1 {
 
   .timeline {
     width: 65%;
+    max-width: 42rem;
     right: auto; }
     .timeline li {
       height: 8rem; }
@@ -217,7 +228,7 @@ h1 {
     min-width: 10rem;
     max-width: 15rem;
     left: auto; } }
-@media screen and (min-width: 40rem) {
+@media screen and (min-width: 42rem) {
   .timeline {
     font-size: 0.8rem; }
     .timeline .count {

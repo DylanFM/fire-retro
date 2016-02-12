@@ -4,7 +4,7 @@ import Config from './config';
 export default class Map {
 
   constructor(id) {
-    this.id          = id;
+    this.id = id;
     // The leaflet map needs to be setup
     this._initMap();
     // Add group to map

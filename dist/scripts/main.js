@@ -30903,7 +30903,18 @@ exports['default'] = function (state) {
 
   // Add more info to the header
   if (state.moreInfo === true) {
-    nodes[1] = (0, _virtualDomH2['default'])('p', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vehicula vitae nisl a faucibus. Aenean a eros vel justo venenatis rutrum. Maecenas massa tellus, ultricies quis tristique vel, commodo et risus. Ut bibendum eros dictum.');
+    nodes.push((0, _virtualDomH2['default'])('p', 'You’re viewing NSW Rural Fire Service incidents for 2014 and 2015. The data is coming from an open-source, unofficial API. This API aims to serve both realtime and historical data. There are inaccuracies in this data — bugs and outages have occurred over the past few years.'));
+
+    nodes.push((0, _virtualDomH2['default'])('nav', [(0, _virtualDomH2['default'])('a', {
+      href: 'https://github.com/DylanFM/fire-retro',
+      title: 'View the code for this visualisation'
+    }, 'Code'), (0, _virtualDomH2['default'])('a', {
+      href: 'http://bushfir.es',
+      title: 'This is a part of the Bushfires project'
+    }, 'Bushfires project'), (0, _virtualDomH2['default'])('a', {
+      href: 'http://dylan.fm',
+      title: 'This project is the work of Dylan Fogarty-MacDonald'
+    }, '@dylanfm')]));
   }
 
   nodes.push((0, _virtualDomH2['default'])('a#moreInfoToggle.moreInfo', {
@@ -31332,8 +31343,7 @@ var _pointsLayer2 = _interopRequireDefault(_pointsLayer);
 
   // More information link
   document.body.addEventListener('click', function (e) {
-    var n = e.target;
-    if (n.tagName !== 'A' && n.id !== 'moreInfoToggle') {
+    if (e.target.id !== 'moreInfoToggle') {
       return;
     }
     e.preventDefault();

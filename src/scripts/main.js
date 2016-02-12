@@ -81,13 +81,12 @@ import pointsLayer from './pointsLayer';
 
   // More information link
   document.body.addEventListener('click', (e) => {
-    var n = e.target;
-    if (n.tagName !== 'A' && n.id !== 'moreInfoToggle') {
+    if (e.target.id !== 'moreInfoToggle') {
       return;
     }
     e.preventDefault();
     state.moreInfo = !state.moreInfo; // Toggle
-    _.delay(renderCurrent, 5); // Render
+    _.delay(renderCurrent, 5);        // Render
   });
 
   function play() {
