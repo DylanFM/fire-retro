@@ -5,7 +5,6 @@ var gulp         = require('gulp'),
     usemin       = require('gulp-usemin'),
     minifyCSS    = require('gulp-minify-css'),
     htmlmin      = require('gulp-htmlmin'),
-    babelify     = require('babelify'),
     source       = require('vinyl-source-stream'),
     streamify    = require('gulp-streamify'),
     browserify   = require('browserify'),
@@ -13,14 +12,11 @@ var gulp         = require('gulp'),
     jshint       = require('gulp-jshint'),
     autoprefixer = require('gulp-autoprefixer'),
     gzip         = require('gulp-gzip'),
-    browserSync  = require('browser-sync'),
-    reload       = browserSync.reload;
+    browserSync  = require('browser-sync').create();
 
 gulp.task('serve', function() {
-  browserSync({
-    server: {
-      baseDir: 'dist'
-    }
+  browserSync.init({
+    server: "./dist"
   });
 });
 
@@ -36,9 +32,7 @@ gulp.task('sass', function() {
     }))
     .pipe(filter('**/*.css'))
     .pipe(gulp.dest('dist/styles/'))
-    .pipe(reload({
-      stream: true
-    }));
+    .pipe(browserSync.stream({ match: '**/*.css' }));
 });
 
 gulp.task('htmlmin', function() {
@@ -49,16 +43,13 @@ gulp.task('htmlmin', function() {
     .pipe(htmlmin({
       collapseWhitespace: true
     }))
-    .pipe(gulp.dest('dist/'))
-    .pipe(reload({
-      stream: true
-    }));
+    .pipe(gulp.dest('dist/'));
 });
 
 // Browserify and babel
 gulp.task('buildScripts', function() {
   browserify({ debug: true })
-    .transform(babelify)
+    .transform("babelify", { presets: ["es2015"] })
     .require('./src/scripts/main.js', { entry: true })
     .bundle()
     .on('error', function (err) { console.log(err.message); })
@@ -66,9 +57,6 @@ gulp.task('buildScripts', function() {
     .pipe(source('main.js'))
     // .pipe(gzip())
     .pipe(gulp.dest('dist/scripts/'))
-    .pipe(reload({
-      stream: true
-    }));
 });
 
 gulp.task('lint', function() {
@@ -79,7 +67,7 @@ gulp.task('lint', function() {
 
 gulp.task('watch', function() {
   // Reload browser when built assets change
-  gulp.watch(['*.html', 'styles/**/*.css', 'scripts/**/*.js'], { cwd: 'dist' }, reload);
+  gulp.watch(['*.html', 'scripts/**/*.js'], { cwd: 'dist' }, browserSync.reload);
   // Build sass files on change
   gulp.watch(['styles/**/*.scss'], { cwd: 'src' }, ['sass']);
   // Lint and process JS files on change
