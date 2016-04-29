@@ -3,10 +3,9 @@ var gulp         = require('gulp'),
     sourcemaps   = require('gulp-sourcemaps'),
     filter       = require('gulp-filter'),
     usemin       = require('gulp-usemin'),
-    minifyCSS    = require('gulp-minify-css'),
+    cssnano      = require('gulp-cssnano'),
     htmlmin      = require('gulp-htmlmin'),
     source       = require('vinyl-source-stream'),
-    streamify    = require('gulp-streamify'),
     browserify   = require('browserify'),
     exorcist     = require('exorcist'),
     jshint       = require('gulp-jshint'),
@@ -21,7 +20,7 @@ gulp.task('serve', function() {
 });
 
 gulp.task('sass', function() {
-  return sass('src/styles/', { sourcemap: false })
+  return sass('src/styles/')
     // .pipe(sourcemaps.write('dist/styles', {
     //   includeContent: false
     // }))
@@ -35,10 +34,12 @@ gulp.task('sass', function() {
     .pipe(browserSync.stream({ match: '**/*.css' }));
 });
 
+// TODO gulp-rev
+
 gulp.task('htmlmin', function() {
   gulp.src('src/*.html')
     .pipe(usemin({
-      css: [minifyCSS(), 'concat']
+      css: [cssnano(), 'concat']
     }))
     .pipe(htmlmin({
       collapseWhitespace: true
@@ -48,9 +49,8 @@ gulp.task('htmlmin', function() {
 
 // Browserify and babel
 gulp.task('buildScripts', function() {
-  browserify({ debug: true })
+  browserify('./src/scripts/main.js', { debug: true })
     .transform("babelify", { presets: ["es2015"] })
-    .require('./src/scripts/main.js', { entry: true })
     .bundle()
     .on('error', function (err) { console.log(err.message); })
     .pipe(exorcist('dist/scripts/main.map'))

@@ -1,9 +1,10 @@
+import max from 'lodash/max';
+import map from 'lodash/map';
+import {timeFormat} from 'd3-time-format';
+import {scaleLinear} from 'd3-scale';
 import h from 'virtual-dom/h';
-import _ from 'lodash';
-import {format} from 'd3-time-format';
-import {linear} from 'd3-scale';
 
-var m = format('%m');
+const m = timeFormat('%m');
 
 function step(data, i, isCurrent, scale) {
   return h('li', {
@@ -18,11 +19,11 @@ function step(data, i, isCurrent, scale) {
 
 // Return a d3 scale for the given values
 function getScale(counts) {
-  return linear().domain([0, _.max(counts)]).range([0,100]);
+  return scaleLinear().domain([0, max(counts)]).range([0,100]);
 }
 
 function steps(state) {
-  var scale = getScale(_.pluck(state.data, 'count'));
+  var scale = getScale(map(state.data, 'count'));
 
   return state.data.map((data, i) => {
     return step(

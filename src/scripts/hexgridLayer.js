@@ -1,4 +1,7 @@
-import _ from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import flatten from 'lodash/flatten';
+import maxBy from 'lodash/maxBy';
+import map from 'lodash/map';
 import count from 'turf-count';
 import featurecollection from 'turf-featurecollection';
 import hex from 'turf-hex';
@@ -9,8 +12,8 @@ import {getSequentialScale} from './colourer';
 // Return a layer of the hex grid with coloured polygons ready for adding
 export default (function () {
   // New hex grid, same bounds as big map, but a different way
-  var bounds    = _.cloneDeep(Config.mapBounds),
-      hexBounds = _.flatten(bounds.map((c) => c.reverse())),
+  var bounds    = cloneDeep(Config.mapBounds),
+      hexBounds = flatten(bounds.map((c) => c.reverse())),
       hexGrid   = hex(hexBounds, 0.15, 'kilometers');
 
   // The enclosing function is immediately invoked to memoize the hexgrid
@@ -38,8 +41,8 @@ export default (function () {
           }) // map into an array of turf points
         ),
         countedGrid = count(hexGrid, pointJson, 'ptCount'),
-        max         = _.max(_.map(countedGrid.features, (cell) => cell.properties.ptCount)), // We need the maximum value in this set of data
-        scale       = getSequentialScale(0, max);                                            // Get a scale... min is 0
+        max         = maxBy(map(countedGrid.features, (cell) => cell.properties.ptCount)), // We need the maximum value in this set of data
+        scale       = getSequentialScale(0, max);                                        // Get a scale... min is 0
     // Build the layer for mappage
     return L.geoJson(countedGrid, {
       style: (cell) => {

@@ -2,7 +2,9 @@ import diff from 'virtual-dom/diff';
 import patch from 'virtual-dom/patch';
 import create from 'virtual-dom/create-element';
 import mainLoop from 'main-loop';
-import _ from 'lodash';
+import countBy from 'lodash/countBy';
+import invokeMap from 'lodash/invokeMap';
+import delay from 'lodash/delay';
 
 import Map from './Map';
 import snapshotsBetween from './snapshotsBetween';
@@ -10,7 +12,7 @@ import render from './render';
 import hexGridLayer from './hexGridLayer';
 import pointsLayer from './pointsLayer';
 
-(() => {
+(function() {
   'use strict';
 
   var map = new Map('map'),
@@ -51,14 +53,12 @@ import pointsLayer from './pointsLayer';
     }
 
     var total    = state.data.length,
-        progress = _.countBy(
-      _.invoke(state.data, 'isFulfilled')
-    )[true];
+        progress = countBy(invokeMap(state.data, 'isFulfilled'))[true];
 
     if (total === progress) {
       delete state.loadingProgress;
       state.loading = false;
-      state.data    = _.invoke(state.data, 'valueOf');
+      state.data    = invokeMap(state.data, 'valueOf');
       play();
     } else {
       state.loading = true;
@@ -68,7 +68,7 @@ import pointsLayer from './pointsLayer';
         progress:  progress
       };
       renderCurrent();
-      _.delay(observeLoading, 200);
+      delay(observeLoading, 200);
     }
   }
 
@@ -76,7 +76,7 @@ import pointsLayer from './pointsLayer';
   document.body.addEventListener('change', (e) => {
     state.layers = getLayerVisibility();
     state.paused = getPlayPauseState();
-    _.delay(renderCurrent, 5); // Render
+    delay(renderCurrent, 5); // Render
   });
 
   // More information link
@@ -86,7 +86,7 @@ import pointsLayer from './pointsLayer';
     }
     e.preventDefault();
     state.moreInfo = !state.moreInfo; // Toggle
-    _.delay(renderCurrent, 5);        // Render
+    delay(renderCurrent, 5);        // Render
   });
 
   function play() {
@@ -95,7 +95,7 @@ import pointsLayer from './pointsLayer';
       renderCurrent();
       if (state.paused) {
         // Check again in half a second
-        _.delay(next, 500);
+        delay(next, 500);
       } else {
         // If there are more, proceed
         if ((state.current + 1) < state.data.length) {
@@ -103,7 +103,7 @@ import pointsLayer from './pointsLayer';
         } else {
           state.current = 0; // Loop
         }
-        _.delay(next, 3000); // Delay for 3sec
+        delay(next, 3000); // Delay for 3sec
       }
     };
     next(); // First

@@ -1,8 +1,9 @@
 import Config from './config';
-import _ from 'lodash';
+import tail from 'lodash/tail';
+import zip from 'lodash/zip';
 import Q from 'q';
-import {json} from 'd3-xhr';
-import {utcMonth} from 'd3-time';
+import {json} from 'd3-request';
+import {utcMonths} from 'd3-time';
 import {utcFormat} from 'd3-time-format';
 
 var f = utcFormat("%Y-%m-%dT%H:%M:%SZ");
@@ -34,8 +35,8 @@ function fetchSnapshot(start, end) {
 
 // Return a series of months between the 2 dates
 export default (start, end) => {
-  var beginnings = utcMonth.range(start, end),
-      endings    = _.rest(utcMonth.range(start, new Date(end).setMonth(end.getMonth()+1)));
+  var beginnings = utcMonths(start, end),
+      endings    = tail(utcMonths(start, new Date(end).setMonth(end.getMonth()+1)));
   // Zip together to have a collection of ranges covering each month
-  return _.zip(beginnings, endings).map((bounds) => fetchSnapshot(bounds[0], bounds[1]));
+  return zip(beginnings, endings).map((bounds) => fetchSnapshot(bounds[0], bounds[1]));
 };

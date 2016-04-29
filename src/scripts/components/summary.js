@@ -1,22 +1,26 @@
-import _ from 'lodash';
+import map from 'lodash/map';
+import sortBy from 'lodash/sortBy';
+import toPairs from 'lodash/toPairs';
+import trim from 'lodash/trim';
+import slice from 'lodash/slice';
+import {timeFormat} from 'd3-time-format';
 import h from 'virtual-dom/h';
 import extractFireTypes from '../extractFireTypes';
 import colourer from '../colourer';
-import {format} from 'd3-time-format';
 
 // Sort the fireTypes by number of incidents descending
 function sortByCount(fireTypes) {
-  return _.sortBy(
-    _.pairs(fireTypes), (type) => type[1]
+  return sortBy(
+    toPairs(fireTypes), (type) => type[1]
   ).reverse();
 }
 
 // Avoid super long names
 function prepForDisplay(type) {
-  return _.trim(type.replace(/\(.*\)/, ''));
+  return trim(type.replace(/\(.*\)/, ''));
 }
 
-var f = format('%B %Y');
+const f = timeFormat('%B %Y');
 
 // Render the title with date range
 function renderTitle(start, end) {
@@ -52,7 +56,7 @@ function renderTable(features) {
   }
 
   // Process the geojson features and take the first 5
-  types = _.slice(sortByCount(extractFireTypes(features)), 0, 5);
+  types = slice(sortByCount(extractFireTypes(features)), 0, 5);
 
   return h('table', [
     h('thead',
@@ -62,7 +66,7 @@ function renderTable(features) {
         }, 'Top 5 incident types')
       )
     ),
-    h('tbody', _.map(types, (type) => renderType(type))),
+    h('tbody', map(types, (type) => renderType(type))),
     h('tfoot',
       h('tr', [
         h('td', ''),
