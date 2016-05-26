@@ -24075,11 +24075,11 @@ var _h2 = _interopRequireDefault(_h);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function (state) {
-  var nodes = [(0, _h2.default)('h1', 'Incidents • 2014–15')];
+  var nodes = [(0, _h2.default)('h1', 'Incidents 2014-15')];
 
   // Add more info to the header
   if (state.moreInfo === true) {
-    nodes.push((0, _h2.default)('p', 'You’re viewing NSW Rural Fire Service incidents for 2014 and 2015. The data is coming from an open-source, unofficial API. This API aims to serve both realtime and historical data. There are inaccuracies in this data — bugs and outages have occurred over the past few years.'));
+    nodes.push((0, _h2.default)('p', "You're viewing NSW Rural Fire Service incidents for 2014 and 2015. The data is coming from an open-source, unofficial API. This API aims to serve both realtime and historical data. There are inaccuracies in this data - bugs and outages have occurred over the past few years."));
 
     nodes.push((0, _h2.default)('nav', [(0, _h2.default)('a', {
       href: 'https://github.com/DylanFM/fire-retro',
@@ -24284,7 +24284,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = {
-  endpoint: 'http://localhost:8000/incidents',
+  endpoint: 'http://api.bushfir.es/incidents',
   mapboxAccessToken: 'pk.eyJ1IjoiZmlyZXMiLCJhIjoiRlFmUjBYVSJ9.82br3TK-5l3LGHBfg3Yjnw',
   mapboxMapId: 'fires.1b505148',
   mapBounds: [[-37.50505999800001, 140.999474528], [-28.157019914000017, 153.65]]
