@@ -1,8 +1,9 @@
-[![Build status](https://badge.buildkite.com/ed76020face7ab2ec16fdbba4e8a5aff9de8ea595f485a4463.svg)](https://buildkite.com/dylan/fires-retro)
-[![Dependency Status](https://david-dm.org/dylanfm/fire-retro.svg)](https://david-dm.org/dylanfm/fire-retro)
+# Incidents review
 
-### WIP screenshot
+## [review.bushfir.es](http://review.bushfir.es/)
 
-![Current screenshot](https://dl.dropboxusercontent.com/u/1614309/retro.jpg)
+This is a small client-side app displaying a visualisation of RFS incidents over 2015. All the data is requested live from a [GeoJSON API](https://github.com/DylanFM/bushfires) I've built to manage this data in near-real time.
 
-*This shows incidents in NSW from November 2014.*
+Beneath the hood it makes use of Virtual DOM, Turf, d3 and Leaflet.
+
+The dates in the code can be changed to display data from late 2013 until today, but I've left it at 2015 for now.

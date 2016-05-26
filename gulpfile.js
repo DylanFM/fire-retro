@@ -20,18 +20,13 @@ gulp.task('serve', function() {
 });
 
 gulp.task('sass', function() {
-  return sass('src/styles/')
-    // .pipe(sourcemaps.write('dist/styles', {
-    //   includeContent: false
-    // }))
-    //.pipe(gzip())
+  return sass('src/styles/*.scss')
     .pipe(autoprefixer({
       browsers:  ['last 2 versions'],
       cascade:   false
     }))
     .pipe(filter('**/*.css'))
-    .pipe(gulp.dest('dist/styles/'))
-    .pipe(browserSync.stream({ match: '**/*.css' }));
+    .pipe(gulp.dest('dist/styles/'));
 });
 
 // TODO gulp-rev

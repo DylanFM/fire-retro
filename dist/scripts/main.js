@@ -24075,11 +24075,11 @@ var _h2 = _interopRequireDefault(_h);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function (state) {
-  var nodes = [(0, _h2.default)('h1', 'Incidents 2014-15')];
+  var nodes = [(0, _h2.default)('h1', 'Incidents 2015')];
 
   // Add more info to the header
   if (state.moreInfo === true) {
-    nodes.push((0, _h2.default)('p', "You're viewing NSW Rural Fire Service incidents for 2014 and 2015. The data is coming from an open-source, unofficial API. This API aims to serve both realtime and historical data. There are inaccuracies in this data - bugs and outages have occurred over the past few years."));
+    nodes.push((0, _h2.default)('p', "You're viewing NSW Rural Fire Service incidents for 2015. The data is coming from an open-source, unofficial API. This API aims to serve both realtime and historical data. There are inaccuracies in this data - bugs and outages have occurred over the past few years."));
 
     nodes.push((0, _h2.default)('nav', [(0, _h2.default)('a', {
       href: 'https://github.com/DylanFM/fire-retro',
@@ -24487,8 +24487,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     moreInfo: true,
     loading: true,
     loadingProgress: {},
-    start: new Date(2014, 0, 1), // Begin at the start of 2014
-    end: new Date(2015, 11, 31), // Finish at the end of 2014
+    start: new Date(2015, 0, 1), // Begin at the start of 2015
+    end: new Date(2015, 11, 31), // Finish at the end of 2015
     current: 0, // Key of our focus. Start at the beginning
     paused: false, // Play by default
     data: [], // To be filled in after data loads

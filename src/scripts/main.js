@@ -23,8 +23,8 @@ import pointsLayer from './pointsLayer';
     moreInfo:         true,
     loading:          true,
     loadingProgress:  {},
-    start:            new Date(2014, 0, 1),   // Begin at the start of 2014
-    end:              new Date(2015, 11, 31), // Finish at the end of 2014
+    start:            new Date(2015, 0, 1),   // Begin at the start of 2015
+    end:              new Date(2015, 11, 31), // Finish at the end of 2015
     current:          0,                      // Key of our focus. Start at the beginning
     paused:           false,                  // Play by default
     data:             [],                     // To be filled in after data loads
