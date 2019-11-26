@@ -50,7 +50,7 @@
     "d3-time": "~0.2.0",
     "d3-time-format": "~0.3.0",
     "leaflet": "~0.7.0",
-    "lodash": "~4.11.0",
+    "lodash": "~4.17.15",
     "main-loop": "~3.2.0",
     "q": "~1.4.0",
     "turf-count": "~1.0.1",
